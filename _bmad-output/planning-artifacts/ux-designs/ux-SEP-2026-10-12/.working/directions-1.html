@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="utf-8"><title>SEP — 3 directions visuelles</title>
+<style>
+/* Palette Jonas: plum #714B67, teal #017e84, amber #ffac00 (dark text #3a2a00), red #c0392b (errors only) */
+:root{--plum:#714B67;--teal:#017e84;--amber:#ffac00;--ink:#2b1f28;--bg:#f7f3f6;--card:#fff;--mut:#7d6b78}
+*{box-sizing:border-box;margin:0}
+body{font-family:system-ui,sans-serif;background:#e9e3e8;color:var(--ink);padding:24px}
+h1{font-size:20px;margin-bottom:4px}.sub{color:var(--mut);margin-bottom:24px;font-size:14px}
+.dir{margin-bottom:48px}.dir h2{font-size:17px;margin-bottom:4px}.dir p{max-width:760px;font-size:14px;color:#4a3b46;margin-bottom:14px}
+.row{display:flex;gap:20px;flex-wrap:wrap}
+.phone{width:300px;height:620px;border-radius:30px;border:8px solid #1d1520;background:var(--bg);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.lbl{font-size:12px;color:var(--mut);margin:0 0 6px 4px}
+.top{padding:18px 18px 6px;font-size:12px;color:var(--mut);display:flex;justify-content:space-between}
+.bar{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #eadfe7;padding:8px 10px 10px;display:flex;flex-direction:column;gap:8px}
+.tabs{display:flex;justify-content:space-around;font-size:11px;color:var(--mut)}.tabs b{color:var(--plum)}
+.btns{display:flex;gap:8px}.btn{flex:1;border-radius:16px;padding:13px 6px;text-align:center;font-weight:700;font-size:14px}
+.pri{background:var(--teal);color:#fff}.sec{background:#fff;color:var(--plum);border:2px solid var(--plum)}
+.body{padding:8px 16px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--card);border-radius:20px;padding:14px;box-shadow:0 2px 8px #714b6718}
+.big{font-size:40px;font-weight:800;color:var(--plum);letter-spacing:-1px}.small{font-size:12px;color:var(--mut)}
+.pill{display:inline-block;background:var(--amber);color:#3a2a00;border-radius:99px;padding:3px 10px;font-size:11px;font-weight:700}
+.prog{height:10px;background:#eadfe7;border-radius:9px;overflow:hidden;margin-top:8px}.prog i{display:block;height:100%;background:var(--teal)}
+/* A: Calm Ledger */
+.A .big{font-size:46px}
+/* B: Playful Jar */
+.B{background:#fbf6fa}.B .card{border-radius:28px}
+.jar{width:70px;height:90px;border:4px solid var(--plum);border-radius:14px 14px 26px 26px;position:relative;overflow:hidden;background:#fff}
+.jar i{position:absolute;bottom:0;left:0;right:0;height:62%;background:linear-gradient(var(--teal),#3bb3b8)}
+.B .btn{border-radius:99px}
+.bubble{background:var(--plum);color:#fff;border-radius:18px 18px 18px 4px;padding:10px 12px;font-size:12px}
+/* C: Cockpit */
+.C .head{background:var(--plum);color:#fff;padding:16px 16px 20px;border-radius:0 0 28px 28px}
+.C .big{color:#fff;font-size:34px}.C .small{color:#e6d4e0}
+.ring{width:96px;height:96px;border-radius:50%;background:conic-gradient(var(--amber) 0 72%,#ffffff33 72% 100%);display:grid;place-items:center}
+.ring span{width:74px;height:74px;border-radius:50%;background:var(--plum);display:grid;place-items:center;font-weight:800;font-size:18px}
+.C .btn{border-radius:12px}
+/* Hesitation */
+.hes{padding:26px 18px;display:flex;flex-direction:column;gap:14px;flex:1}
+.hes .num{font-size:54px;font-weight:900;color:var(--plum);line-height:1}
+.hes h3{font-size:22px;line-height:1.2}
+.no{background:var(--plum);color:#fff}
+</style></head><body>
+<h1>SEP — 3 directions visuelles (même écran Home + Hesitation)</h1>
+<div class="sub">Couleurs de Jonas · thème clair · actions principales en bas (une main) · ton calme + ludique · Hesitation frontale · textes en anglais.</div>
+
+<div class="dir A"><h2>A — Calm Ledger</h2>
+<p>Sobre et aéré. Un grand chiffre calme au centre, très peu d'éléments. Le côté ludique vient de micro-animations (le chiffre « respire », confettis discrets quand on abandonne un achat). Densité faible, typographie lourde seulement sur les montants.</p>
+<div class="row">
+<div><div class="lbl">Home</div><div class="phone"><div class="top"><span>May 2026</span><span>⚙</span></div>
+<div class="body"><div class="card"><div class="small">Remaining this month</div><div class="big">GHS 412</div><div class="small">≈ XOF 17,300 · 14 Budget Days (planned)</div><div class="prog"><i style="width:58%"></i></div></div>
+<div class="card"><div class="small">Avoided so far</div><div style="font-size:24px;font-weight:800;color:var(--teal)">GHS 180 💪</div></div>
+<div class="card"><span class="pill">Food 78%</span><div class="small" style="margin-top:6px">Advice sent at 70%.</div></div></div>
+<div class="bar"><div class="btns"><div class="btn sec">I want to buy</div><div class="btn pri">+ Add</div></div><div class="tabs"><b>Home</b><span>Capture</span><span>Budget</span></div></div></div></div>
+<div><div class="lbl">Hesitation</div><div class="phone"><div class="hes"><div class="small">Sneakers · GHS 320</div><div class="num">23 days</div><div class="small">of your budget · ≈ XOF 13,400</div><h3>Do you really need them?</h3>
+<div class="small">Basis: planned daily budget.</div></div>
+<div class="bar"><div class="btns"><div class="btn sec">Yes, buy</div><div class="btn no">I'll think about it</div></div></div></div></div>
+</div></div>
+
+<div class="dir B"><h2>B — Playful Jar</h2>
+<p>Plus ludique. L'Avoided Total devient un bocal qui se remplit : la récompense est visible. Coins très arrondis, boutons en pilule, le chatbot apparaît en bulle avec un petit mot sur Home. Densité moyenne, ton chaleureux.</p>
+<div class="row">
+<div><div class="lbl">Home</div><div class="phone B"><div class="top"><span>May 2026</span><span>⚙</span></div>
+<div class="body"><div class="card"><div class="small">Remaining this month</div><div class="big" style="font-size:38px">GHS 412</div><div class="small">14 Budget Days · planned</div></div>
+<div class="card" style="display:flex;gap:14px;align-items:center"><div class="jar"><i></i></div><div><div class="small">Avoided jar</div><div style="font-size:24px;font-weight:800;color:var(--teal)">GHS 180</div><div class="small">3 purchases resisted</div></div></div>
+<div class="bubble">Food is at 78%. Careful with the next coffee ☕</div></div>
+<div class="bar"><div class="btns"><div class="btn sec">I want to buy</div><div class="btn pri">+ Add</div></div><div class="tabs"><b>Home</b><span>Capture</span><span>Budget</span></div></div></div></div>
+<div><div class="lbl">Hesitation</div><div class="phone B"><div class="hes"><div class="small">Sneakers · GHS 320</div><div class="num">23 days</div><div class="small">of budget gone · ≈ XOF 13,400</div><h3>That's three weeks of food. Do you really need them?</h3><div class="bubble">I'm not going to stop you. But think.</div></div>
+<div class="bar"><div class="btns"><div class="btn sec">Yes, buy</div><div class="btn no">I'll think about it</div></div></div></div></div>
+</div></div>
+
+<div class="dir C"><h2>C — Cockpit</h2>
+<p>Orienté tableau de bord. En-tête prune avec un anneau de budget (rythme du mois vs dépenses), accès rapide aux catégories à risque. Plus dense et informatif, ludique via l'anneau qui se vide. Hesitation en plein écran prune, la plus frontale.</p>
+<div class="row">
+<div><div class="lbl">Home</div><div class="phone C"><div class="head"><div class="small">May 2026</div><div style="display:flex;justify-content:space-between;align-items:center"><div><div class="big">GHS 412</div><div class="small">left · 14 Budget Days</div></div><div class="ring"><span>72%</span></div></div></div>
+<div class="body"><div class="card"><div class="small">Avoided so far</div><div style="font-size:22px;font-weight:800;color:var(--teal)">GHS 180</div></div>
+<div class="card"><span class="pill">Food 78%</span> <span class="pill" style="background:#eadfe7;color:var(--plum)">Transport 40%</span></div></div>
+<div class="bar"><div class="btns"><div class="btn sec">I want to buy</div><div class="btn pri">+ Add</div></div><div class="tabs"><b>Home</b><span>Capture</span><span>Budget</span></div></div></div></div>
+<div><div class="lbl">Hesitation</div><div class="phone" style="background:var(--plum);color:#fff"><div class="hes"><div style="opacity:.8;font-size:12px">Sneakers · GHS 320</div><div class="num" style="color:#fff;font-size:64px">23<br>days</div><div style="opacity:.8;font-size:12px">of budget · ≈ XOF 13,400</div><h3>Do you really need them?</h3></div>
+<div class="bar" style="background:var(--plum);border:0"><div class="btns"><div class="btn" style="background:#ffffff22;color:#fff">Yes, buy</div><div class="btn" style="background:var(--amber);color:#3a2a00">I'll think about it</div></div></div></div></div>
+</div></div>
+</body></html>

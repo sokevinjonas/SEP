@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Student Savings (SEP) — Comparatif des Logos M. Pognon</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #714B67;
+      --action: #017e84;
+      --warn: #ffac00;
+      --base: #F7F3F6;
+      --card: #FFFFFF;
+      --ink: #2B1F28;
+      --mut: #6B5966;
+      --line: #EADFE7;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', system-ui, sans-serif;
+      background: var(--base);
+      color: var(--ink);
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    header {
+      text-align: center;
+      max-width: 680px;
+      margin-bottom: 36px;
+    }
+    h1 {
+      font-size: 28px;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 8px;
+    }
+    p.subtitle {
+      color: var(--mut);
+      font-size: 16px;
+      font-weight: 600;
+    }
+    .comparison-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 32px;
+      justify-content: center;
+      max-width: 1000px;
+      width: 100%;
+    }
+    .option-card {
+      background: var(--card);
+      border-radius: 28px;
+      padding: 28px;
+      flex: 1 1 420px;
+      max-width: 480px;
+      box-shadow: 0 4px 20px rgba(113, 75, 103, 0.08);
+      border: 1px solid var(--line);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .option-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 30px rgba(113, 75, 103, 0.14);
+    }
+    .badge {
+      align-self: flex-start;
+      background: #eadfe7;
+      color: var(--primary);
+      font-size: 13px;
+      font-weight: 800;
+      padding: 4px 14px;
+      border-radius: 9999px;
+      margin-bottom: 16px;
+    }
+    .img-container {
+      width: 260px;
+      height: 260px;
+      border-radius: 48px;
+      overflow: hidden;
+      margin-bottom: 20px;
+      box-shadow: 0 6px 24px rgba(113, 75, 103, 0.16);
+      background: #fff;
+    }
+    .img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    h2 {
+      font-size: 22px;
+      font-weight: 800;
+      color: var(--ink);
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    p.desc {
+      font-size: 15px;
+      color: var(--mut);
+      text-align: center;
+      line-height: 1.5;
+      margin-bottom: 20px;
+    }
+    .use-cases {
+      width: 100%;
+      background: var(--base);
+      border-radius: 16px;
+      padding: 14px 18px;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .use-cases ul {
+      margin-left: 20px;
+      margin-top: 6px;
+      font-weight: 600;
+      color: var(--mut);
+    }
+    .preview-bar {
+      margin-top: 24px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding-top: 18px;
+      border-top: 1px dashed var(--line);
+    }
+    .mock-app-icon {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .mock-app-icon .mini-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .mock-app-icon .mini-icon img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .mock-app-icon span {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--mut);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Identité Visuelle — M. Pognon</h1>
+    <p class="subtitle">Comparatif grandeur nature des deux directions de logo créées pour l'application <strong>Student Savings (SEP)</strong>.</p>
+  </header>
+
+  <div class="comparison-grid">
+    <!-- OPTION 1 -->
+    <div class="option-card">
+      <span class="badge">Option 1</span>
+      <div class="img-container">
+        <img src="imports/m_pognon_logo.jpg" alt="M. Pognon - Portrait Mascotte">
+      </div>
+      <h2>Le Portrait Mascotte</h2>
+      <p class="desc">
+        Un visage vectoriel élégant et tranchant. Moustache guidon, monocle doré à chaînette et chapeau melon prune <code>#714B67</code>.
+        Il incarne le coach rigoureux mais taquin.
+      </p>
+      <div class="use-cases">
+        <strong>Atouts principaux :</strong>
+        <ul>
+          <li>Forte personnalité de marque humaine</li>
+          <li>Idéal pour incarner le chatbot et l'avatar du coach</li>
+          <li>Regard perçant pour l'écran de friction (Hesitation)</li>
+        </ul>
+      </div>
+
+      <div class="preview-bar">
+        <div class="mock-app-icon">
+          <div class="mini-icon">
+            <img src="imports/m_pognon_logo.jpg" alt="Icone">
+          </div>
+          <span>Format Écran d'accueil</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPTION 2 -->
+    <div class="option-card">
+      <span class="badge" style="background: #fff3d6; color: #7a5200;">Option 2</span>
+      <div class="img-container">
+        <img src="imports/m_pognon_coin_logo.jpg" alt="M. Pognon - Pièce de monnaie">
+      </div>
+      <h2>La Pièce d'Or Stylisée</h2>
+      <p class="desc">
+        M. Pognon réinventé sous forme de pièce d'or dynamique. Symbole monétaire immédiat avec un clin d'œil complice, monocle et moustache.
+      </p>
+      <div class="use-cases">
+        <strong>Atouts principaux :</strong>
+        <ul>
+          <li>Signification immédiate : Épargne & Monnaie</li>
+          <li>Ultra lisible à très petite échelle</li>
+          <li>Parfait pour les badges de récompense ("Avoided Total")</li>
+        </ul>
+      </div>
+
+      <div class="preview-bar">
+        <div class="mock-app-icon">
+          <div class="mini-icon">
+            <img src="imports/m_pognon_coin_logo.jpg" alt="Icone">
+          </div>
+          <span>Format Écran d'accueil</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

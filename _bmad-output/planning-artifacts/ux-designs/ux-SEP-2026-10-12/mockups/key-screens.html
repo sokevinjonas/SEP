@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>SEP — Key screens</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+/* Tokens from DESIGN.md. Font: Nunito (falls back to system-ui when offline). */
+:root{--primary:#714B67;--action:#017e84;--warn:#ffac00;--onwarn:#3a2a00;--err:#c0392b;--base:#F7F3F6;--raised:#fff;--ink:#2B1F28;--mut:#6B5966;--line:#EADFE7}
+*{box-sizing:border-box;margin:0}
+body{font-family:Nunito,system-ui,sans-serif;background:#e9e3e8;color:var(--ink);padding:24px}
+h1{font-size:22px}.sub{color:var(--mut);margin:4px 0 24px;font-size:14px}
+.grid{display:flex;flex-wrap:wrap;gap:28px}
+.lbl{font-size:13px;font-weight:700;margin:0 0 6px 4px}
+.phone{width:320px;height:660px;border-radius:32px;border:8px solid #1d1520;background:var(--base);overflow:hidden;position:relative}
+.top{padding:16px 18px 6px;font-size:12px;color:var(--mut);display:flex;justify-content:space-between}
+.title{font-size:22px;font-weight:800;padding:6px 18px}
+.body{padding:8px 16px;display:flex;flex-direction:column;gap:12px}
+.card{background:var(--raised);border-radius:20px;padding:14px;box-shadow:0 2px 8px #714b6718}
+.display{font-size:46px;font-weight:800;color:var(--primary);letter-spacing:-1px;line-height:1.05}
+.meta{font-size:12px;font-weight:600;color:var(--mut)}
+.pill{display:inline-block;background:var(--warn);color:var(--onwarn);border-radius:99px;padding:3px 10px;font-size:11px;font-weight:800}
+.prog{height:10px;background:var(--line);border-radius:9px;overflow:hidden;margin-top:8px}.prog i{display:block;height:100%;background:var(--action)}
+.bar{position:absolute;bottom:0;left:0;right:0;background:#fff;border-top:1px solid var(--line);padding:8px 12px 10px;display:flex;flex-direction:column;gap:8px}
+.btns{display:flex;gap:8px}.btn{flex:1;border-radius:20px;height:52px;display:grid;place-items:center;font-weight:800;font-size:15px}
+.pri{background:var(--action);color:#fff}.sec{background:#fff;color:var(--primary);border:2px solid var(--primary)}.plum{background:var(--primary);color:#fff}
+.tabs{display:flex;justify-content:space-around;font-size:11px;font-weight:700;color:var(--mut)}.tabs b{color:var(--primary)}
+.bubble{background:var(--primary);color:#fff;border-radius:28px 28px 28px 6px;padding:10px 14px;font-size:13px;font-weight:600;max-width:230px}
+.me{background:#fff;color:var(--ink);border-radius:28px 28px 6px 28px;padding:10px 14px;font-size:13px;font-weight:600;max-width:200px;align-self:flex-end;box-shadow:0 2px 8px #714b6718}
+.avatar{width:38px;height:38px;border-radius:50%;background:var(--primary);display:grid;place-items:center;font-size:20px;flex:none}
+.row{display:flex;gap:8px;align-items:flex-end}
+.field{background:#fff;border-radius:12px;padding:10px 12px;border:2px solid var(--line)}
+.field.unsure{border-color:var(--warn);background:#fff8e6}
+.li{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;font-weight:700}
+.err{color:var(--err);font-weight:800;font-size:12px}
+</style></head><body>
+<h1>SEP — Key screens</h1><div class="sub">Calm Ledger · light theme · primary actions in the thumb zone · mirrors DESIGN.md and EXPERIENCE.md</div>
+<div class="grid">
+
+<div><div class="lbl">Home</div><div class="phone"><div class="top"><span>☰</span><span>May 2026</span></div>
+<div class="body"><div class="card"><div class="meta">Remaining this month</div><div class="display">GHS 412</div><div class="meta">≈ XOF 17,300 · 14 Budget Days (planned)</div><div class="prog"><i style="width:58%"></i></div></div>
+<div class="card"><div class="meta">Avoided so far</div><div style="font-size:24px;font-weight:800;color:var(--action)">GHS 180 💪</div></div>
+<div class="card"><span class="pill">Food 78%</span><div class="meta" style="margin-top:6px">Advice sent at 70%. Mind the next coffee.</div></div></div>
+<div class="bar"><div class="btns"><div class="btn sec">I want to buy</div><div class="btn pri">+ Add</div></div><div class="tabs"><b>Home</b><span>Capture</span><span>Budget</span></div></div></div></div>
+
+<div><div class="lbl">Hesitation</div><div class="phone"><div class="body" style="padding:28px 18px;gap:14px">
+<div class="meta">Sneakers · GHS 320 · ≈ XOF 13,400</div><div class="display" style="font-size:58px">23 days</div><div class="meta">of your budget · based on your planned daily budget</div>
+<div style="font-size:22px;font-weight:800;line-height:1.2">That's three weeks of food. Do you really need them?</div>
+<div class="row"><div class="avatar">🧐</div><div class="bubble">I'm not stopping you. But think.</div></div></div>
+<div class="bar"><div class="btns"><div class="btn sec">Yes, buy</div><div class="btn plum">I'll think about it</div></div></div></div></div>
+
+<div><div class="lbl">Capture</div><div class="phone"><div class="title">Capture</div>
+<div class="body"><div class="card" style="text-align:center;padding:26px 14px;border:2px dashed var(--primary)"><div style="font-size:34px">🧾</div><div style="font-weight:800;font-size:18px;color:var(--primary)">Import a receipt or screenshot</div><div class="meta">Photo or mobile-payment screenshot</div></div>
+<div class="card" style="font-weight:800;color:var(--action);text-align:center">📷 Use the camera</div>
+<div class="meta" style="padding-left:4px">Waiting for network</div>
+<div class="card"><div class="li" style="border:0">Market receipt<span class="pill">Queued</span></div></div></div>
+<div class="bar"><div class="tabs"><span>Home</span><b>Capture</b><span>Budget</span></div></div></div></div>
+
+<div><div class="lbl">Preview (after extraction)</div><div class="phone"><div class="title">Check before saving</div>
+<div class="body"><div class="field"><div class="meta">Amount</div><b>GHS 24.50</b></div>
+<div class="field unsure"><div class="meta">Merchant · not sure</div><b>Mama Ama Stores?</b></div>
+<div class="field"><div class="meta">Category</div><b>Food</b></div>
+<div class="field"><div class="meta">Transaction reference</div><b>TX-88213</b></div>
+<div class="card"><span class="pill">Duplicate</span><div class="meta" style="margin-top:6px">This reference already exists. You decide.</div></div></div>
+<div class="bar"><div class="btns"><div class="btn sec">Edit</div><div class="btn pri">Validate</div></div></div></div></div>
+
+<div><div class="lbl">Budget</div><div class="phone"><div class="title">Budget</div>
+<div class="body"><div class="card"><div class="meta">Left per day</div><div style="font-size:30px;font-weight:800;color:var(--primary)">GHS 29.4</div></div>
+<div class="card"><div class="li" style="border:0">Food<span class="pill">78%</span></div><div class="prog" style="margin-top:0"><i style="width:78%"></i></div>
+<div class="li" style="border:0;margin-top:6px">Transport<span class="meta">40%</span></div><div class="prog" style="margin-top:0"><i style="width:40%"></i></div></div>
+<div class="card"><div class="meta">Purchases</div><div class="li">Sneakers<span class="meta">pending</span></div><div class="li" style="border:0">Headphones<span class="meta" style="color:var(--action)">abandoned</span></div></div>
+<div class="row" style="background:#fff;border-radius:20px;padding:10px"><div class="avatar">🧐</div><b style="font-size:14px">Talk to M. Pognon</b></div></div>
+<div class="bar"><div class="tabs"><span>Home</span><span>Capture</span><b>Budget</b></div></div></div></div>
+
+<div><div class="lbl">Chat with M. Pognon</div><div class="phone"><div class="top" style="align-items:center"><span class="row" style="align-items:center"><span class="avatar">🧐</span><b style="font-size:15px;color:var(--ink)">M. Pognon</b></span><span>×</span></div>
+<div class="body" style="gap:10px;padding-top:16px"><div class="me">Can I buy a new phone case?</div>
+<div class="row"><div class="avatar">🧐</div><div class="bubble">Food is at 92%. You want a case? Your phone has survived so far.</div></div>
+<div class="me">It's only GHS 40.</div>
+<div class="row"><div class="avatar">🧐</div><div class="bubble">GHS 40 is 1.4 Budget Days. Think again.</div></div></div>
+<div class="bar"><div class="btns"><div class="field" style="flex:1;font-size:13px;color:var(--mut)">Say something…</div><div class="btn pri" style="flex:0 0 52px">➤</div></div></div></div></div>
+
+</div></body></html>
