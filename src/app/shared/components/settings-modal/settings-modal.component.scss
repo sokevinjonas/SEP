@@ -68,6 +68,28 @@
   line-height: 1.35;
 }
 
+.profile-input-list {
+  background: transparent;
+  padding: 0 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.settings-input-item {
+  --background: var(--sep-base, #F7F3F6);
+  --border-radius: 10px;
+  --padding-start: 10px;
+  --inner-padding-end: 10px;
+  border: 1px solid var(--sep-line, #EADFE7);
+
+  ion-input {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sep-ink, #2B1F28);
+  }
+}
+
 .rate-input-container {
   display: flex;
   align-items: center;

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Expense, Category, MonthlyBudget, Purchase, SyncItem } from '../models/financial.models';
+import { Expense, Category, MonthlyBudget, Purchase, SyncItem, UserProfile } from '../models/financial.models';
 
 export interface SepDbSchema extends DBSchema {
   expenses: {
@@ -26,6 +26,10 @@ export interface SepDbSchema extends DBSchema {
     value: SyncItem;
     indexes: { 'by-status': string };
   };
+  user_profile: {
+    key: string;
+    value: UserProfile;
+  };
 }
 
 @Injectable({
@@ -39,7 +43,7 @@ export class DatabaseService {
   }
 
   private async initDb(): Promise<IDBPDatabase<SepDbSchema>> {
-    return openDB<SepDbSchema>('sep_local_db', 1, {
+    return openDB<SepDbSchema>('sep_local_db', 2, {
       upgrade(db) {
         // Expenses store
         if (!db.objectStoreNames.contains('expenses')) {
@@ -68,6 +72,11 @@ export class DatabaseService {
         if (!db.objectStoreNames.contains('sync_queue')) {
           const syncStore = db.createObjectStore('sync_queue', { keyPath: 'id' });
           syncStore.createIndex('by-status', 'status');
+        }
+
+        // User profile store
+        if (!db.objectStoreNames.contains('user_profile')) {
+          db.createObjectStore('user_profile', { keyPath: 'id' });
         }
       }
     }).then(async (db) => {
@@ -170,6 +179,21 @@ export class DatabaseService {
         createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
         expiresAt: new Date(Date.now() - 86400000 * 3).toISOString(),
         resolvedAt: new Date(Date.now() - 86400000 * 3).toISOString()
+      });
+    }
+
+    // Seed initial user profile if empty
+    const profile = await db.get('user_profile', 'current_user');
+    if (!profile) {
+      await db.put('user_profile', {
+        id: 'current_user',
+        name: 'Jonas',
+        city: 'Accra',
+        campus: 'Campus Legon',
+        primaryCurrency: 'GHS',
+        hasCompletedOnboarding: false,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
       });
     }
   }
@@ -299,5 +323,31 @@ export class DatabaseService {
   getCurrentMonthKey(): string {
     const now = new Date();
     return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+  }
+
+  // User Profile Methods
+  async getUserProfile(): Promise<UserProfile> {
+    const db = await this.dbPromise;
+    const profile = await db.get('user_profile', 'current_user');
+    if (profile) return profile;
+
+    const fallback: UserProfile = {
+      id: 'current_user',
+      name: 'Jonas',
+      city: 'Accra',
+      campus: 'Campus Legon',
+      primaryCurrency: 'GHS',
+      hasCompletedOnboarding: false,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    await db.put('user_profile', fallback);
+    return fallback;
+  }
+
+  async saveUserProfile(profile: UserProfile): Promise<void> {
+    const db = await this.dbPromise;
+    profile.updatedAt = new Date().toISOString();
+    await db.put('user_profile', profile);
   }
 }

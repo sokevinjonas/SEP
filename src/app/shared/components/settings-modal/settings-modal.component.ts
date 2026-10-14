@@ -35,12 +35,13 @@ import {
   bookOutline,
   peopleOutline,
   flashOutline,
+  personOutline,
   ellipsisHorizontalCircleOutline
 } from 'ionicons/icons';
 import { DatabaseService } from '../../../core/db/database.service';
 import { ExportService } from '../../../core/services/export.service';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { Category, MonthlyBudget } from '../../../core/models/financial.models';
+import { Category, MonthlyBudget, UserProfile } from '../../../core/models/financial.models';
 
 @Component({
   selector: 'app-settings-modal',
@@ -74,6 +75,7 @@ export class SettingsModalComponent implements OnInit {
   totalBudgetGhs = 600;
   categories: Category[] = [];
   monthlyBudget: MonthlyBudget | null = null;
+  userProfile: UserProfile | null = null;
 
   constructor(
     private modalCtrl: ModalController,
@@ -88,6 +90,7 @@ export class SettingsModalComponent implements OnInit {
       downloadOutline,
       globeOutline,
       walletOutline,
+      personOutline,
       cloudDoneOutline,
       restaurantOutline,
       busOutline,
@@ -99,6 +102,7 @@ export class SettingsModalComponent implements OnInit {
   }
 
   async ngOnInit() {
+    this.userProfile = await this.db.getUserProfile();
     this.monthlyBudget = await this.db.getMonthlyBudget();
     this.exchangeRate = this.currencyService.exchangeRate() || this.monthlyBudget.exchangeRateXof || 42;
     this.totalBudgetGhs = this.monthlyBudget.totalBudgetGhs || 600;
@@ -119,6 +123,10 @@ export class SettingsModalComponent implements OnInit {
       });
       await toast.present();
       return;
+    }
+
+    if (this.userProfile) {
+      await this.db.saveUserProfile(this.userProfile);
     }
 
     await this.currencyService.setExchangeRate(this.exchangeRate);

@@ -11,6 +11,45 @@
 
 <ion-content class="settings-content ion-padding">
 
+  <!-- Student Profile Card (Official ion-card) -->
+  <ion-card class="settings-card ion-no-margin" *ngIf="userProfile">
+    <ion-card-header>
+      <div class="card-header-row">
+        <ion-icon name="person-outline" class="card-header-icon"></ion-icon>
+        <ion-card-title class="card-title">Profil Étudiant</ion-card-title>
+      </div>
+      <ion-card-subtitle class="card-desc">
+        Identité et localisation sur le campus.
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content class="ion-no-padding">
+      <ion-list lines="none" class="profile-input-list">
+        <ion-item class="settings-input-item">
+          <ion-input
+            label="Prénom ou Pseudo"
+            labelPlacement="stacked"
+            [(ngModel)]="userProfile.name">
+          </ion-input>
+        </ion-item>
+        <ion-item class="settings-input-item">
+          <ion-input
+            label="Ville d'études"
+            labelPlacement="stacked"
+            [(ngModel)]="userProfile.city">
+          </ion-input>
+        </ion-item>
+        <ion-item class="settings-input-item">
+          <ion-input
+            label="Campus universitaire"
+            labelPlacement="stacked"
+            [(ngModel)]="userProfile.campus">
+          </ion-input>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
+
   <!-- Manual Exchange Rate Section (Official ion-card) -->
   <ion-card class="settings-card ion-no-margin">
     <ion-card-header>

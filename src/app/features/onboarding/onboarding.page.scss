@@ -1,0 +1,196 @@
+.onboarding-toolbar {
+  --background: var(--sep-base, #F7F3F6);
+  --color: var(--sep-primary, #714B67);
+  padding: 8px 16px 0;
+}
+
+.onboarding-title {
+  font-family: var(--ion-font-family);
+  font-size: 18px;
+  font-weight: 900;
+  color: var(--sep-primary, #714B67);
+  text-align: center;
+}
+
+.onboarding-content {
+  --background: var(--sep-base, #F7F3F6);
+}
+
+.onboarding-container {
+  max-width: 500px;
+  margin: 0 auto;
+  padding-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Mascot Welcome Card */
+.coach-welcome-card {
+  background: linear-gradient(145deg, #FFFFFF 0%, var(--sep-primary-soft, #f4ecf2) 100%);
+  border: 1.5px solid var(--sep-primary-light, #8d6482);
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(113, 75, 103, 0.08);
+
+  .coach-welcome-content {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 18px;
+  }
+}
+
+.coach-avatar-lg {
+  width: 60px;
+  height: 60px;
+  min-width: 60px;
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid var(--sep-line, #EADFE7);
+  box-shadow: 0 2px 8px rgba(113, 75, 103, 0.10);
+
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.coach-speech {
+  flex: 1;
+
+  .welcome-heading {
+    font-family: var(--ion-font-family);
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--sep-primary, #714B67);
+    margin: 0 0 4px;
+  }
+
+  .welcome-sub {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--sep-mut, #6B5966);
+    margin: 0;
+    line-height: 1.35;
+  }
+}
+
+/* Form Cards */
+.form-card {
+  background: var(--sep-card, #FFFFFF);
+  border: 1px solid var(--sep-line, #EADFE7);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(113, 75, 103, 0.04);
+
+  ion-card-header {
+    padding: 16px 16px 8px;
+  }
+
+  ion-card-content {
+    padding: 0 16px 16px;
+  }
+}
+
+.section-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-icon {
+  font-size: 18px;
+  color: var(--sep-primary, #714B67);
+}
+
+.section-heading {
+  font-family: var(--ion-font-family);
+  font-size: 14px;
+  font-weight: 900;
+  color: var(--sep-primary, #714B67);
+  margin: 0;
+}
+
+.section-sub {
+  font-family: var(--ion-font-family);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--sep-mut, #6B5966);
+  margin: 4px 0 0;
+}
+
+.input-list {
+  background: transparent;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.custom-input-item {
+  --background: var(--sep-base, #F7F3F6);
+  --border-radius: 12px;
+  --padding-start: 12px;
+  --inner-padding-end: 12px;
+  border: 1px solid var(--sep-line, #EADFE7);
+
+  .field-icon {
+    font-size: 18px;
+    color: var(--sep-primary, #714B67);
+    margin-right: 8px;
+  }
+
+  ion-input {
+    font-family: var(--ion-font-family);
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--sep-ink, #2B1F28);
+  }
+}
+
+.segment-wrap {
+  margin-bottom: 12px;
+}
+
+.segment-label {
+  display: block;
+  font-size: 11.5px;
+  font-weight: 800;
+  color: var(--sep-mut, #6B5966);
+  margin-bottom: 6px;
+}
+
+.currency-segment {
+  --background: var(--sep-base, #F7F3F6);
+  border-radius: 12px;
+  border: 1px solid var(--sep-line, #EADFE7);
+
+  ion-segment-button {
+    --color: var(--sep-mut, #6B5966);
+    --color-checked: var(--sep-primary, #714B67);
+    --indicator-color: #ffffff;
+    --indicator-box-shadow: 0 2px 6px rgba(113, 75, 103, 0.12);
+    font-family: var(--ion-font-family);
+    font-weight: 800;
+    font-size: 12px;
+    min-height: 38px;
+  }
+}
+
+.action-wrap {
+  margin-top: 8px;
+}
+
+.start-btn {
+  --background: var(--sep-action, #017e84);
+  --border-radius: 16px;
+  font-family: var(--ion-font-family);
+  font-weight: 900;
+  font-size: 15px;
+  min-height: 52px;
+  box-shadow: 0 4px 14px rgba(1, 126, 132, 0.35);
+
+  ion-icon {
+    font-size: 20px;
+    margin-left: 6px;
+  }
+}

@@ -41,7 +41,7 @@ import {
 import { DatabaseService } from '../core/db/database.service';
 import { CurrencyService } from '../core/services/currency.service';
 import { BudgetCalculatorService, BudgetConsumption, BudgetDaysCalculation } from '../core/services/budget-calculator.service';
-import { Expense, MonthlyBudget } from '../core/models/financial.models';
+import { Expense, MonthlyBudget, UserProfile } from '../core/models/financial.models';
 import { SettingsModalComponent } from '../shared/components/settings-modal/settings-modal.component';
 import { CurrencyPillComponent } from '../shared/components/currency-pill/currency-pill.component';
 import { BreathingBadgeComponent } from '../shared/components/breathing-badge/breathing-badge.component';
@@ -77,6 +77,8 @@ import { BreathingBadgeComponent } from '../shared/components/breathing-badge/br
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
+  userProfile: UserProfile | null = null;
+
   consumption: BudgetConsumption = {
     totalBudgetGhs: 600,
     totalSpentGhs: 0,
@@ -126,6 +128,7 @@ export class HomePage implements OnInit {
   }
 
   async loadDashboardData() {
+    this.userProfile = await this.db.getUserProfile();
     this.monthlyBudget = await this.db.getMonthlyBudget();
     await this.currencyService.initFromDb();
 

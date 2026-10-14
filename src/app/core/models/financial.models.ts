@@ -49,3 +49,15 @@ export interface SyncItem {
   createdAt: string;
   error?: string;
 }
+
+export interface UserProfile {
+  id: 'current_user';
+  name: string;
+  city: string;
+  campus: string;
+  primaryCurrency: 'GHS' | 'XOF';
+  hasCompletedOnboarding: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+

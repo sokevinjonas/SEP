@@ -1,8 +1,15 @@
 import { Routes } from '@angular/router';
+import { onboardingGuard } from './core/guards/onboarding.guard';
 
 export const routes: Routes = [
   {
+    path: 'onboarding',
+    loadComponent: () => import('./features/onboarding/onboarding.page').then((m) => m.OnboardingPage),
+    canActivate: [onboardingGuard]
+  },
+  {
     path: '',
+    canActivate: [onboardingGuard],
     children: [
       {
         path: 'home',

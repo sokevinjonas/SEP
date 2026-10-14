@@ -1,0 +1,142 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="onboarding-toolbar">
+    <ion-title class="onboarding-title">Bienvenue sur SEP</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="onboarding-content ion-padding">
+  <div class="onboarding-container">
+
+    <!-- Hero Coach Welcome Card -->
+    <ion-card class="coach-welcome-card ion-no-margin">
+      <ion-card-content class="coach-welcome-content">
+        <ion-avatar class="coach-avatar-lg">
+          <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+        </ion-avatar>
+
+        <div class="coach-speech">
+          <h2 class="welcome-heading">Je suis M. Pognon</h2>
+          <p class="welcome-sub">
+            Ton tuteur budgétaire pour le campus. Ensemble, protégeons ton allocation contre les pulsions spontanées.
+          </p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Step 1: Identité & Campus Card -->
+    <ion-card class="form-card ion-no-margin">
+      <ion-card-header>
+        <div class="section-badge-row">
+          <ion-icon name="person-outline" class="section-icon"></ion-icon>
+          <ion-card-title class="section-heading">1. Ton Profil Étudiant</ion-card-title>
+        </div>
+        <ion-card-subtitle class="section-sub">
+          Ces informations sont stockées localement sur ton appareil.
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="ion-no-padding">
+        <ion-list lines="none" class="input-list">
+          <ion-item class="custom-input-item">
+            <ion-icon name="person-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              label="Prénom ou Pseudo"
+              labelPlacement="stacked"
+              placeholder="Ex: Jonas"
+              [(ngModel)]="userName">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="custom-input-item">
+            <ion-icon name="globe-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              label="Ville d'études"
+              labelPlacement="stacked"
+              placeholder="Ex: Accra"
+              [(ngModel)]="userCity">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="custom-input-item">
+            <ion-icon name="school-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              label="Campus universitaire"
+              labelPlacement="stacked"
+              placeholder="Ex: Campus Legon"
+              [(ngModel)]="userCampus">
+            </ion-input>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Step 2: Devises & Budget Mensuel Card -->
+    <ion-card class="form-card ion-no-margin">
+      <ion-card-header>
+        <div class="section-badge-row">
+          <ion-icon name="wallet-outline" class="section-icon"></ion-icon>
+          <ion-card-title class="section-heading">2. Budget &amp; Devises</ion-card-title>
+        </div>
+        <ion-card-subtitle class="section-sub">
+          Gère tes dépenses en Cedis ghanéens (GHS) et Francs CFA (XOF).
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="ion-no-padding">
+        <div class="segment-wrap">
+          <ion-label class="segment-label">Devise principale par défaut :</ion-label>
+          <ion-segment [(ngModel)]="primaryCurrency" class="currency-segment">
+            <ion-segment-button value="GHS">
+              <ion-label>Cedi (GHS)</ion-label>
+            </ion-segment-button>
+            <ion-segment-button value="XOF">
+              <ion-label>FCFA (XOF)</ion-label>
+            </ion-segment-button>
+          </ion-segment>
+        </div>
+
+        <ion-list lines="none" class="input-list">
+          <ion-item class="custom-input-item">
+            <ion-icon name="globe-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              type="number"
+              label="Taux négocié (1 GHS en XOF)"
+              labelPlacement="stacked"
+              placeholder="Ex: 42"
+              [(ngModel)]="exchangeRate"
+              min="1"
+              step="0.5">
+            </ion-input>
+          </ion-item>
+
+          <ion-item class="custom-input-item">
+            <ion-icon name="wallet-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              type="number"
+              label="Plafond budgétaire mensuel (GHS)"
+              labelPlacement="stacked"
+              placeholder="Ex: 600"
+              [(ngModel)]="monthlyBudgetGhs"
+              min="50"
+              step="10">
+            </ion-input>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Action Button -->
+    <div class="action-wrap">
+      <ion-button
+        expand="block"
+        size="large"
+        class="start-btn"
+        (click)="completeOnboarding()"
+        id="btn-complete-onboarding">
+        <span>Commencer avec M. Pognon</span>
+        <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+      </ion-button>
+    </div>
+
+  </div>
+</ion-content>
