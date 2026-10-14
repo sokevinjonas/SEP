@@ -1,0 +1,7 @@
+{
+  "name": "sep-app-init",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}

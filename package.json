@@ -1,6 +1,6 @@
 {
-  "name": "ionic-app-base",
-  "version": "0.0.0",
+  "name": "sep-app-init",
+  "version": "0.0.1",
   "author": "Ionic Framework",
   "homepage": "https://ionicframework.com/",
   "scripts": {
@@ -19,7 +19,14 @@
     "@angular/forms": "22.1.7",
     "@angular/platform-browser": "22.1.7",
     "@angular/router": "22.1.7",
+    "@capacitor/android": "^8.5.3",
+    "@capacitor/app": "8.1.2",
+    "@capacitor/core": "8.5.3",
+    "@capacitor/haptics": "8.0.2",
+    "@capacitor/keyboard": "8.0.6",
+    "@capacitor/status-bar": "8.0.4",
     "@ionic/angular": "^9.0.0",
+    "idb": "^8.0.4",
     "ionicons": "^8.1.0",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
@@ -29,6 +36,7 @@
     "@angular/cli": "22.1.8",
     "@angular/compiler-cli": "22.1.7",
     "@angular/language-service": "22.1.7",
+    "@capacitor/cli": "8.5.3",
     "@ionic/angular-toolkit": "^13.0.0",
     "angular-eslint": "22.5.0",
     "eslint": "^10.10.0",
@@ -36,5 +44,6 @@
     "typescript": "~6.0.0",
     "typescript-eslint": "^8.61.0",
     "vitest": "~4.0.18"
-  }
+  },
+  "description": "An Ionic project"
 }
