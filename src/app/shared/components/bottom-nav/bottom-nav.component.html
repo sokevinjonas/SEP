@@ -1,0 +1,28 @@
+<nav class="bottom-nav-bar">
+  <div
+    class="nav-tab"
+    [class.active]="isActive('/home')"
+    routerLink="/home"
+    id="tab-btn-home">
+    <ion-icon name="home-outline"></ion-icon>
+    <span>Home</span>
+  </div>
+
+  <div
+    class="nav-tab"
+    [class.active]="isActive('/capture')"
+    routerLink="/capture"
+    id="tab-btn-capture">
+    <ion-icon name="camera-outline"></ion-icon>
+    <span>Capture</span>
+  </div>
+
+  <div
+    class="nav-tab"
+    [class.active]="isActive('/budget')"
+    routerLink="/budget"
+    id="tab-btn-budget">
+    <ion-icon name="wallet-outline"></ion-icon>
+    <span>Budget</span>
+  </div>
+</nav>

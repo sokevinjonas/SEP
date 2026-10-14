@@ -1,0 +1,80 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="modal-toolbar">
+    <ion-title class="modal-title">Dépense Rapide</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" class="close-btn" aria-label="Fermer">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="modal-content ion-padding">
+  <!-- Amount Display Card -->
+  <div class="amount-card">
+    <span class="amount-caption">Montant de la dépense</span>
+    <div class="amount-hero">
+      <span class="amount-number">{{ amountStr }}</span>
+      <span class="amount-currency">{{ currencyService.activeCurrency() }}</span>
+    </div>
+    <span class="amount-equiv">{{ equivText }}</span>
+
+    <!-- Quick Incremental Pills -->
+    <div class="pill-row">
+      <button type="button" class="quick-pill" (click)="addPill(5)">+5</button>
+      <button type="button" class="quick-pill" (click)="addPill(10)">+10</button>
+      <button type="button" class="quick-pill" (click)="addPill(20)">+20</button>
+      <button type="button" class="quick-pill" (click)="addPill(50)">+50</button>
+    </div>
+  </div>
+
+  <!-- Categories Grid (1 Tap) -->
+  <div class="section-label-row">
+    <span class="section-label">Catégorie (1 tap)</span>
+  </div>
+  <div class="category-grid">
+    <div
+      *ngFor="let cat of categories"
+      class="cat-chip"
+      [class.selected]="selectedCategory?.id === cat.id"
+      (click)="selectCategory(cat)">
+      <ion-icon [name]="cat.icon"></ion-icon>
+      <span>{{ cat.name }}</span>
+    </div>
+  </div>
+
+  <!-- Optional Merchant Field -->
+  <div class="input-field-row">
+    <input
+      type="text"
+      class="merchant-input"
+      placeholder="Lieu / Note (optionnel, ex: Waakye)"
+      [(ngModel)]="merchant" />
+  </div>
+
+  <!-- Numpad -->
+  <div class="numpad-grid">
+    <button type="button" class="num-key" (click)="pressNum('1')">1</button>
+    <button type="button" class="num-key" (click)="pressNum('2')">2</button>
+    <button type="button" class="num-key" (click)="pressNum('3')">3</button>
+    <button type="button" class="num-key" (click)="pressNum('4')">4</button>
+    <button type="button" class="num-key" (click)="pressNum('5')">5</button>
+    <button type="button" class="num-key" (click)="pressNum('6')">6</button>
+    <button type="button" class="num-key" (click)="pressNum('7')">7</button>
+    <button type="button" class="num-key" (click)="pressNum('8')">8</button>
+    <button type="button" class="num-key" (click)="pressNum('9')">9</button>
+    <button type="button" class="num-key" (click)="pressNum('.')">.</button>
+    <button type="button" class="num-key" (click)="pressNum('0')">0</button>
+    <button type="button" class="num-key del-key" (click)="pressNum('del')" aria-label="Effacer">
+      <ion-icon name="backspace-outline"></ion-icon>
+    </button>
+  </div>
+
+  <!-- Action Confirmation -->
+  <div class="action-row">
+    <ion-button expand="block" class="save-btn" (click)="saveExpense()" id="btn-confirm-save">
+      <ion-icon name="checkmark-outline" slot="start"></ion-icon>
+      Enregistrer la dépense
+    </ion-button>
+  </div>
+</ion-content>

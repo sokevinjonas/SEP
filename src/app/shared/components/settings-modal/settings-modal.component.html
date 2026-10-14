@@ -1,0 +1,119 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="settings-toolbar">
+    <ion-title class="settings-title">Paramètres &amp; Devises</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" class="close-btn" aria-label="Fermer">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="settings-content ion-padding">
+
+  <!-- Manual Exchange Rate Section (FR3) -->
+  <section class="card-box">
+    <div class="card-header-row">
+      <ion-icon name="globe-outline" class="card-header-icon"></ion-icon>
+      <h4>Taux de Change Manuel (XOF / GHS)</h4>
+    </div>
+    <p class="card-desc">
+      Saisis le taux négocié au change à Accra ou à la frontière. Aucune API externe requise.
+    </p>
+
+    <div class="rate-input-container">
+      <span class="rate-prefix">1 GHS =</span>
+      <input
+        type="number"
+        class="rate-input"
+        [(ngModel)]="exchangeRate"
+        min="1"
+        step="0.5" />
+      <span class="rate-suffix">XOF</span>
+    </div>
+  </section>
+
+  <!-- Monthly Budget Ceiling -->
+  <section class="card-box">
+    <div class="card-header-row">
+      <ion-icon name="wallet-outline" class="card-header-icon"></ion-icon>
+      <h4>Plafond Budgétaire Mensuel</h4>
+    </div>
+    <p class="card-desc">
+      Allocation totale allouée pour le mois en cours.
+    </p>
+
+    <div class="rate-input-container">
+      <span class="rate-prefix">Budget :</span>
+      <input
+        type="number"
+        class="rate-input"
+        [(ngModel)]="totalBudgetGhs"
+        min="50"
+        step="10" />
+      <span class="rate-suffix">GHS</span>
+    </div>
+  </section>
+
+  <!-- Category Envelopes -->
+  <section class="card-box">
+    <div class="card-header-row">
+      <ion-icon name="restaurant-outline" class="card-header-icon"></ion-icon>
+      <h4>Enveloppes par Catégorie</h4>
+    </div>
+
+    <div class="cat-list">
+      <div *ngFor="let cat of categories" class="cat-row">
+        <div class="cat-name-box">
+          <ion-icon [name]="cat.icon"></ion-icon>
+          <span>{{ cat.name }}</span>
+        </div>
+        <div class="cat-input-box">
+          <input
+            type="number"
+            class="cat-amount-input"
+            [(ngModel)]="cat.monthlyAllocationGhs"
+            min="0" />
+          <span>GHS</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Save Configuration Button -->
+  <ion-button
+    expand="block"
+    class="save-btn"
+    (click)="saveSettings()"
+    id="btn-save-settings">
+    <ion-icon slot="start" name="save-outline"></ion-icon>
+    Enregistrer les Paramètres
+  </ion-button>
+
+  <!-- CSV Data Export (FR4) -->
+  <section class="card-box export-card">
+    <div class="card-header-row">
+      <ion-icon name="download-outline" class="card-header-icon action"></ion-icon>
+      <h4>Exportation des Données (CSV)</h4>
+    </div>
+    <p class="card-desc">
+      Télécharge l'intégralité de tes transactions au format tableur standard (RFC 4180).
+    </p>
+
+    <ion-button
+      expand="block"
+      class="export-btn"
+      (click)="exportData()"
+      id="btn-export-csv">
+      <ion-icon slot="start" name="download-outline"></ion-icon>
+      Télécharger SEP_Expenses.csv
+    </ion-button>
+  </section>
+
+  <!-- Offline-first status badge -->
+  <div class="sync-status-badge">
+    <ion-icon name="cloud-done-outline"></ion-icon>
+    <span>Stockage local IndexedDB actif · 100% hors-ligne</span>
+  </div>
+
+</ion-content>

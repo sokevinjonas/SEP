@@ -1,0 +1,42 @@
+.bottom-nav-bar {
+  height: 58px;
+  background: var(--sep-card, #FFFFFF);
+  border: 1px solid var(--sep-line, #EADFE7);
+  border-radius: 9999px;
+  box-shadow: 0 6px 20px rgba(113, 75, 103, 0.10);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  padding: 0 10px;
+  width: 100%;
+}
+
+.nav-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 30%;
+  height: 100%;
+  color: var(--sep-mut, #6B5966);
+  font-family: var(--ion-font-family);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  user-select: none;
+  transition: color 0.15s ease;
+
+  ion-icon {
+    font-size: 22px;
+    transition: transform 0.15s ease;
+  }
+
+  &.active {
+    color: var(--sep-primary, #714B67);
+
+    ion-icon {
+      transform: scale(1.1);
+    }
+  }
+}
