@@ -1,0 +1,30 @@
+.currency-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sep-primary-soft, #f4ecf2);
+  color: var(--sep-primary, #714B67);
+  border: 1px solid var(--sep-line, #EADFE7);
+  padding: 6px 12px;
+  border-radius: 9999px;
+  font-family: var(--ion-font-family);
+  font-size: 13px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease-in-out;
+  touch-action: manipulation;
+
+  &:active {
+    transform: scale(0.96);
+    background: #eaddea;
+  }
+
+  .currency-code {
+    letter-spacing: 0.03em;
+  }
+
+  .swap-icon {
+    font-size: 15px;
+    color: var(--sep-primary, #714B67);
+  }
+}

@@ -14,11 +14,10 @@
       </div>
 
       <div class="header-actions">
-        <button class="currency-toggle" (click)="toggleCurrency()" id="currency-toggle-btn">
-          <span>{{ currency }}</span>
-          <ion-icon name="swap-horizontal-outline"></ion-icon>
-        </button>
-        <button class="icon-header-btn" (click)="openSettings()" id="btn-settings">
+        <!-- Modular Reusable Currency Pill Component -->
+        <app-currency-pill></app-currency-pill>
+
+        <button class="icon-header-btn" (click)="openSettings()" id="btn-settings" aria-label="Paramètres">
           <ion-icon name="options-outline"></ion-icon>
         </button>
       </div>
@@ -27,40 +26,43 @@
     <!-- Breathing Balance Card (UX-DR6) -->
     <section class="balance-card">
       <div class="balance-top">
-        <span class="breathing-badge">
-          <span class="breathing-pulse"></span>
-          Solde respirant
-        </span>
+        <app-breathing-badge label="Solde respirant" status="breathing" [pulse]="true"></app-breathing-badge>
         <span class="month-label">Mois en cours</span>
       </div>
 
       <div class="balance-hero">
-        <span class="balance-amount">{{ displayedBalance }}</span>
-        <span class="balance-unit">{{ currency }}</span>
+        <span class="balance-amount">
+          {{ currencyService.activeCurrency() === 'GHS' ? consumption.balanceGhs.toFixed(2) : currencyService.toXof(consumption.balanceGhs).toLocaleString() }}
+        </span>
+        <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
       </div>
 
       <div class="balance-secondary">
-        {{ displayedEquiv }} (Taux : 1 GHS = {{ exchangeRate }} XOF)
+        {{ currencyService.formatEquiv(consumption.balanceGhs) }} (Taux : {{ currencyService.rateDescription() }})
       </div>
 
       <!-- Budget Consumption Progress Bar -->
       <div class="budget-progress-container">
         <div class="progress-track">
-          <div class="progress-fill-teal" [style.width.%]="consumedPercent"></div>
+          <div
+            class="progress-fill"
+            [ngClass]="'fill-' + consumption.status"
+            [style.width.%]="consumption.consumedPercent"
+          ></div>
         </div>
         <div class="progress-label-row">
-          <span>Consommé : {{ totalSpentGhs.toFixed(2) }} GHS ({{ consumedPercent }}%)</span>
-          <span>Plafond : {{ totalBudgetGhs }} GHS</span>
+          <span>Consommé : {{ consumption.totalSpentGhs.toFixed(2) }} GHS ({{ consumption.consumedPercent }}%)</span>
+          <span>Plafond : {{ consumption.totalBudgetGhs }} GHS</span>
         </div>
       </div>
 
       <div class="budget-days-strip">
         <span class="days-pill">
           <ion-icon name="time-outline"></ion-icon>
-          {{ budgetDays }} Jours de Budget
+          {{ budgetDaysInfo.days }} Jours de Budget
         </span>
         <span class="days-detail">
-          Calcul : {{ budgetDaysBasis }} · {{ distinctDaysCount }} jour(s) de dépenses enregistrés
+          Calcul : {{ budgetDaysInfo.basis }} · {{ budgetDaysInfo.distinctDaysCount }} jour(s) de dépenses enregistrés
         </span>
       </div>
     </section>
@@ -72,7 +74,7 @@
           <ion-icon name="shield-checkmark-outline"></ion-icon>
           Total Économisé (Anti-Pulsion)
         </span>
-        <span class="avoided-amount">{{ avoidedGhs.toFixed(2) }} GHS</span>
+        <span class="avoided-amount">{{ currencyService.formatAmount(avoidedGhs) }}</span>
         <span class="avoided-note">Achats impulsifs évités ce mois-ci</span>
       </div>
       <div class="avoided-badge-icon">
@@ -88,13 +90,13 @@
       <div class="coach-content">
         <h4 class="coach-title">
           Conseil de M. Pognon
-          <span class="coach-tag" *ngIf="consumedPercent > 70">Alerte 70%</span>
-          <span class="coach-tag" *ngIf="consumedPercent <= 70">En maîtrise</span>
+          <span class="coach-tag" *ngIf="consumption.consumedPercent > 70">Alerte 70%</span>
+          <span class="coach-tag" *ngIf="consumption.consumedPercent <= 70">En maîtrise</span>
         </h4>
-        <p class="coach-quote" *ngIf="consumedPercent > 70">
+        <p class="coach-quote" *ngIf="consumption.consumedPercent > 70">
           « Jonas, attention à l'enveloppe du campus. Privilégie le réfectoire plutôt que les achats spontanés pour sécuriser ta fin de mois ! »
         </p>
-        <p class="coach-quote" *ngIf="consumedPercent <= 70">
+        <p class="coach-quote" *ngIf="consumption.consumedPercent <= 70">
           « Allure régulière, Jonas. Ton rythme quotidien est sain. Continue à résister aux pulsions pour garder ton matelas de sécurité intact. »
         </p>
       </div>
@@ -123,7 +125,9 @@
         </div>
         <div class="log-right">
           <span class="log-price">-{{ exp.amount.toFixed(2) }} {{ exp.currency }}</span>
-          <span class="log-equiv" *ngIf="exp.currency === 'GHS'">≈ {{ (exp.amount * exchangeRate).toFixed(0) }} XOF</span>
+          <span class="log-equiv" *ngIf="exp.currency === 'GHS'">
+            {{ currencyService.formatEquiv(exp.amount) }}
+          </span>
         </div>
       </div>
     </section>

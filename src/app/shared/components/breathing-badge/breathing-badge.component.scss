@@ -1,0 +1,65 @@
+.breathing-badge-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-family: var(--ion-font-family);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+
+  .pulse-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    animation: badge-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  &.breathing {
+    background: var(--sep-action-soft, #e5f6f7);
+    color: var(--sep-action, #017e84);
+
+    .pulse-dot {
+      background: var(--sep-action, #017e84);
+    }
+  }
+
+  &.safe {
+    background: #e8f5e9;
+    color: #2e7d32;
+
+    .pulse-dot {
+      background: #2e7d32;
+    }
+  }
+
+  &.warning {
+    background: var(--sep-warn-soft, #fff6e0);
+    color: var(--sep-warn-text, #3a2a00);
+
+    .pulse-dot {
+      background: var(--sep-warn, #ffac00);
+    }
+  }
+
+  &.danger {
+    background: var(--sep-danger-soft, #fbeae8);
+    color: var(--sep-danger, #c0392b);
+
+    .pulse-dot {
+      background: var(--sep-danger, #c0392b);
+    }
+  }
+}
+
+@keyframes badge-pulse {
+  0%, 100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.3);
+  }
+}

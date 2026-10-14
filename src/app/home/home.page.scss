@@ -185,11 +185,22 @@
   border: 1px solid var(--sep-line, #EADFE7);
 }
 
-.progress-fill-teal {
+.progress-fill {
   height: 100%;
-  background: var(--sep-action, #017e84);
   border-radius: 9999px;
   transition: width 0.3s ease;
+
+  &.fill-safe {
+    background: var(--sep-action, #017e84);
+  }
+
+  &.fill-warning {
+    background: var(--sep-warn, #ffac00);
+  }
+
+  &.fill-danger {
+    background: var(--sep-danger, #c0392b);
+  }
 }
 
 .progress-label-row {

@@ -1,0 +1,10 @@
+<button
+  type="button"
+  class="currency-pill-btn"
+  (click)="toggle()"
+  [attr.aria-label]="'Changer la devise active, actuellement ' + currencyService.activeCurrency()"
+  id="currency-pill-toggle"
+>
+  <span class="currency-code">{{ currencyService.activeCurrency() }}</span>
+  <ion-icon name="swap-horizontal-outline" class="swap-icon"></ion-icon>
+</button>

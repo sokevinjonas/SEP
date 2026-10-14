@@ -8,7 +8,6 @@ import {
 import { addIcons } from 'ionicons';
 import {
   optionsOutline,
-  swapHorizontalOutline,
   shieldCheckmarkOutline,
   timeOutline,
   busOutline,
@@ -21,8 +20,12 @@ import {
   ellipsisHorizontalCircleOutline
 } from 'ionicons/icons';
 import { DatabaseService } from '../core/db/database.service';
+import { CurrencyService } from '../core/services/currency.service';
+import { BudgetCalculatorService, BudgetConsumption, BudgetDaysCalculation } from '../core/services/budget-calculator.service';
 import { Expense, MonthlyBudget } from '../core/models/financial.models';
 import { SettingsModalComponent } from '../shared/components/settings-modal/settings-modal.component';
+import { CurrencyPillComponent } from '../shared/components/currency-pill/currency-pill.component';
+import { BreathingBadgeComponent } from '../shared/components/breathing-badge/breathing-badge.component';
 
 @Component({
   selector: 'app-home',
@@ -30,34 +33,41 @@ import { SettingsModalComponent } from '../shared/components/settings-modal/sett
   imports: [
     CommonModule,
     IonContent,
-    IonIcon
+    IonIcon,
+    CurrencyPillComponent,
+    BreathingBadgeComponent
   ],
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
 export class HomePage implements OnInit {
-  currency: 'GHS' | 'XOF' = 'GHS';
-  balanceGhs = 0;
-  totalBudgetGhs = 600;
-  totalSpentGhs = 0;
-  consumedPercent = 0;
+  consumption: BudgetConsumption = {
+    totalBudgetGhs: 600,
+    totalSpentGhs: 0,
+    balanceGhs: 600,
+    consumedPercent: 0,
+    status: 'safe'
+  };
+
+  budgetDaysInfo: BudgetDaysCalculation = {
+    days: 30,
+    basis: '(planned)',
+    distinctDaysCount: 0,
+    dailyBurnRateGhs: 20
+  };
+
   avoidedGhs = 0;
-  exchangeRate = 42;
-
-  budgetDays = 0;
-  budgetDaysBasis: '(planned)' | '(average)' = '(planned)';
-  distinctDaysCount = 0;
-
   recentExpenses: Expense[] = [];
   monthlyBudget: MonthlyBudget | null = null;
 
   constructor(
     private db: DatabaseService,
+    public currencyService: CurrencyService,
+    private budgetCalculator: BudgetCalculatorService,
     private modalCtrl: ModalController
   ) {
     addIcons({
       optionsOutline,
-      swapHorizontalOutline,
       shieldCheckmarkOutline,
       timeOutline,
       busOutline,
@@ -81,53 +91,30 @@ export class HomePage implements OnInit {
 
   async loadDashboardData() {
     this.monthlyBudget = await this.db.getMonthlyBudget();
-    this.exchangeRate = this.monthlyBudget.exchangeRateXof || 42;
-    this.totalBudgetGhs = this.monthlyBudget.totalBudgetGhs;
+    await this.currencyService.initFromDb();
 
     const allExpenses = await this.db.getExpenses();
     this.recentExpenses = allExpenses.slice(0, 5);
 
     const currentMonthKey = this.db.getCurrentMonthKey();
     const monthExpenses = allExpenses.filter(e => e.date.startsWith(currentMonthKey));
+    const totalSpentGhs = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-    this.totalSpentGhs = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
-    this.balanceGhs = Math.max(0, this.totalBudgetGhs - this.totalSpentGhs);
-    this.consumedPercent = Math.min(100, Math.round((this.totalSpentGhs / this.totalBudgetGhs) * 100));
+    // SOLID: Delegate budget math to BudgetCalculatorService
+    this.consumption = this.budgetCalculator.calculateConsumption(
+      this.monthlyBudget.totalBudgetGhs,
+      totalSpentGhs
+    );
 
-    // Calculate Budget Days (FR2)
-    const distinctDaysSet = new Set(monthExpenses.map(e => e.date.substring(0, 10)));
-    this.distinctDaysCount = distinctDaysSet.size;
-
-    if (this.distinctDaysCount < 7) {
-      const plannedDaily = this.monthlyBudget.plannedDailyBudgetGhs || 20;
-      this.budgetDays = Math.round(this.balanceGhs / plannedDaily);
-      this.budgetDaysBasis = '(planned)';
-    } else {
-      const dailyAverage = this.totalSpentGhs / this.distinctDaysCount;
-      this.budgetDays = dailyAverage > 0 ? Math.round(this.balanceGhs / dailyAverage) : 30;
-      this.budgetDaysBasis = '(average)';
-    }
+    // SOLID: Delegate budget days calculation (FR2)
+    this.budgetDaysInfo = this.budgetCalculator.calculateBudgetDays(
+      this.consumption.balanceGhs,
+      monthExpenses,
+      this.monthlyBudget.plannedDailyBudgetGhs
+    );
 
     // Avoided Total (FR7)
     this.avoidedGhs = await this.db.getAvoidedTotal();
-  }
-
-  toggleCurrency() {
-    this.currency = this.currency === 'GHS' ? 'XOF' : 'GHS';
-  }
-
-  get displayedBalance(): string {
-    if (this.currency === 'GHS') {
-      return this.balanceGhs.toFixed(2);
-    }
-    return (this.balanceGhs * this.exchangeRate).toLocaleString();
-  }
-
-  get displayedEquiv(): string {
-    if (this.currency === 'GHS') {
-      return `≈ ${(this.balanceGhs * this.exchangeRate).toLocaleString()} XOF`;
-    }
-    return `≈ ${this.balanceGhs.toFixed(2)} GHS`;
   }
 
   getCategoryIcon(iconName: string): string {
