@@ -1,12 +1,6 @@
 /*
- * App Global CSS
- * ----------------------------------------------------------------------------
- * Put style rules here that you want to apply globally. These styles are for
- * the entire app and not just one component. Additionally, this file can be
- * used as an entry point to import other CSS/Sass files to be included in the
- * output CSS.
- * For more information on global stylesheets, visit the documentation:
- * https://ionicframework.com/docs/layout/global-stylesheets
+ * App Global CSS — Student Savings (SEP)
+ * Enforces Nunito font, light-only theme, and thumb-zone ergonomics
  */
 
 /* Core CSS required for Ionic components to work properly */
@@ -18,20 +12,40 @@
 @import "@ionic/angular/css/typography.css";
 @import "@ionic/angular/css/display.css";
 
-/* Optional CSS utils that can be commented out */
+/* Optional CSS utils */
 @import "@ionic/angular/css/padding.css";
 @import "@ionic/angular/css/float-elements.css";
 @import "@ionic/angular/css/text-alignment.css";
 @import "@ionic/angular/css/text-transformation.css";
 @import "@ionic/angular/css/flex-utils.css";
 
-/**
- * Ionic Dark Mode
- * -----------------------------------------------------
- * For more info, please see:
- * https://ionicframework.com/docs/theming/dark-mode
- */
+/* NOTE: Dark mode explicitly disabled per UX-DR1 (Light theme only) */
+/* @import '@ionic/angular/css/palettes/dark.system.css'; */
 
-/* @import "@ionic/angular/css/palettes/dark.always.css"; */
-/* @import "@ionic/angular/css/palettes/dark.class.css"; */
-@import '@ionic/angular/css/palettes/dark.system.css';
+body {
+  font-family: var(--ion-font-family);
+  background-color: var(--sep-base);
+  color: var(--sep-ink);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Global Card Styling conforming to Calm Ledger */
+.sep-card {
+  background: var(--sep-card);
+  border-radius: 18px;
+  border: 1px solid var(--sep-line);
+  box-shadow: 0 2px 8px rgba(113, 75, 103, 0.06);
+  padding: 16px;
+  margin: 12px 0;
+}
+
+/* Zero-emoji policy utility: text-rendering optimization */
+ion-icon {
+  visibility: visible !important;
+}
+
+/* Thumb-zone container spacing to prevent content hiding behind persistent bars */
+.has-bottom-bars {
+  --padding-bottom: 140px;
+}

@@ -2,7 +2,7 @@
 title: 'Story 1.1: Project Scaffold & Calm Ledger Design System'
 type: 'feature'
 created: '2026-10-14'
-status: 'in-progress'
+status: 'done'
 baseline_commit: 'fbd888cb96da860da4a2a453f2b866a000328aff'
 route: 'dispatch'
 review_loop_iteration: 0
@@ -59,14 +59,14 @@ context:
 ## Tasks & Acceptance
 
 **Execution:**
-- [ ] `package.json` -- Initialize project and install dependencies (`@ionic/angular`, `@angular/core` ^18, `@capacitor/core`, `@capacitor/android`, `ionicons`, `idb`)
-- [ ] `capacitor.config.ts` -- Create Capacitor Android configuration with app name "Student Savings (SEP)"
-- [ ] `src/theme/variables.scss` -- Define Odoo Enterprise color palette, custom properties, and Nunito font
-- [ ] `src/assets/` -- Copy official M. Pognon coin mascot image into assets
-- [ ] `src/app/shared/components/action-bar/` -- Build standalone persistent action bar component with 52dp touch targets
-- [ ] `src/app/shared/components/bottom-nav/` -- Build standalone 3-tab navigation bar with Ionicons
-- [ ] `src/app/features/home/` -- Scaffold standalone Home component with placeholder breathing balance
-- [ ] `src/app/app.component.ts` -- Wire root layout with router-outlet and persistent bottom shell
+- [x] `package.json` -- Initialize project and install dependencies (`@ionic/angular`, `@angular/core`, `@capacitor/core`, `@capacitor/android`, `ionicons`, `idb`)
+- [x] `capacitor.config.ts` -- Create Capacitor Android configuration with app name "Student Savings (SEP)"
+- [x] `src/theme/variables.scss` -- Define Odoo Enterprise color palette, custom properties, and Nunito font
+- [x] `src/assets/` -- Copy official M. Pognon coin mascot image into assets
+- [x] `src/app/shared/components/action-bar/` -- Build standalone persistent action bar component with 52dp touch targets
+- [x] `src/app/shared/components/bottom-nav/` -- Build standalone 3-tab navigation bar with Ionicons
+- [x] `src/app/home/` -- Scaffold standalone Home component with placeholder breathing balance
+- [x] `src/app/app.component.ts` -- Wire root layout with router-outlet and persistent bottom shell
 
 **Acceptance Criteria:**
 - Given a fresh Android device or browser preview with the SEP application, when Jonas launches the application, then the app displays the light theme with `#F7F3F6` background, Nunito font, and Odoo palette (`#714B67`, `#017e84`).

@@ -1,20 +1,132 @@
-<ion-header [translucent]="true">
-  <ion-toolbar>
-    <ion-title>
-      Blank
-    </ion-title>
-  </ion-toolbar>
-</ion-header>
+<ion-content [fullscreen]="true" class="home-content">
+  <div class="page-container has-bottom-bars">
 
-<ion-content [fullscreen]="true">
-  <ion-header collapse="condense">
-    <ion-toolbar>
-      <ion-title size="large">Blank</ion-title>
-    </ion-toolbar>
-  </ion-header>
+    <!-- Top App Bar -->
+    <header class="home-header">
+      <div class="user-info">
+        <div class="avatar-ring" (click)="openSettings()" style="cursor: pointer;">
+          <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+        </div>
+        <div class="user-meta" (click)="openSettings()" style="cursor: pointer;">
+          <h1 class="user-name">Jonas · Accra</h1>
+          <p class="user-sub">Campus Legon</p>
+        </div>
+      </div>
 
-  <div id="container">
-    <strong>Ready to create an app?</strong>
-    <p>Start with Ionic <a target="_blank" rel="noopener noreferrer" href="https://ionicframework.com/docs/components">UI Components</a></p>
+      <div class="header-actions">
+        <button class="currency-toggle" (click)="toggleCurrency()" id="currency-toggle-btn">
+          <span>{{ currency }}</span>
+          <ion-icon name="swap-horizontal-outline"></ion-icon>
+        </button>
+        <button class="icon-header-btn" (click)="openSettings()" id="btn-settings">
+          <ion-icon name="options-outline"></ion-icon>
+        </button>
+      </div>
+    </header>
+
+    <!-- Breathing Balance Card (UX-DR6) -->
+    <section class="balance-card">
+      <div class="balance-top">
+        <span class="breathing-badge">
+          <span class="breathing-pulse"></span>
+          Solde respirant
+        </span>
+        <span class="month-label">Mois en cours</span>
+      </div>
+
+      <div class="balance-hero">
+        <span class="balance-amount">{{ displayedBalance }}</span>
+        <span class="balance-unit">{{ currency }}</span>
+      </div>
+
+      <div class="balance-secondary">
+        {{ displayedEquiv }} (Taux : 1 GHS = {{ exchangeRate }} XOF)
+      </div>
+
+      <!-- Budget Consumption Progress Bar -->
+      <div class="budget-progress-container">
+        <div class="progress-track">
+          <div class="progress-fill-teal" [style.width.%]="consumedPercent"></div>
+        </div>
+        <div class="progress-label-row">
+          <span>Consommé : {{ totalSpentGhs.toFixed(2) }} GHS ({{ consumedPercent }}%)</span>
+          <span>Plafond : {{ totalBudgetGhs }} GHS</span>
+        </div>
+      </div>
+
+      <div class="budget-days-strip">
+        <span class="days-pill">
+          <ion-icon name="time-outline"></ion-icon>
+          {{ budgetDays }} Jours de Budget
+        </span>
+        <span class="days-detail">
+          Calcul : {{ budgetDaysBasis }} · {{ distinctDaysCount }} jour(s) de dépenses enregistrés
+        </span>
+      </div>
+    </section>
+
+    <!-- Avoided Total Reward Card (FR7) -->
+    <section class="avoided-card">
+      <div class="avoided-text">
+        <span class="avoided-eyebrow">
+          <ion-icon name="shield-checkmark-outline"></ion-icon>
+          Total Économisé (Anti-Pulsion)
+        </span>
+        <span class="avoided-amount">{{ avoidedGhs.toFixed(2) }} GHS</span>
+        <span class="avoided-note">Achats impulsifs évités ce mois-ci</span>
+      </div>
+      <div class="avoided-badge-icon">
+        <ion-icon name="trending-up-outline"></ion-icon>
+      </div>
+    </section>
+
+    <!-- M. Pognon Advice Card -->
+    <section class="coach-card">
+      <div class="coach-avatar">
+        <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+      </div>
+      <div class="coach-content">
+        <h4 class="coach-title">
+          Conseil de M. Pognon
+          <span class="coach-tag" *ngIf="consumedPercent > 70">Alerte 70%</span>
+          <span class="coach-tag" *ngIf="consumedPercent <= 70">En maîtrise</span>
+        </h4>
+        <p class="coach-quote" *ngIf="consumedPercent > 70">
+          « Jonas, attention à l'enveloppe du campus. Privilégie le réfectoire plutôt que les achats spontanés pour sécuriser ta fin de mois ! »
+        </p>
+        <p class="coach-quote" *ngIf="consumedPercent <= 70">
+          « Allure régulière, Jonas. Ton rythme quotidien est sain. Continue à résister aux pulsions pour garder ton matelas de sécurité intact. »
+        </p>
+      </div>
+    </section>
+
+    <!-- Recent Micro-Logs -->
+    <section class="recent-section">
+      <div class="section-title-row">
+        <h3 class="section-title">Dépenses récentes</h3>
+        <span class="section-action">Détails</span>
+      </div>
+
+      <div *ngIf="recentExpenses.length === 0" class="empty-log-card">
+        <p>Aucune dépense enregistrée ce mois-ci. Appuyez sur « + Add » pour commencer.</p>
+      </div>
+
+      <div *ngFor="let exp of recentExpenses" class="log-card">
+        <div class="log-left">
+          <div class="log-icon-wrap">
+            <ion-icon [name]="getCategoryIcon(exp.categoryId === 'cat-food' ? 'restaurant-outline' : exp.categoryId === 'cat-transport' ? 'bus-outline' : 'book-outline')"></ion-icon>
+          </div>
+          <div class="log-info">
+            <h4 class="log-name">{{ exp.merchant || exp.categoryName }}</h4>
+            <p class="log-meta">{{ exp.categoryName }} · {{ exp.date | date:'dd MMM, HH:mm' }}</p>
+          </div>
+        </div>
+        <div class="log-right">
+          <span class="log-price">-{{ exp.amount.toFixed(2) }} {{ exp.currency }}</span>
+          <span class="log-equiv" *ngIf="exp.currency === 'GHS'">≈ {{ (exp.amount * exchangeRate).toFixed(0) }} XOF</span>
+        </div>
+      </div>
+    </section>
+
   </div>
 </ion-content>

@@ -1,0 +1,12 @@
+.bottom-system-wrap {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, rgba(247, 243, 246, 1) 82%, rgba(247, 243, 246, 0) 100%);
+  z-index: 999;
+  max-width: 500px;
+  margin: 0 auto;
+  pointer-events: auto;
+}

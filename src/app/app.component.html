@@ -1,3 +1,11 @@
 <ion-app>
   <ion-router-outlet></ion-router-outlet>
+
+  <div class="bottom-system-wrap">
+    <app-action-bar
+      (wantToBuy)="handleWantToBuy()"
+      (quickLog)="handleQuickLog()">
+    </app-action-bar>
+    <app-bottom-nav></app-bottom-nav>
+  </div>
 </ion-app>
