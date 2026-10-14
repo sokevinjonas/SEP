@@ -1,0 +1,1979 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <title>Student Savings (SEP) — Prototype Interactif Complet</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      /* Odoo Enterprise Palette */
+      --primary: #714B67;
+      --primary-dark: #58354f;
+      --primary-light: #8d6482;
+      --primary-soft: #f4ecf2;
+      --action: #017e84;
+      --action-dark: #006368;
+      --action-soft: #e5f6f7;
+      --warn: #ffac00;
+      --warn-text: #3a2a00;
+      --warn-soft: #fff6e0;
+      --danger: #c0392b;
+      --danger-soft: #fbeae8;
+      --base: #F7F3F6;
+      --card: #FFFFFF;
+      --ink: #2B1F28;
+      --mut: #6B5966;
+      --line: #EADFE7;
+      --shadow-sm: 0 2px 8px rgba(113, 75, 103, 0.06);
+      --shadow-md: 0 6px 20px rgba(113, 75, 103, 0.10);
+      --shadow-lg: 0 12px 36px rgba(113, 75, 103, 0.16);
+      --radius-sm: 10px;
+      --radius-md: 18px;
+      --radius-lg: 26px;
+      --radius-full: 9999px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+      background: #1c151b;
+      color: var(--ink);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px 10px 40px;
+    }
+
+    /* Top Showcase Bar */
+    .showcase-header {
+      width: 100%;
+      max-width: 1200px;
+      margin-bottom: 20px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 24px;
+      background: #2a2029;
+      border: 1px solid #3d2f3c;
+      border-radius: var(--radius-md);
+      color: #fff;
+    }
+    .showcase-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .showcase-logo {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    .showcase-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .showcase-title h1 {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .showcase-title p {
+      font-size: 13px;
+      color: #bfaab9;
+      font-weight: 600;
+    }
+    .showcase-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(1, 126, 132, 0.25);
+      border: 1px solid var(--action);
+      color: #7ce3e7;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 6px 14px;
+      border-radius: var(--radius-full);
+    }
+
+    /* Navigation Screen Picker */
+    .screen-picker {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+      max-width: 1200px;
+      width: 100%;
+      justify-content: center;
+    }
+    .picker-btn {
+      background: #2a2029;
+      border: 1px solid #3d2f3c;
+      color: #d8c8d5;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 10px 18px;
+      border-radius: var(--radius-full);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+    }
+    .picker-btn:hover {
+      background: #392b37;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .picker-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: #a47096;
+      box-shadow: 0 4px 14px rgba(113, 75, 103, 0.5);
+    }
+    .picker-btn .pill-tag {
+      font-size: 10px;
+      background: rgba(255,255,255,0.2);
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    /* Phone Shell Simulator */
+    .simulator-container {
+      display: flex;
+      gap: 30px;
+      align-items: flex-start;
+      justify-content: center;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .phone-frame {
+      width: 395px;
+      height: 820px;
+      background: #110c10;
+      border-radius: 50px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.6), inset 0 0 0 2px #3d2f3c, 0 0 0 6px #1e161d;
+      padding: 12px;
+      position: relative;
+      flex-shrink: 0;
+    }
+
+    .phone-screen {
+      width: 100%;
+      height: 100%;
+      background: var(--base);
+      border-radius: 40px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+    }
+
+    /* Android Status Bar */
+    .status-bar {
+      height: 38px;
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--ink);
+      flex-shrink: 0;
+      z-index: 10;
+    }
+    .status-bar-icons {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Screen Views */
+    .screen-content {
+      flex: 1;
+      overflow-y: auto;
+      overflow-x: hidden;
+      padding: 0 16px 140px; /* space for bottom navigation and persistent action bar */
+      display: none;
+    }
+    .screen-content.active {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Top App Bar inside screen */
+    .screen-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 4px 14px;
+    }
+    .header-user {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .header-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid var(--primary-soft);
+      box-shadow: var(--shadow-sm);
+      cursor: pointer;
+    }
+    .header-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .header-title-box h2 {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--primary);
+      line-height: 1.1;
+    }
+    .header-title-box p {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--mut);
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .icon-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: var(--radius-sm);
+      background: var(--card);
+      border: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--ink);
+      transition: all 0.15s ease;
+      box-shadow: var(--shadow-sm);
+    }
+    .icon-btn:hover {
+      background: var(--primary-soft);
+      color: var(--primary);
+    }
+    .currency-pill {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      padding: 5px 10px;
+      border-radius: var(--radius-full);
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      user-select: none;
+    }
+    .currency-pill svg { stroke: var(--action); }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius-md);
+      padding: 18px;
+      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+    }
+
+    /* Breathing Balance Card (UX-DR6) */
+    .balance-card {
+      background: linear-gradient(145deg, #ffffff 0%, var(--primary-soft) 100%);
+      border: 1.5px solid var(--primary-light);
+      position: relative;
+      overflow: hidden;
+    }
+    .balance-badge-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .breathing-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--action);
+      background: #fff;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      border: 1px solid var(--line);
+    }
+    .breathing-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--action);
+      border-radius: 50%;
+      animation: pulse 2s infinite ease-in-out;
+    }
+    @keyframes pulse {
+      0% { transform: scale(0.9); opacity: 0.6; }
+      50% { transform: scale(1.3); opacity: 1; }
+      100% { transform: scale(0.9); opacity: 0.6; }
+    }
+    .balance-amount {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      margin-bottom: 2px;
+    }
+    .balance-val {
+      font-size: 34px;
+      font-weight: 900;
+      color: var(--primary-dark);
+      letter-spacing: -0.03em;
+    }
+    .balance-currency {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .balance-equiv {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--mut);
+      margin-bottom: 12px;
+    }
+    .budget-days-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--line);
+    }
+    .days-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .days-desc {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--mut);
+    }
+
+    /* Avoided Total Celebration Card */
+    .avoided-card {
+      background: linear-gradient(135deg, #fff7eb 0%, #fff 100%);
+      border: 1.5px solid #ffe1a6;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 16px;
+    }
+    .avoided-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .avoided-label {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: #8c5b00;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    .avoided-sum {
+      font-size: 20px;
+      font-weight: 900;
+      color: var(--warn-text);
+    }
+    .avoided-sub {
+      font-size: 11px;
+      font-weight: 700;
+      color: #8c5b00;
+    }
+    .avoided-icon-wrap {
+      width: 44px;
+      height: 44px;
+      background: #ffeac2;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #b07000;
+    }
+
+    /* M. Pognon Advice Card on Dashboard */
+    .coach-card {
+      background: var(--card);
+      border-left: 4px solid var(--primary);
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      cursor: pointer;
+      transition: transform 0.15s ease;
+    }
+    .coach-card:hover { transform: translateY(-2px); }
+    .coach-avatar-mini {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+    .coach-avatar-mini img { width: 100%; height: 100%; object-fit: cover; }
+    .coach-text h4 {
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 2px;
+    }
+    .coach-text p {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ink);
+      line-height: 1.35;
+    }
+
+    /* Micro-logs Section */
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 16px 2px 8px;
+    }
+    .section-head h3 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--mut);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .section-link {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--action);
+      text-decoration: none;
+      cursor: pointer;
+    }
+    .log-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      margin-bottom: 8px;
+    }
+    .log-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .log-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: var(--base);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--primary);
+    }
+    .log-details h4 {
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--ink);
+    }
+    .log-details p {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mut);
+    }
+    .log-right {
+      text-align: right;
+    }
+    .log-amount {
+      font-size: 14px;
+      font-weight: 900;
+      color: var(--danger);
+    }
+    .log-equiv {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--mut);
+    }
+
+    /* Bottom Navigation & Persistent Action Bar (UX-DR3) */
+    .bottom-system-wrap {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(to top, rgba(247, 243, 246, 1) 80%, rgba(247, 243, 246, 0) 100%);
+      padding: 10px 14px 14px;
+      z-index: 20;
+    }
+
+    /* Thumb-zone Action Bar */
+    .thumb-action-bar {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .btn-action-primary {
+      flex: 1.2;
+      height: 50px;
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(113, 75, 103, 0.35);
+      transition: all 0.15s ease;
+    }
+    .btn-action-primary:active { transform: scale(0.98); }
+    .btn-action-secondary {
+      flex: 0.8;
+      height: 50px;
+      background: var(--action);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-md);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(1, 126, 132, 0.35);
+      transition: all 0.15s ease;
+    }
+    .btn-action-secondary:active { transform: scale(0.98); }
+
+    /* 3-Tab Bottom Navigation Bar */
+    .bottom-nav {
+      height: 56px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-full);
+      box-shadow: var(--shadow-md);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 10px;
+    }
+    .nav-tab {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      width: 30%;
+      height: 100%;
+      color: var(--mut);
+      font-size: 10px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      user-select: none;
+    }
+    .nav-tab svg { stroke: var(--mut); }
+    .nav-tab.active {
+      color: var(--primary);
+    }
+    .nav-tab.active svg { stroke: var(--primary); }
+
+    /* SCREEN 2: Quick Log Form */
+    .quick-numpad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 14px 0;
+    }
+    .num-key {
+      height: 48px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--ink);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      user-select: none;
+    }
+    .num-key:active { background: var(--base); }
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 12px 0;
+    }
+    .cat-btn {
+      background: var(--card);
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 10px 4px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: center;
+    }
+    .cat-btn svg { stroke: var(--primary); }
+    .cat-btn span {
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--ink);
+      line-height: 1.1;
+    }
+    .cat-btn.selected {
+      border-color: var(--primary);
+      background: var(--primary-soft);
+    }
+    .quick-pill-row {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .quick-pill {
+      flex: 1;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-full);
+      padding: 6px 0;
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--primary);
+      cursor: pointer;
+      text-align: center;
+    }
+    .quick-pill:hover { background: var(--primary-soft); }
+
+    /* SCREEN 3: Impulse Friction Screen */
+    .friction-card {
+      background: var(--card);
+      border: 1.5px solid var(--primary-light);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      text-align: center;
+      margin-top: 10px;
+      box-shadow: var(--shadow-md);
+    }
+    .shock-days-badge {
+      width: 90px;
+      height: 90px;
+      background: var(--primary-soft);
+      border: 3px solid var(--primary);
+      border-radius: 50%;
+      margin: 14px auto 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .shock-num {
+      font-size: 32px;
+      font-weight: 900;
+      color: var(--primary-dark);
+      line-height: 1;
+    }
+    .shock-lbl {
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--primary);
+      text-transform: uppercase;
+    }
+    .reframing-alert {
+      background: #fff4e5;
+      border: 1px solid #ffcc80;
+      border-radius: var(--radius-sm);
+      padding: 10px 12px;
+      color: #8c5b00;
+      font-size: 13px;
+      font-weight: 800;
+      margin: 12px 0 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-align: left;
+    }
+    .bubble-coach {
+      background: var(--base);
+      border-radius: var(--radius-md);
+      padding: 12px 14px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      text-align: left;
+      margin-bottom: 20px;
+      border: 1px solid var(--line);
+    }
+    .bubble-coach p {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    /* SCREEN 4: Wishlist / Considered Purchases */
+    .filter-pills {
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+    }
+    .filter-pill {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-full);
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--mut);
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .filter-pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+    .wish-item {
+      background: var(--card);
+      border-radius: var(--radius-md);
+      border: 1px solid var(--line);
+      padding: 14px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+    .wish-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+    }
+    .wish-status {
+      font-size: 11px;
+      font-weight: 800;
+      padding: 3px 8px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .wish-status.pending { background: #fff4e5; color: #b07000; }
+    .wish-status.abandoned { background: #e5f6f7; color: var(--action); }
+    .wish-status.bought { background: var(--base); color: var(--mut); }
+
+    /* SCREEN 5: OCR MoMo & Capture Preview */
+    .upload-tile {
+      border: 2px dashed var(--primary-light);
+      background: #faf6f9;
+      border-radius: var(--radius-md);
+      padding: 24px 16px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 14px;
+      transition: all 0.2s ease;
+    }
+    .upload-tile:hover {
+      background: var(--primary-soft);
+      border-color: var(--primary);
+    }
+    .ocr-preview-form {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 14px;
+      margin-top: 10px;
+    }
+    .form-group {
+      margin-bottom: 10px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--mut);
+      margin-bottom: 4px;
+    }
+    .form-control {
+      width: 100%;
+      height: 38px;
+      background: var(--base);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 0 10px;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .form-control.uncertain {
+      border: 1.5px solid var(--warn);
+      background: var(--warn-soft);
+      color: var(--warn-text);
+    }
+    .warning-banner {
+      background: var(--danger-soft);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      font-size: 12px;
+      font-weight: 800;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* SCREEN 6: M. Pognon Chatbot */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 14px;
+    }
+    .chat-bubble {
+      max-width: 84%;
+      padding: 12px 14px;
+      border-radius: 18px;
+      font-size: 13px;
+      font-weight: 600;
+      line-height: 1.4;
+      position: relative;
+    }
+    .chat-bubble.coach {
+      align-self: flex-start;
+      background: var(--card);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-bottom-left-radius: 4px;
+    }
+    .chat-bubble.user {
+      align-self: flex-end;
+      background: var(--primary);
+      color: #fff;
+      border-bottom-right-radius: 4px;
+    }
+    .chat-meta {
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--mut);
+      margin-top: 4px;
+    }
+    .coach-badge-escalation {
+      background: var(--danger-soft);
+      border: 1px solid var(--danger);
+      color: var(--danger);
+      font-size: 11px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .chat-input-bar {
+      display: flex;
+      gap: 8px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-full);
+      padding: 6px 8px 6px 14px;
+      align-items: center;
+      box-shadow: var(--shadow-sm);
+    }
+    .chat-input {
+      flex: 1;
+      border: none;
+      outline: none;
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      background: transparent;
+    }
+    .chat-send-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: none;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    /* SCREEN 7: Settings & Currency Drawer */
+    .drawer-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      margin-bottom: 12px;
+    }
+    .drawer-card h4 {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--primary);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .rate-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--base);
+      padding: 10px 14px;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--line);
+    }
+    .rate-box input {
+      width: 70px;
+      height: 34px;
+      border-radius: 6px;
+      border: 1px solid var(--primary-light);
+      text-align: center;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--primary);
+    }
+
+    /* Side Walkthrough / Explanations Panel */
+    .walkthrough-panel {
+      flex: 1;
+      background: #2a2029;
+      border: 1px solid #3d2f3c;
+      border-radius: 28px;
+      padding: 24px;
+      color: #e5d7e2;
+      max-height: 820px;
+      overflow-y: auto;
+    }
+    .walkthrough-panel h2 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #fff;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .walkthrough-badge {
+      background: var(--primary);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    .walkthrough-card {
+      background: #1e161d;
+      border: 1px solid #3d2f3c;
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-bottom: 14px;
+    }
+    .walkthrough-card h3 {
+      font-size: 14px;
+      font-weight: 800;
+      color: #f0bfe0;
+      margin-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .walkthrough-card p {
+      font-size: 13px;
+      color: #bfaab9;
+      line-height: 1.5;
+    }
+    .walkthrough-card ul {
+      margin-left: 20px;
+      margin-top: 8px;
+      font-size: 12px;
+      color: #bfaab9;
+    }
+    .walkthrough-card li { margin-bottom: 4px; }
+
+    /* Toast Micro-interaction */
+    .toast-msg {
+      position: absolute;
+      top: 60px;
+      left: 20px;
+      right: 20px;
+      background: var(--primary);
+      color: #fff;
+      padding: 12px 16px;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-lg);
+      font-size: 12px;
+      font-weight: 800;
+      display: none;
+      align-items: center;
+      gap: 10px;
+      z-index: 50;
+      animation: slideDown 0.3s ease;
+    }
+    @keyframes slideDown {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Showcase Bar -->
+  <header class="showcase-header">
+    <div class="showcase-brand">
+      <div class="showcase-logo">
+        <img src="../ux-SEP-2026-10-12/imports/m_pognon_coin_logo.jpg" alt="M. Pognon">
+      </div>
+      <div class="showcase-title">
+        <h1>Student Savings (SEP) — Prototype Écran par Écran</h1>
+        <p>Refonte intégrale des maquettes Stitch : 0 émoji, vraies icônes vectorielles, charte Odoo Enterprise</p>
+      </div>
+    </div>
+    <div class="showcase-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      Conforme PRD V1 & UX-DR1 à DR8
+    </div>
+  </header>
+
+  <!-- Screen Switcher Navigation Bar -->
+  <nav class="screen-picker">
+    <button class="picker-btn active" onclick="switchScreen('home')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+      1. Home Dashboard
+    </button>
+    <button class="picker-btn" onclick="switchScreen('add')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg>
+      2. Quick Log (≤ 3 Taps)
+    </button>
+    <button class="picker-btn" onclick="switchScreen('friction')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+      3. Anti-Pulsion ("I want to buy")
+    </button>
+    <button class="picker-btn" onclick="switchScreen('wishlist')">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+      4. Achats Évalués (Wishlist)
+    </button>
+    <button class="picker-btn" onclick="switchScreen('capture')">
+      <span class="pill-tag">Nouveau</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+      5. Capture & OCR MoMo
+    </button>
+    <button class="picker-btn" onclick="switchScreen('chat')">
+      <span class="pill-tag">Nouveau</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      6. Chatbot M. Pognon
+    </button>
+    <button class="picker-btn" onclick="switchScreen('settings')">
+      <span class="pill-tag">Nouveau</span>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+      7. Taux XOF/GHS & Export
+    </button>
+  </nav>
+
+  <!-- Simulator Main Container -->
+  <main class="simulator-container">
+
+    <!-- Phone Frame -->
+    <div class="phone-frame">
+      <div class="phone-screen">
+
+        <!-- Android Status Bar -->
+        <div class="status-bar">
+          <span>09:41</span>
+          <div class="status-bar-icons">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"></path><path d="M1.42 9a16 16 0 0 1 21.16 0"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="16" height="10" rx="2" ry="2"></rect><line x1="22" y1="11" x2="22" y2="13"></line></svg>
+          </div>
+        </div>
+
+        <!-- Toast Feedback -->
+        <div id="app-toast" class="toast-msg">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span id="toast-text">Action enregistrée !</span>
+        </div>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 1: HOME DASHBOARD -->
+        <!-- ============================================== -->
+        <section id="screen-home" class="screen-content active">
+          <!-- Top App Bar -->
+          <div class="screen-header">
+            <div class="header-user" onclick="switchScreen('settings')">
+              <div class="header-avatar">
+                <img src="../ux-SEP-2026-10-12/imports/m_pognon_coin_logo.jpg" alt="Mascotte">
+              </div>
+              <div class="header-title-box">
+                <h2>Jonas · Accra</h2>
+                <p>Campus Legon</p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <div class="currency-pill" onclick="toggleCurrency()">
+                <span id="curr-tag">GHS</span>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="7 10 12 15 17 10"></polyline></svg>
+              </div>
+              <button class="icon-btn" onclick="switchScreen('settings')">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Breathing Balance Card -->
+          <div class="card balance-card">
+            <div class="balance-badge-row">
+              <span class="breathing-pill">
+                <span class="breathing-dot"></span>
+                Solde respirant
+              </span>
+              <span style="font-size: 11px; font-weight: 800; color: var(--mut);">Mai 2026</span>
+            </div>
+            <div class="balance-amount">
+              <span class="balance-val" id="home-balance-val">412</span>
+              <span class="balance-currency" id="home-balance-curr">.00 GHS</span>
+            </div>
+            <div class="balance-equiv" id="home-balance-equiv">≈ 17 300 XOF (taux manuel : 1 GHS = 42 XOF)</div>
+            <div class="budget-days-row">
+              <span class="days-badge">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                14 Jours de Budget
+              </span>
+              <span class="days-desc">Moyenne réelle 7j · 68% de l'allocation intacte</span>
+            </div>
+          </div>
+
+          <!-- Avoided Total (FR7) -->
+          <div class="card avoided-card">
+            <div class="avoided-info">
+              <span class="avoided-label">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                Total Économisé (Anti-Pulsion)
+              </span>
+              <span class="avoided-sum" id="home-avoided-val">180.00 GHS</span>
+              <span class="avoided-sub">3 achats impulsifs évités ce mois-ci</span>
+            </div>
+            <div class="avoided-icon-wrap">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+            </div>
+          </div>
+
+          <!-- M. Pognon Insight Card -->
+          <div class="card coach-card" onclick="switchScreen('chat')">
+            <div class="coach-avatar-mini">
+              <img src="../ux-SEP-2026-10-12/imports/m_pognon_coin_logo.jpg" alt="M. Pognon">
+            </div>
+            <div class="coach-text">
+              <h4>
+                Conseil de M. Pognon
+                <span style="font-size: 10px; background: var(--warn-soft); color: var(--warn-text); padding: 2px 6px; border-radius: 4px;">Plafond 78%</span>
+              </h4>
+              <p>« Jonas, tu as franchi 70% de l’enveloppe Restaurant. Évite le café de l’après-midi sur le campus, privilégie le réfectoire ! »</p>
+            </div>
+          </div>
+
+          <!-- Recent Micro-Logs -->
+          <div class="section-head">
+            <h3>Dépenses récentes</h3>
+            <span class="section-link" onclick="switchScreen('wishlist')">Voir tout</span>
+          </div>
+
+          <div class="log-item">
+            <div class="log-left">
+              <div class="log-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+              </div>
+              <div class="log-details">
+                <h4>Navette Campus</h4>
+                <p>Transport · 08:30</p>
+              </div>
+            </div>
+            <div class="log-right">
+              <div class="log-amount">-5.00 GHS</div>
+              <div class="log-equiv">≈ 210 XOF</div>
+            </div>
+          </div>
+
+          <div class="log-item">
+            <div class="log-left">
+              <div class="log-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"></path></svg>
+              </div>
+              <div class="log-details">
+                <h4>Waakye &amp; Œuf</h4>
+                <p>Alimentation · Hier</p>
+              </div>
+            </div>
+            <div class="log-right">
+              <div class="log-amount">-18.00 GHS</div>
+              <div class="log-equiv">≈ 755 XOF</div>
+            </div>
+          </div>
+
+          <div class="log-item">
+            <div class="log-left">
+              <div class="log-icon">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z"></path></svg>
+              </div>
+              <div class="log-details">
+                <h4>Polycopiés de cours</h4>
+                <p>Études · 12 Mai</p>
+              </div>
+            </div>
+            <div class="log-right">
+              <div class="log-amount">-12.00 GHS</div>
+              <div class="log-equiv">≈ 505 XOF</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 2: QUICK LOG EXPENSE (≤ 3 TAPS) -->
+        <!-- ============================================== -->
+        <section id="screen-add" class="screen-content">
+          <div class="screen-header">
+            <button class="icon-btn" onclick="switchScreen('home')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div class="header-title-box" style="text-align: center;">
+              <h2>Dépense Rapide</h2>
+              <p>3 taps max · Prêt pour les cours</p>
+            </div>
+            <button class="icon-btn" onclick="resetQuickLog()">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2.5 2v6h6M21.5 22v-6h-6"></path><path d="M22 11.5A10 10 0 0 0 3.2 7.2L2.5 8M2 12.5a10 10 0 0 0 18.8 4.2l.7.8"></path></svg>
+            </button>
+          </div>
+
+          <!-- Live Amount Display -->
+          <div class="card" style="text-align: center; padding: 14px;">
+            <span style="font-size: 11px; font-weight: 800; color: var(--mut); text-transform: uppercase;">Montant à enregistrer</span>
+            <div style="font-size: 38px; font-weight: 900; color: var(--primary-dark); margin: 4px 0;">
+              <span id="quick-amount">15</span>
+              <span style="font-size: 20px; color: var(--primary);">.00 GHS</span>
+            </div>
+            <span style="font-size: 12px; font-weight: 700; color: var(--mut);" id="quick-equiv">≈ 630 XOF</span>
+
+            <!-- Incremental Quick Pills -->
+            <div class="quick-pill-row">
+              <div class="quick-pill" onclick="addAmount(5)">+5</div>
+              <div class="quick-pill" onclick="addAmount(10)">+10</div>
+              <div class="quick-pill" onclick="addAmount(20)">+20</div>
+              <div class="quick-pill" onclick="addAmount(50)">+50</div>
+            </div>
+          </div>
+
+          <!-- Category Selection (Clean Vector Icons, NO EMOJIS) -->
+          <span style="font-size: 11px; font-weight: 800; color: var(--mut); text-transform: uppercase; margin-left: 4px;">Choisir l'enveloppe (1 tap)</span>
+          <div class="category-grid">
+            <div class="cat-btn selected" onclick="selectCat(this, 'Alimentation')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3"></path></svg>
+              <span>Nourriture</span>
+            </div>
+            <div class="cat-btn" onclick="selectCat(this, 'Transport')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="16" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>
+              <span>Trotro / Trajet</span>
+            </div>
+            <div class="cat-btn" onclick="selectCat(this, 'Études')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15z"></path></svg>
+              <span>Polys &amp; Livres</span>
+            </div>
+            <div class="cat-btn" onclick="selectCat(this, 'Sorties')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              <span>Sorties</span>
+            </div>
+            <div class="cat-btn" onclick="selectCat(this, 'Data')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path></svg>
+              <span>Forfait Data</span>
+            </div>
+            <div class="cat-btn" onclick="selectCat(this, 'Autre')">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span>Autre</span>
+            </div>
+          </div>
+
+          <!-- Numpad -->
+          <div class="quick-numpad">
+            <div class="num-key" onclick="pressNum('1')">1</div>
+            <div class="num-key" onclick="pressNum('2')">2</div>
+            <div class="num-key" onclick="pressNum('3')">3</div>
+            <div class="num-key" onclick="pressNum('4')">4</div>
+            <div class="num-key" onclick="pressNum('5')">5</div>
+            <div class="num-key" onclick="pressNum('6')">6</div>
+            <div class="num-key" onclick="pressNum('7')">7</div>
+            <div class="num-key" onclick="pressNum('8')">8</div>
+            <div class="num-key" onclick="pressNum('9')">9</div>
+            <div class="num-key" onclick="pressNum('.')">.</div>
+            <div class="num-key" onclick="pressNum('0')">0</div>
+            <div class="num-key" onclick="pressNum('del')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path><line x1="18" y1="9" x2="12" y2="15"></line><line x1="12" y1="9" x2="18" y2="15"></line></svg>
+            </div>
+          </div>
+
+          <button class="btn-action-secondary" style="width: 100%; height: 50px; border-radius: var(--radius-md);" onclick="confirmQuickLog()">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            Valider la Dépense (Tap 3)
+          </button>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 3: IMPULSE FRICTION ("I WANT TO BUY") -->
+        <!-- ============================================== -->
+        <section id="screen-friction" class="screen-content">
+          <div class="screen-header">
+            <button class="icon-btn" onclick="switchScreen('home')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div class="header-title-box" style="text-align: center;">
+              <h2>Pause Réflexion (Anti-Pulsion)</h2>
+              <p>Conscience financière active</p>
+            </div>
+            <div style="width: 38px;"></div>
+          </div>
+
+          <div class="friction-card">
+            <span style="font-size: 11px; font-weight: 800; color: var(--mut); text-transform: uppercase;">Achat Envisagé</span>
+            <h3 style="font-size: 22px; font-weight: 900; color: var(--ink); margin: 4px 0;">Sneakers Nike Air</h3>
+            <div style="font-size: 28px; font-weight: 900; color: var(--primary); margin-bottom: 2px;">
+              320.00 GHS
+            </div>
+            <span style="font-size: 12px; font-weight: 700; color: var(--mut);">≈ 13 440 XOF</span>
+
+            <!-- Shock Number (FR5 / UX-DR4) -->
+            <div class="shock-days-badge">
+              <span class="shock-num">23</span>
+              <span class="shock-lbl">Jours</span>
+            </div>
+            <span style="font-size: 11px; font-weight: 800; color: var(--primary);">76% de ton budget mensuel</span>
+
+            <!-- Concrete Reframing Alert -->
+            <div class="reframing-alert">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+              <span><strong>Équivalent choc :</strong> Cela représente exactement <strong>3 semaines complètes de repas</strong> sur le campus.</span>
+            </div>
+
+            <!-- M. Pognon Speech Bubble with Official Mascot -->
+            <div class="bubble-coach">
+              <div class="coach-avatar-mini">
+                <img src="../ux-SEP-2026-10-12/imports/m_pognon_coin_logo.jpg" alt="M. Pognon">
+              </div>
+              <p>« En as-tu un besoin vital maintenant Jonas, ou tes chaussures actuelles peuvent tenir jusqu'aux examens de fin de semestre ? »</p>
+            </div>
+
+            <!-- Dual Choice Buttons (No Guilt) -->
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button class="btn-action-primary" style="height: 52px;" onclick="acceptThinking()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                Je réfléchis (Sauvegarder 320 GHS)
+              </button>
+              <button class="btn-action-secondary" style="height: 48px; background: #fff; color: var(--ink); border: 1.5px solid var(--line); box-shadow: none;" onclick="acceptBuyAnyway()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Oui, j'achète quand même
+              </button>
+            </div>
+            <p style="font-size: 11px; font-weight: 600; color: var(--mut); margin-top: 10px;">
+              En choisissant « Je réfléchis », cet achat est placé dans ton coffre 24h sans dépenser un pesewa.
+            </p>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 4: CONSIDERED PURCHASES (WISHLIST) -->
+        <!-- ============================================== -->
+        <section id="screen-wishlist" class="screen-content">
+          <div class="screen-header">
+            <button class="icon-btn" onclick="switchScreen('home')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div class="header-title-box" style="text-align: center;">
+              <h2>Achats Évalués</h2>
+              <p>Historique des réflexions &amp; impulsions</p>
+            </div>
+            <button class="icon-btn" onclick="switchScreen('friction')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            </button>
+          </div>
+
+          <!-- Status Filters -->
+          <div class="filter-pills">
+            <span class="filter-pill active" onclick="filterWish(this, 'all')">Tous (4)</span>
+            <span class="filter-pill" onclick="filterWish(this, 'pending')">En réflexion (1)</span>
+            <span class="filter-pill" onclick="filterWish(this, 'abandoned')">Économisés (2)</span>
+            <span class="filter-pill" onclick="filterWish(this, 'bought')">Achetés (1)</span>
+          </div>
+
+          <!-- Wish Items -->
+          <div class="wish-item">
+            <div class="wish-header">
+              <h4 style="font-size: 14px; font-weight: 800; color: var(--ink);">Sneakers Nike Air</h4>
+              <span class="wish-status pending">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                En réflexion · 18h restantes
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0 8px;">
+              <span style="font-size: 18px; font-weight: 900; color: var(--primary);">320.00 GHS</span>
+              <span style="font-size: 11px; font-weight: 700; color: var(--mut);">Coût : 23 jours de repas</span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button class="picker-btn" style="flex: 1; padding: 6px; font-size: 11px; justify-content: center; background: var(--action); color: #fff; border: none;" onclick="abandonPurchase('Sneakers', 320)">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Abandonner (Sauver)
+              </button>
+              <button class="picker-btn" style="flex: 1; padding: 6px; font-size: 11px; justify-content: center; background: var(--card); color: var(--ink);" onclick="buyPurchase('Sneakers')">
+                Acheter
+              </button>
+            </div>
+          </div>
+
+          <div class="wish-item">
+            <div class="wish-header">
+              <h4 style="font-size: 14px; font-weight: 800; color: var(--ink);">Casque Bluetooth Anker</h4>
+              <span class="wish-status abandoned">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Économisé (Abandonné)
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0;">
+              <span style="font-size: 16px; font-weight: 900; color: var(--action);">+180.00 GHS au compteur</span>
+              <span style="font-size: 11px; font-weight: 700; color: var(--mut);">Évité le 8 Mai</span>
+            </div>
+          </div>
+
+          <div class="wish-item">
+            <div class="wish-header">
+              <h4 style="font-size: 14px; font-weight: 800; color: var(--ink);">Disque dur externe 1To</h4>
+              <span class="wish-status bought">
+                Acheté après réflexion
+              </span>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin: 4px 0;">
+              <span style="font-size: 16px; font-weight: 900; color: var(--ink);">-210.00 GHS</span>
+              <span style="font-size: 11px; font-weight: 700; color: var(--mut);">Validé après 48h</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 5: SMART CAPTURE & MOMO OCR PREVIEW -->
+        <!-- ============================================== -->
+        <section id="screen-capture" class="screen-content">
+          <div class="screen-header">
+            <button class="icon-btn" onclick="switchScreen('home')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div class="header-title-box" style="text-align: center;">
+              <h2>Capture Reçu &amp; MoMo</h2>
+              <p>Extraction IA + Stockage R2 permanent</p>
+            </div>
+            <div style="width: 38px;"></div>
+          </div>
+
+          <!-- Warning Banner Duplicate Reference (FR11) -->
+          <div class="warning-banner" id="dup-banner" style="display: none;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+            <span><strong>Doublon détecté !</strong> Cette référence MoMo existe déjà dans tes dépenses (loggée hier).</span>
+          </div>
+
+          <!-- Upload Drop Tile (UX-DR7) -->
+          <div class="upload-tile" onclick="simulateOcrScan()">
+            <div style="width: 48px; height: 48px; background: var(--primary-soft); border-radius: 14px; margin: 0 auto 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+            </div>
+            <h4 style="font-size: 14px; font-weight: 800; color: var(--primary); margin-bottom: 2px;">Importer Screenshot MoMo ou Reçu</h4>
+            <p style="font-size: 11px; font-weight: 600; color: var(--mut);">Cliquez ici pour simuler une capture MTN MoMo</p>
+          </div>
+
+          <!-- OCR Preview Form (FR10) -->
+          <div class="ocr-preview-form">
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+              <h4 style="font-size: 13px; font-weight: 900; color: var(--ink);">Prévisualisation des données extraites</h4>
+              <span style="font-size: 10px; font-weight: 800; background: var(--warn-soft); color: var(--warn-text); padding: 2px 6px; border-radius: 4px;">
+                Champs jaunes = à vérifier
+              </span>
+            </div>
+
+            <div class="form-group">
+              <label>Montant extrait (GHS)</label>
+              <input type="text" class="form-control" id="ocr-amount" value="45.00">
+            </div>
+
+            <div class="form-group">
+              <label>Marchand / Bénéficiaire</label>
+              <input type="text" class="form-control" id="ocr-merchant" value="MTN MoMo · Chopbox Express">
+            </div>
+
+            <div class="form-group">
+              <label>Catégorie déduite par l'IA</label>
+              <input type="text" class="form-control uncertain" id="ocr-cat" value="Alimentation (Confiance 74%)">
+            </div>
+
+            <div class="form-group">
+              <label>Référence Transaction (Anti-doublon)</label>
+              <input type="text" class="form-control" id="ocr-ref" value="TXN-984321-GH">
+            </div>
+
+            <div style="display: flex; gap: 8px; margin-top: 14px;">
+              <button class="btn-action-primary" style="flex: 1; height: 44px; font-size: 12px;" onclick="confirmOcrExpense()">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                Enregistrer la dépense
+              </button>
+              <button class="icon-btn" style="height: 44px; width: 44px;" onclick="toggleDuplicateWarning()">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path></svg>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 6: CHATBOT M. POGNON (FR13, FR14) -->
+        <!-- ============================================== -->
+        <section id="screen-chat" class="screen-content">
+          <div class="screen-header">
+            <button class="icon-btn" onclick="switchScreen('home')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div class="header-user" style="margin: 0 auto;">
+              <div class="header-avatar" style="width: 32px; height: 32px;">
+                <img src="../ux-SEP-2026-10-12/imports/m_pognon_coin_logo.jpg" alt="M. Pognon">
+              </div>
+              <div class="header-title-box">
+                <h2>M. Pognon</h2>
+                <p>Conseiller Financier</p>
+              </div>
+            </div>
+            <div class="coach-badge-escalation" id="tone-badge">
+              Intransigeant
+            </div>
+          </div>
+
+          <!-- Chat Context Capsule -->
+          <div style="background: var(--card); border: 1px solid var(--line); border-radius: var(--radius-sm); padding: 8px 12px; margin-bottom: 12px; font-size: 11px; font-weight: 700; color: var(--mut); display: flex; justify-content: space-between;">
+            <span>Contexte : Solde 412 GHS · 14 Jours</span>
+            <span style="color: var(--action);">Conso IA : 1.20$ / 5.00$</span>
+          </div>
+
+          <!-- Chat Conversation Log -->
+          <div class="chat-container" id="chat-box">
+            <div class="chat-bubble coach">
+              Bonjour Jonas. J'ai analysé tes 7 derniers jours sur le campus. Tu tiens ton rythme à 29.4 GHS/jour, mais ton enveloppe Restaurant est en zone critique. Que souhaites-tu challenger aujourd'hui ?
+              <div class="chat-meta">09:12 · M. Pognon</div>
+            </div>
+
+            <div class="chat-bubble user">
+              Je voulais savoir si je pouvais m'acheter le livre d'anglais à 80 GHS ce soir ?
+              <div class="chat-meta" style="color: rgba(255,255,255,0.7);">09:14 · Jonas</div>
+            </div>
+
+            <div class="chat-bubble coach">
+              80 GHS représentent presque 3 jours d'allocation complète. Si c'est obligatoire pour le module de demain matin, valide-le dans l'enveloppe « Polys &amp; Livres ». Mais si un camarade peut te prêter son PDF, économise-le. Ton matelas de sécurité en fin de mois t'en remerciera.
+              <div class="chat-meta">09:15 · M. Pognon</div>
+            </div>
+          </div>
+
+          <!-- Chat Input Bar -->
+          <div class="chat-input-bar">
+            <input type="text" class="chat-input" id="user-msg-input" placeholder="Posez une question à M. Pognon..." onkeypress="handleChatKey(event)">
+            <button class="chat-send-btn" onclick="sendUserMessage()">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+            </button>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- SCREEN 7: SETTINGS & FX RATE DRAWER -->
+        <!-- ============================================== -->
+        <section id="screen-settings" class="screen-content">
+          <div class="screen-header">
+            <button class="icon-btn" onclick="switchScreen('home')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+            </button>
+            <div class="header-title-box" style="text-align: center;">
+              <h2>Paramètres &amp; Devises</h2>
+              <p>Configuration manuelle &amp; Sauvegardes</p>
+            </div>
+            <div style="width: 38px;"></div>
+          </div>
+
+          <!-- FX Manual Rate (FR3) -->
+          <div class="drawer-card">
+            <h4>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+              Taux de Change Manuel (XOF / GHS)
+            </h4>
+            <p style="font-size: 11px; font-weight: 600; color: var(--mut); margin-bottom: 10px;">
+              Aucune API externe. Jonas saisit le taux réel négocié au change à la frontière ou en ville.
+            </p>
+            <div class="rate-box">
+              <span style="font-size: 13px; font-weight: 800; color: var(--ink);">1 GHS =</span>
+              <input type="number" id="manual-rate-input" value="42" onchange="updateRate(this.value)">
+              <span style="font-size: 13px; font-weight: 800; color: var(--primary);">XOF (Franc CFA)</span>
+            </div>
+          </div>
+
+          <!-- Export Data (FR4) -->
+          <div class="drawer-card">
+            <h4>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+              Exportation des Données
+            </h4>
+            <p style="font-size: 11px; font-weight: 600; color: var(--mut); margin-bottom: 10px;">
+              Téléchargez toutes vos dépenses et achats évités sous forme de tableur CSV.
+            </p>
+            <button class="picker-btn" style="width: 100%; justify-content: center; background: var(--action); color: #fff; border: none;" onclick="triggerCsvExport()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="8 17 12 21 16 17"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path></svg>
+              Exporter en CSV (Dépenses &amp; Coffre)
+            </button>
+          </div>
+
+          <!-- Cloudflare & Resend Status (NFR2, NFR3, FR15) -->
+          <div class="drawer-card">
+            <h4>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect><rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect><line x1="6" y1="6" x2="6.01" y2="6"></line><line x1="6" y1="18" x2="6.01" y2="18"></line></svg>
+              Synchronisation &amp; Emails
+            </h4>
+            <div style="font-size: 11px; font-weight: 700; color: var(--mut); line-height: 1.6;">
+              <div>• Base locale : <strong>IndexedDB (idb)</strong> · Opérationnel</div>
+              <div>• Mirror Cloudflare : <strong>Worker + D1 SQLite</strong> · En attente synchro</div>
+              <div>• Emails : <strong>kgslab.com via Resend</strong> (06h00 &amp; 22h00 UTC)</div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ============================================== -->
+        <!-- BOTTOM SYSTEM WRAP (PERSISTENT ON ALL SCREENS) -->
+        <!-- ============================================== -->
+        <div class="bottom-system-wrap">
+          <!-- Persistent Action Bar (UX-DR3) -->
+          <div class="thumb-action-bar">
+            <button class="btn-action-primary" onclick="switchScreen('friction')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"></circle><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line></svg>
+              I want to buy
+            </button>
+            <button class="btn-action-secondary" onclick="switchScreen('add')">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+              + Add
+            </button>
+          </div>
+
+          <!-- 3-Tab Bottom Navigation -->
+          <nav class="bottom-nav">
+            <div class="nav-tab active" id="tab-home" onclick="switchScreen('home')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path></svg>
+              <span>Accueil</span>
+            </div>
+            <div class="nav-tab" id="tab-capture" onclick="switchScreen('capture')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+              <span>Capture</span>
+            </div>
+            <div class="nav-tab" id="tab-wishlist" onclick="switchScreen('wishlist')">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+              <span>Achats</span>
+            </div>
+          </nav>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Walkthrough & Design Decisions Side Panel -->
+    <aside class="walkthrough-panel">
+      <h2>
+        Guide des Écrans Corrigés
+        <span class="walkthrough-badge">Option A</span>
+      </h2>
+
+      <div class="walkthrough-card">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          1. Zéro Émoji &amp; Vraies Icônes Vectorielles
+        </h3>
+        <p>
+          Tous les pictogrammes sont désormais des <strong>SVG Lucide / Ionicons natifs</strong> stylés avec notre couleur d'accentuation (Prune Odoo <code>#714B67</code> et Sarcelle <code>#017e84</code>). Fini les bols de soupe et cœurs qui bavaient sur Android.
+        </p>
+      </div>
+
+      <div class="walkthrough-card">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          2. Intégration de la Vraie Mascotte M. Pognon
+        </h3>
+        <p>
+          L'icône de cerveau générique de Stitch a été remplacée par la <strong>Pièce d'Or stylisée (Option 2)</strong> avec son monocle, sa moustache et son chapeau melon prune, intégrée dans le header, le coach et le chatbot.
+        </p>
+      </div>
+
+      <div class="walkthrough-card">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path></svg>
+          3. Les 4 Écrans Manquants Ajoutés
+        </h3>
+        <ul>
+          <li><strong>Écran 5 (Capture &amp; OCR MoMo) :</strong> Détection des reçus et screenshots MTN/Vodafone, highlight jaune d'incertitude et bannière d'anti-doublon d'ID.</li>
+          <li><strong>Écran 6 (Chatbot M. Pognon) :</strong> Conversation fluide, badge d'escalade d'urgence ("Intransigeant") et jauge de quota 5$/mois.</li>
+          <li><strong>Écran 7 (Taux XOF &amp; Export) :</strong> Taux manuel 1 GHS = 42 XOF sans API et bouton d'exportation CSV propre.</li>
+          <li><strong>Écran 4 (Achats Évalués) :</strong> Filtrage complet [Tous, En réflexion 48h, Abandonnés, Achetés].</li>
+        </ul>
+      </div>
+
+      <div class="walkthrough-card">
+        <h3>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          4. Testez l'interactivité en direct !
+        </h3>
+        <p>
+          Dans le téléphone à gauche, vous pouvez cliquer sur <strong>« I want to buy »</strong>, appuyer sur <strong>« Je réfléchis »</strong> pour voir le compteur d'achats évités bondir, changer la devise GHS/XOF, ou envoyer un message dans le chat !
+        </p>
+      </div>
+    </aside>
+
+  </main>
+
+  <!-- Interactive JavaScript Logic -->
+  <script>
+    let activeCurrency = 'GHS';
+    let exchangeRate = 42; // 1 GHS = 42 XOF
+    let balanceGhs = 412.00;
+    let avoidedGhs = 180.00;
+    let quickAmountVal = 15;
+
+    function switchScreen(screenId) {
+      // Hide all screens
+      document.querySelectorAll('.screen-content').forEach(el => el.classList.remove('active'));
+      // Show selected screen
+      const target = document.getElementById('screen-' + screenId);
+      if (target) target.classList.add('active');
+
+      // Update Top Nav Buttons
+      document.querySelectorAll('.picker-btn').forEach(btn => btn.classList.remove('active'));
+      const activeBtn = Array.from(document.querySelectorAll('.picker-btn')).find(b => b.textContent.toLowerCase().includes(screenId) || (screenId === 'home' && b.textContent.includes('Dashboard')) || (screenId === 'friction' && b.textContent.includes('Pulsion')) || (screenId === 'wishlist' && b.textContent.includes('Achats')) || (screenId === 'capture' && b.textContent.includes('Capture')) || (screenId === 'chat' && b.textContent.includes('Chatbot')) || (screenId === 'settings' && b.textContent.includes('Taux')));
+      if (activeBtn) activeBtn.classList.add('active');
+
+      // Update Bottom Nav Tabs
+      document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+      if (screenId === 'home') document.getElementById('tab-home').classList.add('active');
+      else if (screenId === 'capture') document.getElementById('tab-capture').classList.add('active');
+      else if (screenId === 'wishlist') document.getElementById('tab-wishlist').classList.add('active');
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('app-toast');
+      const text = document.getElementById('toast-text');
+      text.textContent = msg;
+      toast.style.display = 'flex';
+      setTimeout(() => { toast.style.display = 'none'; }, 2800);
+    }
+
+    function toggleCurrency() {
+      if (activeCurrency === 'GHS') {
+        activeCurrency = 'XOF';
+        document.getElementById('curr-tag').textContent = 'XOF';
+        document.getElementById('home-balance-val').textContent = (balanceGhs * exchangeRate).toLocaleString();
+        document.getElementById('home-balance-curr').textContent = ' XOF';
+        document.getElementById('home-balance-equiv').textContent = '≈ ' + balanceGhs.toFixed(2) + ' GHS';
+        showToast('Affichage basculé en Francs CFA (XOF)');
+      } else {
+        activeCurrency = 'GHS';
+        document.getElementById('curr-tag').textContent = 'GHS';
+        document.getElementById('home-balance-val').textContent = balanceGhs.toFixed(0);
+        document.getElementById('home-balance-curr').textContent = '.00 GHS';
+        document.getElementById('home-balance-equiv').textContent = '≈ ' + (balanceGhs * exchangeRate).toLocaleString() + ' XOF';
+        showToast('Affichage basculé en Ghana Cedis (GHS)');
+      }
+    }
+
+    function updateRate(newRate) {
+      exchangeRate = parseFloat(newRate) || 42;
+      document.getElementById('home-balance-equiv').textContent = '≈ ' + (balanceGhs * exchangeRate).toLocaleString() + ' XOF (taux : 1 GHS = ' + exchangeRate + ' XOF)';
+      showToast('Nouveau taux enregistré : 1 GHS = ' + exchangeRate + ' XOF');
+    }
+
+    /* Quick Log Logic */
+    function addAmount(delta) {
+      quickAmountVal += delta;
+      document.getElementById('quick-amount').textContent = quickAmountVal;
+      document.getElementById('quick-equiv').textContent = '≈ ' + (quickAmountVal * exchangeRate) + ' XOF';
+    }
+
+    function pressNum(char) {
+      let cur = document.getElementById('quick-amount').textContent;
+      if (char === 'del') {
+        cur = cur.length > 1 ? cur.slice(0, -1) : '0';
+      } else if (char === '.') {
+        if (!cur.includes('.')) cur += '.';
+      } else {
+        if (cur === '0' || cur === '15') cur = char;
+        else cur += char;
+      }
+      quickAmountVal = parseFloat(cur) || 0;
+      document.getElementById('quick-amount').textContent = cur;
+      document.getElementById('quick-equiv').textContent = '≈ ' + Math.round(quickAmountVal * exchangeRate) + ' XOF';
+    }
+
+    function resetQuickLog() {
+      quickAmountVal = 0;
+      document.getElementById('quick-amount').textContent = '0';
+      document.getElementById('quick-equiv').textContent = '≈ 0 XOF';
+      showToast('Montant réinitialisé');
+    }
+
+    function selectCat(elem, catName) {
+      document.querySelectorAll('.cat-btn').forEach(b => b.classList.remove('selected'));
+      elem.classList.add('selected');
+      showToast('Catégorie sélectionnée : ' + catName);
+    }
+
+    function confirmQuickLog() {
+      balanceGhs -= quickAmountVal;
+      document.getElementById('home-balance-val').textContent = balanceGhs.toFixed(0);
+      showToast('Dépense de ' + quickAmountVal + ' GHS enregistrée !');
+      setTimeout(() => { switchScreen('home'); }, 600);
+    }
+
+    /* Friction Logic */
+    function acceptThinking() {
+      avoidedGhs += 320.00;
+      document.getElementById('home-avoided-val').textContent = avoidedGhs.toFixed(2) + ' GHS';
+      showToast('Bien joué Jonas ! 320 GHS placés dans le coffre 48h.');
+      setTimeout(() => { switchScreen('wishlist'); }, 800);
+    }
+
+    function acceptBuyAnyway() {
+      balanceGhs -= 320.00;
+      document.getElementById('home-balance-val').textContent = balanceGhs.toFixed(0);
+      showToast('Achat validé sans friction. 320 GHS débités.');
+      setTimeout(() => { switchScreen('home'); }, 800);
+    }
+
+    /* Wishlist Logic */
+    function filterWish(elem, status) {
+      document.querySelectorAll('.filter-pill').forEach(p => p.classList.remove('active'));
+      elem.classList.add('active');
+      showToast('Filtre : ' + elem.textContent);
+    }
+
+    function abandonPurchase(name, sum) {
+      avoidedGhs += sum;
+      document.getElementById('home-avoided-val').textContent = avoidedGhs.toFixed(2) + ' GHS';
+      showToast(name + ' abandonné ! +' + sum + ' GHS au compteur évité.');
+    }
+
+    function buyPurchase(name) {
+      showToast(name + ' acheté et converti en dépense.');
+    }
+
+    /* OCR Logic */
+    function simulateOcrScan() {
+      showToast('Scan OCR du reçu MTN MoMo en cours...');
+      setTimeout(() => {
+        document.getElementById('ocr-amount').value = "55.00";
+        document.getElementById('ocr-merchant').value = "Vodafone Cash · Campus Mart";
+        document.getElementById('ocr-cat').value = "Alimentation (Confiance 89%)";
+        document.getElementById('ocr-ref').value = "TXN-773129-GH";
+        showToast('Données extraites avec succès !');
+      }, 700);
+    }
+
+    function toggleDuplicateWarning() {
+      const banner = document.getElementById('dup-banner');
+      banner.style.display = banner.style.display === 'none' ? 'flex' : 'none';
+    }
+
+    function confirmOcrExpense() {
+      showToast('Dépense MoMo confirmée et backupée sur Cloudflare R2 !');
+      setTimeout(() => { switchScreen('home'); }, 700);
+    }
+
+    /* Chatbot Logic */
+    function handleChatKey(e) {
+      if (e.key === 'Enter') sendUserMessage();
+    }
+
+    function sendUserMessage() {
+      const input = document.getElementById('user-msg-input');
+      const msg = input.value.trim();
+      if (!msg) return;
+
+      const chatBox = document.getElementById('chat-box');
+
+      // User Bubble
+      const userBubble = document.createElement('div');
+      userBubble.className = 'chat-bubble user';
+      userBubble.innerHTML = msg + '<div class="chat-meta" style="color: rgba(255,255,255,0.7);">À l\'instant · Jonas</div>';
+      chatBox.appendChild(userBubble);
+      input.value = '';
+
+      // Auto Scroll
+      chatBox.scrollTop = chatBox.scrollHeight;
+
+      // Coach Response
+      setTimeout(() => {
+        const coachBubble = document.createElement('div');
+        coachBubble.className = 'chat-bubble coach';
+        coachBubble.innerHTML = "« Je t'entends Jonas. Rappelle-toi que chaque Cedi économisé aujourd'hui allonge ton autonomie de fin de mois. Sois intraitable sur le superflu. »" + '<div class="chat-meta">À l\'instant · M. Pognon</div>';
+        chatBox.appendChild(coachBubble);
+        chatBox.scrollTop = chatBox.scrollHeight;
+      }, 700);
+    }
+
+    function triggerCsvExport() {
+      showToast('Génération du fichier SEP_Depenses_2026.csv...');
+      setTimeout(() => {
+        showToast('Fichier CSV téléchargé avec succès !');
+      }, 900);
+    }
+  </script>
+</body>
+</html>
