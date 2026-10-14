@@ -2,8 +2,8 @@
   <ion-toolbar class="settings-toolbar">
     <ion-title class="settings-title">Paramètres &amp; Devises</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()" class="close-btn" aria-label="Fermer">
-        <ion-icon name="close-outline"></ion-icon>
+      <ion-button (click)="dismiss()" class="close-btn" aria-label="Fermer" fill="clear">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
@@ -11,74 +11,87 @@
 
 <ion-content class="settings-content ion-padding">
 
-  <!-- Manual Exchange Rate Section (FR3) -->
-  <section class="card-box">
-    <div class="card-header-row">
-      <ion-icon name="globe-outline" class="card-header-icon"></ion-icon>
-      <h4>Taux de Change Manuel (XOF / GHS)</h4>
-    </div>
-    <p class="card-desc">
-      Saisis le taux négocié au change à Accra ou à la frontière. Aucune API externe requise.
-    </p>
-
-    <div class="rate-input-container">
-      <span class="rate-prefix">1 GHS =</span>
-      <input
-        type="number"
-        class="rate-input"
-        [(ngModel)]="exchangeRate"
-        min="1"
-        step="0.5" />
-      <span class="rate-suffix">XOF</span>
-    </div>
-  </section>
-
-  <!-- Monthly Budget Ceiling -->
-  <section class="card-box">
-    <div class="card-header-row">
-      <ion-icon name="wallet-outline" class="card-header-icon"></ion-icon>
-      <h4>Plafond Budgétaire Mensuel</h4>
-    </div>
-    <p class="card-desc">
-      Allocation totale allouée pour le mois en cours.
-    </p>
-
-    <div class="rate-input-container">
-      <span class="rate-prefix">Budget :</span>
-      <input
-        type="number"
-        class="rate-input"
-        [(ngModel)]="totalBudgetGhs"
-        min="50"
-        step="10" />
-      <span class="rate-suffix">GHS</span>
-    </div>
-  </section>
-
-  <!-- Category Envelopes -->
-  <section class="card-box">
-    <div class="card-header-row">
-      <ion-icon name="restaurant-outline" class="card-header-icon"></ion-icon>
-      <h4>Enveloppes par Catégorie</h4>
-    </div>
-
-    <div class="cat-list">
-      <div *ngFor="let cat of categories" class="cat-row">
-        <div class="cat-name-box">
-          <ion-icon [name]="cat.icon"></ion-icon>
-          <span>{{ cat.name }}</span>
-        </div>
-        <div class="cat-input-box">
-          <input
-            type="number"
-            class="cat-amount-input"
-            [(ngModel)]="cat.monthlyAllocationGhs"
-            min="0" />
-          <span>GHS</span>
-        </div>
+  <!-- Manual Exchange Rate Section (Official ion-card) -->
+  <ion-card class="settings-card ion-no-margin">
+    <ion-card-header>
+      <div class="card-header-row">
+        <ion-icon name="globe-outline" class="card-header-icon"></ion-icon>
+        <ion-card-title class="card-title">Taux de Change Manuel (XOF / GHS)</ion-card-title>
       </div>
-    </div>
-  </section>
+      <ion-card-subtitle class="card-desc">
+        Saisis le taux négocié au change à Accra ou à la frontière. Aucune API externe requise.
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <div class="rate-input-container">
+        <span class="rate-prefix">1 GHS =</span>
+        <ion-input
+          type="number"
+          class="rate-input"
+          [(ngModel)]="exchangeRate"
+          min="1"
+          step="0.5">
+        </ion-input>
+        <span class="rate-suffix">XOF</span>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Monthly Budget Ceiling (Official ion-card) -->
+  <ion-card class="settings-card ion-no-margin">
+    <ion-card-header>
+      <div class="card-header-row">
+        <ion-icon name="wallet-outline" class="card-header-icon"></ion-icon>
+        <ion-card-title class="card-title">Plafond Budgétaire Mensuel</ion-card-title>
+      </div>
+      <ion-card-subtitle class="card-desc">
+        Allocation totale allouée pour le mois en cours.
+      </ion-card-subtitle>
+    </ion-card-header>
+
+    <ion-card-content>
+      <div class="rate-input-container">
+        <span class="rate-prefix">Budget :</span>
+        <ion-input
+          type="number"
+          class="rate-input"
+          [(ngModel)]="totalBudgetGhs"
+          min="50"
+          step="10">
+        </ion-input>
+        <span class="rate-suffix">GHS</span>
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <!-- Category Envelopes (Official ion-card & ion-list) -->
+  <ion-card class="settings-card ion-no-margin">
+    <ion-card-header>
+      <div class="card-header-row">
+        <ion-icon name="restaurant-outline" class="card-header-icon"></ion-icon>
+        <ion-card-title class="card-title">Enveloppes par Catégorie</ion-card-title>
+      </div>
+    </ion-card-header>
+
+    <ion-card-content class="ion-no-padding">
+      <ion-list lines="full" class="cat-list">
+        <ion-item *ngFor="let cat of categories" class="cat-item">
+          <ion-icon [name]="cat.icon" slot="start" class="cat-icon"></ion-icon>
+          <ion-label class="cat-name">{{ cat.name }}</ion-label>
+          <div slot="end" class="cat-input-box">
+            <ion-input
+              type="number"
+              class="cat-amount-input"
+              [(ngModel)]="cat.monthlyAllocationGhs"
+              min="0">
+            </ion-input>
+            <span class="cat-unit">GHS</span>
+          </div>
+        </ion-item>
+      </ion-list>
+    </ion-card-content>
+  </ion-card>
 
   <!-- Save Configuration Button -->
   <ion-button
@@ -90,30 +103,34 @@
     Enregistrer les Paramètres
   </ion-button>
 
-  <!-- CSV Data Export (FR4) -->
-  <section class="card-box export-card">
-    <div class="card-header-row">
-      <ion-icon name="download-outline" class="card-header-icon action"></ion-icon>
-      <h4>Exportation des Données (CSV)</h4>
-    </div>
-    <p class="card-desc">
-      Télécharge l'intégralité de tes transactions au format tableur standard (RFC 4180).
-    </p>
+  <!-- CSV Data Export (Official ion-card) -->
+  <ion-card class="settings-card export-card ion-no-margin">
+    <ion-card-header>
+      <div class="card-header-row">
+        <ion-icon name="download-outline" class="card-header-icon action"></ion-icon>
+        <ion-card-title class="card-title">Exportation des Données (CSV)</ion-card-title>
+      </div>
+      <ion-card-subtitle class="card-desc">
+        Télécharge l'intégralité de tes transactions au format tableur standard (RFC 4180).
+      </ion-card-subtitle>
+    </ion-card-header>
 
-    <ion-button
-      expand="block"
-      class="export-btn"
-      (click)="exportData()"
-      id="btn-export-csv">
-      <ion-icon slot="start" name="download-outline"></ion-icon>
-      Télécharger SEP_Expenses.csv
-    </ion-button>
-  </section>
+    <ion-card-content>
+      <ion-button
+        expand="block"
+        class="export-btn"
+        (click)="exportData()"
+        id="btn-export-csv">
+        <ion-icon slot="start" name="download-outline"></ion-icon>
+        Télécharger SEP_Expenses.csv
+      </ion-button>
+    </ion-card-content>
+  </ion-card>
 
-  <!-- Offline-first status badge -->
-  <div class="sync-status-badge">
-    <ion-icon name="cloud-done-outline"></ion-icon>
-    <span>Stockage local IndexedDB actif · 100% hors-ligne</span>
-  </div>
+  <!-- Offline-first status badge (Official ion-item) -->
+  <ion-item lines="none" class="sync-status-item">
+    <ion-icon name="cloud-done-outline" slot="start" class="sync-icon"></ion-icon>
+    <ion-note class="sync-text">Stockage local IndexedDB actif · 100% hors-ligne</ion-note>
+  </ion-item>
 
 </ion-content>

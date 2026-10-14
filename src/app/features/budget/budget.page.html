@@ -1,97 +1,112 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="budget-toolbar">
+    <ion-title class="page-title">Enveloppes &amp; Achats</ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content [fullscreen]="true" class="budget-content">
-  <div class="sep-page-container has-bottom-bars">
-    <header class="sep-page-header">
-      <h2 class="sep-page-title">Enveloppes &amp; Achats</h2>
-      <p class="sep-page-subtitle">Suivi budgétaire du campus &amp; sas anti-pulsion</p>
-    </header>
+  <div class="page-container has-bottom-bars">
 
-    <!-- Category Envelopes Section -->
-    <section class="section-box">
-      <div class="sep-section-title-row">
-        <h3 class="sep-section-title">Enveloppes Budgétaires</h3>
-        <span class="sep-section-action">Total : {{ totalSpentGhs.toFixed(0) }} / {{ totalBudgetAllocatedGhs }} GHS</span>
-      </div>
+    <!-- Category Envelopes Section (Official ion-list & ion-item) -->
+    <ion-list class="budget-list ion-no-padding" [inset]="true">
+      <ion-list-header>
+        <ion-label class="section-title">Enveloppes Budgétaires</ion-label>
+        <ion-note class="section-action">Total : {{ totalSpentGhs.toFixed(0) }} / {{ totalBudgetAllocatedGhs }} GHS</ion-note>
+      </ion-list-header>
 
-      <div *ngIf="envelopes.length === 0" class="sep-empty-card">
-        <p>Aucune enveloppe configurée pour ce mois.</p>
-      </div>
+      <ion-item *ngIf="envelopes.length === 0" lines="none" class="empty-item">
+        <ion-label class="ion-text-center">
+          <p>Aucune enveloppe configurée pour ce mois.</p>
+        </ion-label>
+      </ion-item>
 
-      <div *ngFor="let env of envelopes" class="envelope-item">
-        <div class="env-top">
-          <div class="env-label">
-            <div class="env-icon-wrap">
-              <ion-icon [name]="getCategoryIcon(env.category.id)"></ion-icon>
+      <ion-card *ngFor="let env of envelopes" class="envelope-card ion-no-margin">
+        <ion-card-content class="envelope-card-content">
+          <div class="env-top">
+            <div class="env-label-group">
+              <ion-avatar class="env-avatar">
+                <ion-icon [name]="getCategoryIcon(env.category.id)"></ion-icon>
+              </ion-avatar>
+              <div class="env-text-group">
+                <h4 class="env-name">{{ env.category.name }}</h4>
+                <p class="env-sub">{{ env.spentGhs.toFixed(2) }} GHS sur {{ env.allocatedGhs }} GHS</p>
+              </div>
             </div>
-            <div class="env-text-group">
-              <span class="env-name">{{ env.category.name }}</span>
-              <span class="env-sub">{{ env.spentGhs.toFixed(2) }} GHS sur {{ env.allocatedGhs }} GHS</span>
-            </div>
+
+            <ion-badge [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')" class="env-badge">
+              {{ env.percentage }}%
+              <span *ngIf="env.status === 'safe'"> (Sain)</span>
+              <span *ngIf="env.status === 'warning'"> (Alerte)</span>
+              <span *ngIf="env.status === 'danger'"> (Critique)</span>
+            </ion-badge>
           </div>
-          <span class="env-ratio" [ngClass]="env.status">
-            {{ env.percentage }}%
-            <span *ngIf="env.status === 'safe'"> (Sain)</span>
-            <span *ngIf="env.status === 'warning'"> (Alerte)</span>
-            <span *ngIf="env.status === 'danger'"> (Critique)</span>
-          </span>
-        </div>
 
-        <div class="sep-progress-track">
-          <div
-            class="progress-bar-fill"
-            [ngClass]="'fill-' + env.status"
-            [style.width.%]="env.percentage"
-          ></div>
-        </div>
-      </div>
-    </section>
+          <ion-progress-bar
+            class="env-progress"
+            [value]="env.percentage / 100"
+            [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')">
+          </ion-progress-bar>
+        </ion-card-content>
+      </ion-card>
+    </ion-list>
 
     <!-- Considered Purchases Section (Anti-Pulsion 48h) -->
-    <section class="section-box">
-      <div class="sep-section-title-row">
-        <h3 class="sep-section-title">Achats en réflexion (48h)</h3>
-        <span class="sep-section-action">{{ pendingPurchases.length }} en cours</span>
+    <div class="section-wrapper">
+      <div class="section-header-row">
+        <h3 class="section-title">Achats en réflexion (48h)</h3>
+        <ion-note class="section-action">{{ pendingPurchases.length }} en cours</ion-note>
       </div>
 
-      <div *ngIf="pendingPurchases.length === 0" class="sep-empty-card">
-        <ion-icon name="shield-checkmark-outline" style="font-size: 28px; color: var(--sep-action); margin-bottom: 8px;"></ion-icon>
-        <p>Aucun achat en attente de réflexion. Vos pulsions sont maîtrisées !</p>
-      </div>
+      <ion-card *ngIf="pendingPurchases.length === 0" class="empty-purchase-card ion-no-margin">
+        <ion-card-content class="empty-content">
+          <ion-icon name="shield-checkmark-outline" class="empty-icon"></ion-icon>
+          <p>Aucun achat en attente de réflexion. Vos pulsions sont maîtrisées !</p>
+        </ion-card-content>
+      </ion-card>
 
-      <div *ngFor="let pur of pendingPurchases" class="purchase-card">
-        <div class="pur-header">
-          <h4 class="pur-name">{{ pur.title }}</h4>
-          <span class="pur-badge">
-            <ion-icon name="time-outline"></ion-icon>
-            {{ getHoursRemaining(pur.expiresAt) }}
-          </span>
-        </div>
-        <div class="pur-meta">
-          <span class="pur-cost">{{ pur.amountGhs.toFixed(2) }} GHS</span>
-          <span class="pur-reframing">
-            {{ pur.reframingText || ('Équivaut à ' + budgetCalculator.reframeInMeals(pur.amountGhs) + ' repas au campus') }}
-          </span>
-        </div>
-      </div>
-    </section>
+      <ion-card *ngFor="let pur of pendingPurchases" class="purchase-card ion-no-margin">
+        <ion-card-header>
+          <div class="pur-header-row">
+            <ion-card-title class="pur-title">{{ pur.title }}</ion-card-title>
+            <ion-chip color="warning" class="pur-chip">
+              <ion-icon name="time-outline"></ion-icon>
+              <ion-label>{{ getHoursRemaining(pur.expiresAt) }}</ion-label>
+            </ion-chip>
+          </div>
+        </ion-card-header>
+        <ion-card-content>
+          <div class="pur-meta-row">
+            <span class="pur-cost">{{ pur.amountGhs.toFixed(2) }} GHS</span>
+            <ion-note class="pur-reframing">
+              {{ pur.reframingText || ('Équivaut à ' + budgetCalculator.reframeInMeals(pur.amountGhs) + ' repas au campus') }}
+            </ion-note>
+          </div>
+        </ion-card-content>
+      </ion-card>
+    </div>
 
     <!-- Avoided Purchases History Section -->
-    <section class="section-box" *ngIf="avoidedPurchases.length > 0">
-      <div class="sep-section-title-row">
-        <h3 class="sep-section-title">Pulsions Neutralisées (Victoires)</h3>
-        <span class="sep-section-action">{{ avoidedPurchases.length }} évitées</span>
+    <div class="section-wrapper" *ngIf="avoidedPurchases.length > 0">
+      <div class="section-header-row">
+        <h3 class="section-title">Pulsions Neutralisées (Victoires)</h3>
+        <ion-note class="section-action">{{ avoidedPurchases.length }} évitées</ion-note>
       </div>
 
-      <div *ngFor="let avoid of avoidedPurchases" class="avoided-item">
-        <div class="avoided-left">
-          <ion-icon name="shield-checkmark-outline" class="avoided-icon"></ion-icon>
-          <div>
-            <span class="avoided-title">{{ avoid.title }}</span>
-            <span class="avoided-date">{{ avoid.resolvedAt | date:'dd MMM yyyy' }}</span>
-          </div>
-        </div>
-        <span class="avoided-saving">+{{ avoid.amountGhs.toFixed(2) }} GHS</span>
-      </div>
-    </section>
+      <ion-list class="avoided-list ion-no-padding" [inset]="true">
+        <ion-item *ngFor="let avoid of avoidedPurchases" lines="full" class="avoided-item">
+          <ion-avatar slot="start" class="avoided-avatar">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </ion-avatar>
+          <ion-label>
+            <h4 class="avoided-title">{{ avoid.title }}</h4>
+            <p class="avoided-date">{{ avoid.resolvedAt | date:'dd MMM yyyy' }}</p>
+          </ion-label>
+          <ion-note slot="end" class="avoided-saving">
+            +{{ avoid.amountGhs.toFixed(2) }} GHS
+          </ion-note>
+        </ion-item>
+      </ion-list>
+    </div>
 
   </div>
 </ion-content>

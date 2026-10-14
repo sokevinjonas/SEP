@@ -5,6 +5,7 @@
 }
 
 .settings-title {
+  font-family: var(--ion-font-family);
   font-size: 17px;
   font-weight: 900;
   color: var(--sep-primary, #714B67);
@@ -19,19 +20,19 @@
   --background: var(--sep-base, #F7F3F6);
 }
 
-.card-box {
+.settings-card {
   background: var(--sep-card, #FFFFFF);
   border: 1px solid var(--sep-line, #EADFE7);
   border-radius: 18px;
-  padding: 16px;
-  margin-bottom: 14px;
   box-shadow: 0 2px 8px rgba(113, 75, 103, 0.05);
+  margin-bottom: 14px;
 
-  h4 {
-    font-size: 13px;
-    font-weight: 900;
-    color: var(--sep-primary, #714B67);
-    margin: 0;
+  ion-card-header {
+    padding: 16px 16px 8px;
+  }
+
+  ion-card-content {
+    padding: 0 16px 16px;
   }
 }
 
@@ -39,7 +40,6 @@
   display: flex;
   align-items: center;
   gap: 8px;
-  margin-bottom: 4px;
 }
 
 .card-header-icon {
@@ -51,11 +51,20 @@
   }
 }
 
+.card-title {
+  font-family: var(--ion-font-family);
+  font-size: 13.5px;
+  font-weight: 900;
+  color: var(--sep-primary, #714B67);
+  margin: 0;
+}
+
 .card-desc {
+  font-family: var(--ion-font-family);
   font-size: 11px;
   font-weight: 600;
   color: var(--sep-mut, #6B5966);
-  margin: 2px 0 12px;
+  margin: 4px 0 0;
   line-height: 1.35;
 }
 
@@ -66,7 +75,8 @@
   background: var(--sep-base, #F7F3F6);
   border: 1px solid var(--sep-line, #EADFE7);
   border-radius: 12px;
-  padding: 8px 12px;
+  padding: 4px 12px;
+  margin-top: 6px;
 }
 
 .rate-prefix {
@@ -76,17 +86,15 @@
 }
 
 .rate-input {
-  width: 80px;
-  height: 34px;
-  border: 1.5px solid var(--sep-primary-light, #8d6482);
+  max-width: 90px;
+  --background: #ffffff;
+  --padding-start: 8px;
+  --padding-end: 8px;
+  border: 1px solid var(--sep-primary-light, #8d6482);
   border-radius: 8px;
   text-align: center;
-  font-family: inherit;
-  font-size: 14px;
   font-weight: 900;
   color: var(--sep-primary, #714B67);
-  outline: none;
-  background: #ffffff;
 }
 
 .rate-suffix {
@@ -96,57 +104,49 @@
 }
 
 .cat-list {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  background: transparent;
 }
 
-.cat-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 6px 0;
-  border-bottom: 1px dashed var(--sep-line, #EADFE7);
-
-  &:last-child {
-    border-bottom: none;
-  }
+.cat-item {
+  --background: transparent;
+  --padding-start: 16px;
+  --inner-padding-end: 16px;
+  --min-height: 48px;
 }
 
-.cat-name-box {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 12px;
+.cat-icon {
+  font-size: 18px;
+  color: var(--sep-primary, #714B67);
+}
+
+.cat-name {
+  font-size: 12.5px;
   font-weight: 800;
   color: var(--sep-ink, #2B1F28);
-
-  ion-icon {
-    font-size: 16px;
-    color: var(--sep-primary, #714B67);
-  }
 }
 
 .cat-input-box {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--sep-mut, #6B5966);
+  gap: 6px;
 }
 
 .cat-amount-input {
-  width: 65px;
-  height: 30px;
+  max-width: 70px;
+  --background: #ffffff;
+  --padding-start: 6px;
+  --padding-end: 6px;
   border: 1px solid var(--sep-line, #EADFE7);
   border-radius: 6px;
   text-align: center;
-  font-family: inherit;
-  font-size: 12px;
   font-weight: 800;
   color: var(--sep-ink, #2B1F28);
-  background: #ffffff;
+}
+
+.cat-unit {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--sep-mut, #6B5966);
 }
 
 .save-btn {
@@ -172,20 +172,22 @@
   font-size: 13px;
   min-height: 44px;
   height: 44px;
-  margin: 0;
+  margin: 6px 0 0;
 }
 
-.sync-status-badge {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--sep-action, #017e84);
-  padding: 10px 0;
+.sync-status-item {
+  --background: transparent;
+  text-align: center;
+  margin-top: 8px;
 
-  ion-icon {
+  .sync-icon {
     font-size: 16px;
+    color: var(--sep-action, #017e84);
+  }
+
+  .sync-text {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sep-action, #017e84);
   }
 }

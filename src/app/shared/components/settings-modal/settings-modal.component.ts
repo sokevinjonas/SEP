@@ -8,6 +8,16 @@ import {
   IonButtons,
   IonButton,
   IonContent,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
+  IonList,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonNote,
   IonIcon,
   ModalController,
   ToastController
@@ -44,6 +54,16 @@ import { Category, MonthlyBudget } from '../../../core/models/financial.models';
     IonButtons,
     IonButton,
     IonContent,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardSubtitle,
+    IonCardContent,
+    IonList,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonNote,
     IonIcon
   ],
   templateUrl: './settings-modal.component.html',
@@ -101,7 +121,6 @@ export class SettingsModalComponent implements OnInit {
       return;
     }
 
-    // Update CurrencyService signal & DB
     await this.currencyService.setExchangeRate(this.exchangeRate);
 
     if (this.monthlyBudget) {

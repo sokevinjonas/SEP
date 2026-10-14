@@ -2,54 +2,66 @@
   <ion-toolbar class="modal-toolbar">
     <ion-title class="modal-title">Dépense Rapide</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()" class="close-btn" aria-label="Fermer">
-        <ion-icon name="close-outline"></ion-icon>
+      <ion-button (click)="dismiss()" class="close-btn" aria-label="Fermer" fill="clear">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content class="modal-content ion-padding">
-  <!-- Amount Display Card -->
-  <div class="amount-card">
-    <span class="amount-caption">Montant de la dépense</span>
-    <div class="amount-hero">
-      <span class="amount-number">{{ amountStr }}</span>
-      <span class="amount-currency">{{ currencyService.activeCurrency() }}</span>
-    </div>
-    <span class="amount-equiv">{{ equivText }}</span>
+  <!-- Amount Display Card (Official ion-card) -->
+  <ion-card class="amount-card ion-no-margin">
+    <ion-card-content class="amount-card-content">
+      <span class="amount-caption">Montant de la dépense</span>
+      <div class="amount-hero">
+        <span class="amount-number">{{ amountStr }}</span>
+        <span class="amount-currency">{{ currencyService.activeCurrency() }}</span>
+      </div>
+      <span class="amount-equiv">{{ equivText }}</span>
 
-    <!-- Quick Incremental Pills -->
-    <div class="pill-row">
-      <button type="button" class="quick-pill" (click)="addPill(5)">+5</button>
-      <button type="button" class="quick-pill" (click)="addPill(10)">+10</button>
-      <button type="button" class="quick-pill" (click)="addPill(20)">+20</button>
-      <button type="button" class="quick-pill" (click)="addPill(50)">+50</button>
-    </div>
-  </div>
+      <!-- Quick Incremental Chips -->
+      <div class="pill-row">
+        <ion-chip class="quick-chip" (click)="addPill(5)">
+          <ion-label>+5</ion-label>
+        </ion-chip>
+        <ion-chip class="quick-chip" (click)="addPill(10)">
+          <ion-label>+10</ion-label>
+        </ion-chip>
+        <ion-chip class="quick-chip" (click)="addPill(20)">
+          <ion-label>+20</ion-label>
+        </ion-chip>
+        <ion-chip class="quick-chip" (click)="addPill(50)">
+          <ion-label>+50</ion-label>
+        </ion-chip>
+      </div>
+    </ion-card-content>
+  </ion-card>
 
   <!-- Categories Grid (1 Tap) -->
   <div class="section-label-row">
-    <span class="section-label">Catégorie (1 tap)</span>
+    <ion-label class="section-label">Catégorie (1 tap)</ion-label>
   </div>
   <div class="category-grid">
-    <div
+    <ion-chip
       *ngFor="let cat of categories"
       class="cat-chip"
       [class.selected]="selectedCategory?.id === cat.id"
       (click)="selectCategory(cat)">
       <ion-icon [name]="cat.icon"></ion-icon>
-      <span>{{ cat.name }}</span>
-    </div>
+      <ion-label>{{ cat.name }}</ion-label>
+    </ion-chip>
   </div>
 
-  <!-- Optional Merchant Field -->
+  <!-- Optional Merchant Field (Official ion-input) -->
   <div class="input-field-row">
-    <input
-      type="text"
+    <ion-input
       class="merchant-input"
+      fill="outline"
       placeholder="Lieu / Note (optionnel, ex: Waakye)"
-      [(ngModel)]="merchant" />
+      [(ngModel)]="merchant"
+      [clearInput]="true">
+    </ion-input>
   </div>
 
   <!-- Numpad -->

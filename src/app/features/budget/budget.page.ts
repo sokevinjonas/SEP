@@ -1,6 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonContent, IonIcon } from '@ionic/angular';
+import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
+  IonList,
+  IonListHeader,
+  IonItem,
+  IonLabel,
+  IonNote,
+  IonBadge,
+  IonProgressBar,
+  IonAvatar,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
+  IonChip,
+  IonIcon
+} from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
   walletOutline,
@@ -31,7 +51,27 @@ export interface CategoryEnvelopeView {
 @Component({
   selector: 'app-budget',
   standalone: true,
-  imports: [CommonModule, IonContent, IonIcon],
+  imports: [
+    CommonModule,
+    IonHeader,
+    IonToolbar,
+    IonTitle,
+    IonContent,
+    IonList,
+    IonListHeader,
+    IonItem,
+    IonLabel,
+    IonNote,
+    IonBadge,
+    IonProgressBar,
+    IonAvatar,
+    IonCard,
+    IonCardHeader,
+    IonCardTitle,
+    IonCardContent,
+    IonChip,
+    IonIcon
+  ],
   templateUrl: './budget.page.html',
   styleUrls: ['./budget.page.scss']
 })
@@ -76,7 +116,6 @@ export class BudgetPage implements OnInit {
     const currentMonthKey = this.db.getCurrentMonthKey();
     const monthExpenses = allExpenses.filter(e => e.date.startsWith(currentMonthKey));
 
-    // Calculate category spending
     const spentByCategory = new Map<string, number>();
     for (const exp of monthExpenses) {
       const cur = spentByCategory.get(exp.categoryId) || 0;
@@ -107,7 +146,6 @@ export class BudgetPage implements OnInit {
       };
     });
 
-    // Load anti-pulsion purchases
     const purchases = await this.db.getPurchases();
     this.pendingPurchases = purchases.filter(p => p.status === 'pending');
     this.avoidedPurchases = purchases.filter(p => p.status === 'abandoned');

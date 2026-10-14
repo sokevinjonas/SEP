@@ -8,6 +8,11 @@ import {
   IonButtons,
   IonButton,
   IonContent,
+  IonCard,
+  IonCardContent,
+  IonChip,
+  IonInput,
+  IonLabel,
   IonIcon,
   ModalController,
   ToastController
@@ -41,6 +46,11 @@ import { Category, Expense } from '../../../core/models/financial.models';
     IonButtons,
     IonButton,
     IonContent,
+    IonCard,
+    IonCardContent,
+    IonChip,
+    IonInput,
+    IonLabel,
     IonIcon
   ],
   templateUrl: './quick-log-modal.component.html',
@@ -76,7 +86,7 @@ export class QuickLogModalComponent implements OnInit {
   async ngOnInit() {
     this.categories = await this.db.getCategories();
     if (this.categories.length > 0) {
-      this.selectedCategory = this.categories[0]; // Default to first (Food)
+      this.selectedCategory = this.categories[0];
     }
   }
 
@@ -136,8 +146,6 @@ export class QuickLogModalComponent implements OnInit {
     }
 
     const activeCurrency = this.currencyService.activeCurrency();
-
-    // If logged in XOF, convert to GHS for standardized DB storage or keep currency
     const amountGhs = activeCurrency === 'GHS' ? amount : this.currencyService.toGhs(amount);
 
     const newExpense: Expense = {

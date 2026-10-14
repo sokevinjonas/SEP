@@ -1,11 +1,28 @@
 <ion-app>
-  <ion-router-outlet></ion-router-outlet>
+  <ion-tabs>
+    <ion-tab-bar slot="bottom" class="app-tab-bar">
+      <ion-tab-button tab="home" id="tab-btn-home">
+        <ion-icon name="home-outline"></ion-icon>
+        <ion-label>Home</ion-label>
+      </ion-tab-button>
 
-  <div class="bottom-system-wrap">
+      <ion-tab-button tab="capture" id="tab-btn-capture">
+        <ion-icon name="camera-outline"></ion-icon>
+        <ion-label>Capture</ion-label>
+      </ion-tab-button>
+
+      <ion-tab-button tab="budget" id="tab-btn-budget">
+        <ion-icon name="wallet-outline"></ion-icon>
+        <ion-label>Budget</ion-label>
+      </ion-tab-button>
+    </ion-tab-bar>
+  </ion-tabs>
+
+  <!-- Thumb-zone floating action bar docked above bottom tab bar -->
+  <div class="thumb-action-dock">
     <app-action-bar
       (wantToBuy)="handleWantToBuy()"
       (quickLog)="handleQuickLog()">
     </app-action-bar>
-    <app-bottom-nav></app-bottom-nav>
   </div>
 </ion-app>

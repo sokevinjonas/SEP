@@ -1,7 +1,26 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonButtons,
+  IonButton,
   IonContent,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
+  IonProgressBar,
+  IonChip,
+  IonBadge,
+  IonAvatar,
+  IonLabel,
+  IonNote,
+  IonList,
+  IonListHeader,
+  IonItem,
   IonIcon,
   ModalController
 } from '@ionic/angular';
@@ -32,7 +51,24 @@ import { BreathingBadgeComponent } from '../shared/components/breathing-badge/br
   standalone: true,
   imports: [
     CommonModule,
+    IonHeader,
+    IonToolbar,
+    IonButtons,
+    IonButton,
     IonContent,
+    IonCard,
+    IonCardHeader,
+    IonCardSubtitle,
+    IonCardContent,
+    IonProgressBar,
+    IonChip,
+    IonBadge,
+    IonAvatar,
+    IonLabel,
+    IonNote,
+    IonList,
+    IonListHeader,
+    IonItem,
     IonIcon,
     CurrencyPillComponent,
     BreathingBadgeComponent
@@ -100,20 +136,17 @@ export class HomePage implements OnInit {
     const monthExpenses = allExpenses.filter(e => e.date.startsWith(currentMonthKey));
     const totalSpentGhs = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-    // SOLID: Delegate budget math to BudgetCalculatorService
     this.consumption = this.budgetCalculator.calculateConsumption(
       this.monthlyBudget.totalBudgetGhs,
       totalSpentGhs
     );
 
-    // SOLID: Delegate budget days calculation (FR2)
     this.budgetDaysInfo = this.budgetCalculator.calculateBudgetDays(
       this.consumption.balanceGhs,
       monthExpenses,
       this.monthlyBudget.plannedDailyBudgetGhs
     );
 
-    // Avoided Total (FR7)
     this.avoidedGhs = await this.db.getAvoidedTotal();
   }
 

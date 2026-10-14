@@ -1,21 +1,32 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="capture-toolbar">
+    <ion-title class="page-title">Capture Reçu &amp; MoMo</ion-title>
+  </ion-toolbar>
+</ion-header>
+
 <ion-content [fullscreen]="true" class="capture-content">
-  <div class="sep-page-container has-bottom-bars">
-    <header class="sep-page-header">
-      <h2 class="sep-page-title">Capture Reçu &amp; MoMo</h2>
-      <p class="sep-page-subtitle">Scan OCR intelligent et stockage sécurisé R2</p>
-    </header>
+  <div class="page-container has-bottom-bars">
 
-    <section class="upload-tile">
-      <div class="upload-icon-circle">
-        <ion-icon name="cloud-upload-outline"></ion-icon>
-      </div>
-      <h3 class="upload-title">Importer un reçu ou screenshot MoMo</h3>
-      <p class="upload-desc">MTN Mobile Money, Vodafone Cash ou ticket papier</p>
-    </section>
+    <p class="page-subtitle ion-text-center">Scan OCR intelligent et stockage sécurisé R2</p>
 
-    <div class="info-note">
-      <ion-icon name="camera-outline"></ion-icon>
-      <span>Les captures prises hors-ligne sont mises en file d'attente automatique.</span>
-    </div>
+    <!-- Upload Card (Official ion-card) -->
+    <ion-card class="upload-tile ion-no-margin">
+      <ion-card-content class="upload-card-content">
+        <ion-avatar class="upload-avatar">
+          <ion-icon name="cloud-upload-outline"></ion-icon>
+        </ion-avatar>
+        <ion-card-title class="upload-title">Importer un reçu ou screenshot MoMo</ion-card-title>
+        <p class="upload-desc">MTN Mobile Money, Telecel Cash ou ticket papier</p>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Info Note (Official ion-item) -->
+    <ion-item lines="none" class="info-note-item">
+      <ion-icon name="camera-outline" slot="start" class="info-icon"></ion-icon>
+      <ion-label class="ion-text-wrap">
+        Les captures prises hors-ligne sont mises en file d'attente automatique.
+      </ion-label>
+    </ion-item>
+
   </div>
 </ion-content>

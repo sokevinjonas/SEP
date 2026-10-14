@@ -1,12 +1,35 @@
-.bottom-system-wrap {
+.app-tab-bar {
+  --background: var(--sep-card, #FFFFFF);
+  --border: 1px solid var(--sep-line, #EADFE7);
+  --color: var(--sep-mut, #6B5966);
+  --color-selected: var(--sep-primary, #714B67);
+  border-top: 1px solid var(--sep-line, #EADFE7);
+  box-shadow: 0 -2px 10px rgba(113, 75, 103, 0.05);
+  height: 58px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+
+  ion-tab-button {
+    --color: var(--sep-mut, #6B5966);
+    --color-selected: var(--sep-primary, #714B67);
+    font-family: var(--ion-font-family);
+    font-weight: 800;
+    font-size: 11px;
+
+    ion-icon {
+      font-size: 22px;
+      margin-bottom: 2px;
+    }
+  }
+}
+
+.thumb-action-dock {
   position: fixed;
-  bottom: 0;
+  bottom: calc(58px + env(safe-area-inset-bottom, 0px));
   left: 0;
   right: 0;
-  padding: 10px 14px calc(14px + env(safe-area-inset-bottom, 0px));
-  background: linear-gradient(to top, rgba(247, 243, 246, 1) 82%, rgba(247, 243, 246, 0) 100%);
-  z-index: 999;
   max-width: 500px;
   margin: 0 auto;
+  padding: 8px 14px 6px;
+  z-index: 1000;
   pointer-events: auto;
 }
