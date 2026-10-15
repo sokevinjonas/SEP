@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
   styleUrls: ['./breathing-badge.component.scss']
 })
 export class BreathingBadgeComponent {
-  @Input() label = 'Solde respirant';
+  @Input() label = 'Breathing Balance';
   @Input() status: 'breathing' | 'safe' | 'warning' | 'danger' = 'breathing';
   @Input() pulse = true;
 }

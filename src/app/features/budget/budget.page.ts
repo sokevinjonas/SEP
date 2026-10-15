@@ -154,9 +154,9 @@ export class BudgetPage implements OnInit {
   getHoursRemaining(expiresAt?: string): string {
     if (!expiresAt) return '48h';
     const remainingMs = new Date(expiresAt).getTime() - Date.now();
-    if (remainingMs <= 0) return 'Expiré (décision)';
+    if (remainingMs <= 0) return 'Expired (ready to decide)';
     const hours = Math.ceil(remainingMs / (1000 * 60 * 60));
-    return `${hours}h restantes`;
+    return `${hours}h left`;
   }
 
   getCategoryIcon(catId: string): string {

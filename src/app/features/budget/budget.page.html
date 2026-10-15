@@ -1,6 +1,6 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="budget-toolbar">
-    <ion-title class="page-title">Enveloppes &amp; Achats</ion-title>
+    <ion-title class="page-title">Envelopes &amp; Purchases</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -10,13 +10,13 @@
     <!-- Category Envelopes Section (Official ion-list & ion-item) -->
     <ion-list class="budget-list ion-no-padding" [inset]="true">
       <ion-list-header>
-        <ion-label class="section-title">Enveloppes Budgétaires</ion-label>
+        <ion-label class="section-title">Budget Envelopes</ion-label>
         <ion-note class="section-action">Total : {{ totalSpentGhs.toFixed(0) }} / {{ totalBudgetAllocatedGhs }} GHS</ion-note>
       </ion-list-header>
 
       <ion-item *ngIf="envelopes.length === 0" lines="none" class="empty-item">
         <ion-label class="ion-text-center">
-          <p>Aucune enveloppe configurée pour ce mois.</p>
+          <p>No envelopes configured for this month.</p>
         </ion-label>
       </ion-item>
 
@@ -29,15 +29,15 @@
               </ion-avatar>
               <div class="env-text-group">
                 <h4 class="env-name">{{ env.category.name }}</h4>
-                <p class="env-sub">{{ env.spentGhs.toFixed(2) }} GHS sur {{ env.allocatedGhs }} GHS</p>
+                <p class="env-sub">{{ env.spentGhs.toFixed(2) }} GHS of {{ env.allocatedGhs }} GHS</p>
               </div>
             </div>
 
             <ion-badge [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')" class="env-badge">
               {{ env.percentage }}%
-              <span *ngIf="env.status === 'safe'"> (Sain)</span>
-              <span *ngIf="env.status === 'warning'"> (Alerte)</span>
-              <span *ngIf="env.status === 'danger'"> (Critique)</span>
+              <span *ngIf="env.status === 'safe'"> (Safe)</span>
+              <span *ngIf="env.status === 'warning'"> (Alert)</span>
+              <span *ngIf="env.status === 'danger'"> (Critical)</span>
             </ion-badge>
           </div>
 
@@ -50,17 +50,17 @@
       </ion-card>
     </ion-list>
 
-    <!-- Considered Purchases Section (Anti-Pulsion 48h) -->
+    <!-- Considered Purchases Section (Anti-Impulse 48h) -->
     <div class="section-wrapper">
       <div class="section-header-row">
-        <h3 class="section-title">Achats en réflexion (48h)</h3>
-        <ion-note class="section-action">{{ pendingPurchases.length }} en cours</ion-note>
+        <h3 class="section-title">Cooling-off Purchases (48h)</h3>
+        <ion-note class="section-action">{{ pendingPurchases.length }} active</ion-note>
       </div>
 
       <ion-card *ngIf="pendingPurchases.length === 0" class="empty-purchase-card ion-no-margin">
         <ion-card-content class="empty-content">
           <ion-icon name="shield-checkmark-outline" class="empty-icon"></ion-icon>
-          <p>Aucun achat en attente de réflexion. Vos pulsions sont maîtrisées !</p>
+          <p>No pending impulse buys. Your financial discipline is intact!</p>
         </ion-card-content>
       </ion-card>
 
@@ -78,7 +78,7 @@
           <div class="pur-meta-row">
             <span class="pur-cost">{{ pur.amountGhs.toFixed(2) }} GHS</span>
             <ion-note class="pur-reframing">
-              {{ pur.reframingText || ('Équivaut à ' + budgetCalculator.reframeInMeals(pur.amountGhs) + ' repas au campus') }}
+              {{ pur.reframingText || ('Equivalent to ' + budgetCalculator.reframeInMeals(pur.amountGhs) + ' campus meals') }}
             </ion-note>
           </div>
         </ion-card-content>
@@ -88,8 +88,8 @@
     <!-- Avoided Purchases History Section -->
     <div class="section-wrapper" *ngIf="avoidedPurchases.length > 0">
       <div class="section-header-row">
-        <h3 class="section-title">Pulsions Neutralisées (Victoires)</h3>
-        <ion-note class="section-action">{{ avoidedPurchases.length }} évitées</ion-note>
+        <h3 class="section-title">Neutralized Impulses (Victories)</h3>
+        <ion-note class="section-action">{{ avoidedPurchases.length }} avoided</ion-note>
       </div>
 
       <ion-list class="avoided-list ion-no-padding" [inset]="true">

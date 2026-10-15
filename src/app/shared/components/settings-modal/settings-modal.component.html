@@ -1,8 +1,8 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="settings-toolbar">
-    <ion-title class="settings-title">Paramètres &amp; Devises</ion-title>
+    <ion-title class="settings-title">Settings &amp; Currencies</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()" class="close-btn" aria-label="Fermer" fill="clear">
+      <ion-button (click)="dismiss()" class="close-btn" aria-label="Close" fill="clear">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -16,10 +16,10 @@
     <ion-card-header>
       <div class="card-header-row">
         <ion-icon name="person-outline" class="card-header-icon"></ion-icon>
-        <ion-card-title class="card-title">Profil Étudiant</ion-card-title>
+        <ion-card-title class="card-title">Student Profile</ion-card-title>
       </div>
       <ion-card-subtitle class="card-desc">
-        Identité et localisation sur le campus.
+        Identity and campus location.
       </ion-card-subtitle>
     </ion-card-header>
 
@@ -27,21 +27,21 @@
       <ion-list lines="none" class="profile-input-list">
         <ion-item class="settings-input-item">
           <ion-input
-            label="Prénom ou Pseudo"
+            label="Name or Nickname"
             labelPlacement="stacked"
             [(ngModel)]="userProfile.name">
           </ion-input>
         </ion-item>
         <ion-item class="settings-input-item">
           <ion-input
-            label="Ville d'études"
+            label="Study City"
             labelPlacement="stacked"
             [(ngModel)]="userProfile.city">
           </ion-input>
         </ion-item>
         <ion-item class="settings-input-item">
           <ion-input
-            label="Campus universitaire"
+            label="University Campus"
             labelPlacement="stacked"
             [(ngModel)]="userProfile.campus">
           </ion-input>
@@ -55,10 +55,10 @@
     <ion-card-header>
       <div class="card-header-row">
         <ion-icon name="globe-outline" class="card-header-icon"></ion-icon>
-        <ion-card-title class="card-title">Taux de Change Manuel (XOF / GHS)</ion-card-title>
+        <ion-card-title class="card-title">Exchange Rate (XOF / GHS)</ion-card-title>
       </div>
       <ion-card-subtitle class="card-desc">
-        Saisis le taux négocié au change à Accra ou à la frontière. Aucune API externe requise.
+        Negotiated rate at Accra bureaus or the border.
       </ion-card-subtitle>
     </ion-card-header>
 
@@ -82,10 +82,10 @@
     <ion-card-header>
       <div class="card-header-row">
         <ion-icon name="wallet-outline" class="card-header-icon"></ion-icon>
-        <ion-card-title class="card-title">Plafond Budgétaire Mensuel</ion-card-title>
+        <ion-card-title class="card-title">Monthly Budget Ceiling</ion-card-title>
       </div>
       <ion-card-subtitle class="card-desc">
-        Allocation totale allouée pour le mois en cours.
+        Total allowance allocated for the current month.
       </ion-card-subtitle>
     </ion-card-header>
 
@@ -109,7 +109,7 @@
     <ion-card-header>
       <div class="card-header-row">
         <ion-icon name="restaurant-outline" class="card-header-icon"></ion-icon>
-        <ion-card-title class="card-title">Enveloppes par Catégorie</ion-card-title>
+        <ion-card-title class="card-title">Category Envelopes</ion-card-title>
       </div>
     </ion-card-header>
 
@@ -139,7 +139,7 @@
     (click)="saveSettings()"
     id="btn-save-settings">
     <ion-icon slot="start" name="save-outline"></ion-icon>
-    Enregistrer les Paramètres
+    Save Settings
   </ion-button>
 
   <!-- CSV Data Export (Official ion-card) -->
@@ -147,10 +147,10 @@
     <ion-card-header>
       <div class="card-header-row">
         <ion-icon name="download-outline" class="card-header-icon action"></ion-icon>
-        <ion-card-title class="card-title">Exportation des Données (CSV)</ion-card-title>
+        <ion-card-title class="card-title">Data Export (CSV)</ion-card-title>
       </div>
       <ion-card-subtitle class="card-desc">
-        Télécharge l'intégralité de tes transactions au format tableur standard (RFC 4180).
+        Download all your transactions in standard spreadsheet format (RFC 4180).
       </ion-card-subtitle>
     </ion-card-header>
 
@@ -161,7 +161,7 @@
         (click)="exportData()"
         id="btn-export-csv">
         <ion-icon slot="start" name="download-outline"></ion-icon>
-        Télécharger SEP_Expenses.csv
+        Download SEP_Expenses.csv
       </ion-button>
     </ion-card-content>
   </ion-card>
@@ -169,7 +169,7 @@
   <!-- Offline-first status badge (Official ion-item) -->
   <ion-item lines="none" class="sync-status-item">
     <ion-icon name="cloud-done-outline" slot="start" class="sync-icon"></ion-icon>
-    <ion-note class="sync-text">Stockage local IndexedDB actif · 100% hors-ligne</ion-note>
+    <ion-note class="sync-text">IndexedDB local storage active · 100% offline-first</ion-note>
   </ion-item>
 
 </ion-content>

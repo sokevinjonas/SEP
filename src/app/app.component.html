@@ -1,6 +1,6 @@
 <ion-app>
   <ion-tabs>
-    <ion-tab-bar slot="bottom" class="app-tab-bar">
+    <ion-tab-bar *ngIf="showNavigation()" slot="bottom" class="app-tab-bar">
       <ion-tab-button tab="home" id="tab-btn-home">
         <ion-icon name="home-outline"></ion-icon>
         <ion-label>Home</ion-label>
@@ -19,7 +19,7 @@
   </ion-tabs>
 
   <!-- Thumb-zone floating action bar docked above bottom tab bar -->
-  <div class="thumb-action-dock">
+  <div *ngIf="showNavigation()" class="thumb-action-dock">
     <app-action-bar
       (wantToBuy)="handleWantToBuy()"
       (quickLog)="handleQuickLog()">

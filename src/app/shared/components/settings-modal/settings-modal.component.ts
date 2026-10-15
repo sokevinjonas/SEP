@@ -116,7 +116,7 @@ export class SettingsModalComponent implements OnInit {
   async saveSettings() {
     if (this.exchangeRate <= 0) {
       const toast = await this.toastCtrl.create({
-        message: 'Le taux de change doit être supérieur à zéro.',
+        message: 'Exchange rate must be greater than zero.',
         duration: 2000,
         color: 'warning',
         position: 'top'
@@ -143,7 +143,7 @@ export class SettingsModalComponent implements OnInit {
     }
 
     const toast = await this.toastCtrl.create({
-      message: 'Paramètres et devises enregistrés avec succès !',
+      message: 'Settings and currencies saved successfully!',
       duration: 2000,
       color: 'success',
       position: 'top'
@@ -157,7 +157,7 @@ export class SettingsModalComponent implements OnInit {
     const expenses = await this.db.getExpenses();
     if (expenses.length === 0) {
       const toast = await this.toastCtrl.create({
-        message: 'Aucune dépense à exporter pour le moment.',
+        message: 'No expenses to export at this time.',
         duration: 2000,
         color: 'warning',
         position: 'top'
@@ -169,7 +169,7 @@ export class SettingsModalComponent implements OnInit {
     this.exportService.exportExpensesToCsv(expenses);
 
     const toast = await this.toastCtrl.create({
-      message: `${expenses.length} dépenses exportées en CSV avec succès !`,
+      message: `${expenses.length} expenses exported to CSV successfully!`,
       duration: 2500,
       color: 'success',
       position: 'top'

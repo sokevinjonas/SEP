@@ -1,142 +1,364 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="onboarding-toolbar">
-    <ion-title class="onboarding-title">Bienvenue sur SEP</ion-title>
+    <ion-button
+      *ngIf="currentStep > 1"
+      slot="start"
+      fill="clear"
+      class="nav-back-btn"
+      (click)="goToStep(currentStep - 1)"
+      aria-label="Back">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+
+    <ion-title class="onboarding-title">
+      {{ currentStep === 1 ? 'Welcome to SEP' : (currentStep === 2 ? 'Identity & Campus' : 'Currencies & Budget') }}
+    </ion-title>
+
+    <div slot="end" class="step-indicator-pill">
+      <span>{{ currentStep }} / 3</span>
+    </div>
   </ion-toolbar>
+
+  <!-- Step Progress Bar -->
+  <ion-progress-bar
+    class="step-progress-bar"
+    [value]="currentStep === 1 ? 0.33 : (currentStep === 2 ? 0.66 : 1.0)">
+  </ion-progress-bar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="onboarding-content ion-padding">
   <div class="onboarding-container">
 
-    <!-- Hero Coach Welcome Card -->
-    <ion-card class="coach-welcome-card ion-no-margin">
-      <ion-card-content class="coach-welcome-content">
-        <ion-avatar class="coach-avatar-lg">
-          <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
-        </ion-avatar>
+    <!-- ========================================== -->
+    <!-- STEP 1: WELCOME & COACH INTRODUCTION       -->
+    <!-- ========================================== -->
+    <section *ngIf="currentStep === 1" class="step-section animate-fade-in">
+      <!-- Coach Hero Card -->
+      <ion-card class="coach-hero-card ion-no-margin">
+        <ion-card-content class="coach-hero-content">
+          <div class="mascot-badge-wrap">
+            <ion-avatar class="coach-avatar-xl">
+              <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+            </ion-avatar>
+            <div class="mascot-sparkle">
+              <ion-icon name="sparkles-outline"></ion-icon>
+            </div>
+          </div>
 
-        <div class="coach-speech">
-          <h2 class="welcome-heading">Je suis M. Pognon</h2>
-          <p class="welcome-sub">
-            Ton tuteur budgétaire pour le campus. Ensemble, protégeons ton allocation contre les pulsions spontanées.
-          </p>
-        </div>
-      </ion-card-content>
-    </ion-card>
+          <div class="hero-speech">
+            <span class="coach-role-pill">M. Pognon · Campus Financial Guard</span>
+            <h1 class="hero-heading">Master Your Student Allowance</h1>
+            <p class="hero-sub">
+              Never run out of cash before month-end. Built specifically for international students navigating multi-currency life between Accra, Lomé, Abidjan and beyond.
+            </p>
+          </div>
+        </ion-card-content>
+      </ion-card>
 
-    <!-- Step 1: Identité & Campus Card -->
-    <ion-card class="form-card ion-no-margin">
-      <ion-card-header>
-        <div class="section-badge-row">
-          <ion-icon name="person-outline" class="section-icon"></ion-icon>
-          <ion-card-title class="section-heading">1. Ton Profil Étudiant</ion-card-title>
-        </div>
-        <ion-card-subtitle class="section-sub">
-          Ces informations sont stockées localement sur ton appareil.
-        </ion-card-subtitle>
-      </ion-card-header>
-
-      <ion-card-content class="ion-no-padding">
-        <ion-list lines="none" class="input-list">
-          <ion-item class="custom-input-item">
-            <ion-icon name="person-outline" slot="start" class="field-icon"></ion-icon>
-            <ion-input
-              label="Prénom ou Pseudo"
-              labelPlacement="stacked"
-              placeholder="Ex: Jonas"
-              [(ngModel)]="userName">
-            </ion-input>
-          </ion-item>
-
-          <ion-item class="custom-input-item">
-            <ion-icon name="globe-outline" slot="start" class="field-icon"></ion-icon>
-            <ion-input
-              label="Ville d'études"
-              labelPlacement="stacked"
-              placeholder="Ex: Accra"
-              [(ngModel)]="userCity">
-            </ion-input>
-          </ion-item>
-
-          <ion-item class="custom-input-item">
-            <ion-icon name="school-outline" slot="start" class="field-icon"></ion-icon>
-            <ion-input
-              label="Campus universitaire"
-              labelPlacement="stacked"
-              placeholder="Ex: Campus Legon"
-              [(ngModel)]="userCampus">
-            </ion-input>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Step 2: Devises & Budget Mensuel Card -->
-    <ion-card class="form-card ion-no-margin">
-      <ion-card-header>
-        <div class="section-badge-row">
-          <ion-icon name="wallet-outline" class="section-icon"></ion-icon>
-          <ion-card-title class="section-heading">2. Budget &amp; Devises</ion-card-title>
-        </div>
-        <ion-card-subtitle class="section-sub">
-          Gère tes dépenses en Cedis ghanéens (GHS) et Francs CFA (XOF).
-        </ion-card-subtitle>
-      </ion-card-header>
-
-      <ion-card-content class="ion-no-padding">
-        <div class="segment-wrap">
-          <ion-label class="segment-label">Devise principale par défaut :</ion-label>
-          <ion-segment [(ngModel)]="primaryCurrency" class="currency-segment">
-            <ion-segment-button value="GHS">
-              <ion-label>Cedi (GHS)</ion-label>
-            </ion-segment-button>
-            <ion-segment-button value="XOF">
-              <ion-label>FCFA (XOF)</ion-label>
-            </ion-segment-button>
-          </ion-segment>
+      <!-- Key Pillars -->
+      <div class="pillars-grid">
+        <div class="pillar-tile">
+          <div class="pillar-icon-box vault">
+            <ion-icon name="shield-checkmark-outline"></ion-icon>
+          </div>
+          <div class="pillar-text">
+            <h3 class="pillar-title">Anti-Impulse Vault</h3>
+            <p class="pillar-desc">48-hour thinking pause before spending. Reframes desires into cafeteria meals.</p>
+          </div>
         </div>
 
-        <ion-list lines="none" class="input-list">
-          <ion-item class="custom-input-item">
-            <ion-icon name="globe-outline" slot="start" class="field-icon"></ion-icon>
-            <ion-input
-              type="number"
-              label="Taux négocié (1 GHS en XOF)"
-              labelPlacement="stacked"
-              placeholder="Ex: 42"
-              [(ngModel)]="exchangeRate"
-              min="1"
-              step="0.5">
-            </ion-input>
-          </ion-item>
+        <div class="pillar-tile">
+          <div class="pillar-icon-box currency">
+            <ion-icon name="globe-outline"></ion-icon>
+          </div>
+          <div class="pillar-text">
+            <h3 class="pillar-title">Live &amp; Street Rates</h3>
+            <p class="pillar-desc">Switch seamlessly between Ghana Cedis (GHS), Francs CFA (XOF) and more.</p>
+          </div>
+        </div>
 
-          <ion-item class="custom-input-item">
-            <ion-icon name="wallet-outline" slot="start" class="field-icon"></ion-icon>
-            <ion-input
-              type="number"
-              label="Plafond budgétaire mensuel (GHS)"
-              labelPlacement="stacked"
-              placeholder="Ex: 600"
-              [(ngModel)]="monthlyBudgetGhs"
-              min="50"
-              step="10">
-            </ion-input>
-          </ion-item>
-        </ion-list>
-      </ion-card-content>
-    </ion-card>
+        <div class="pillar-tile">
+          <div class="pillar-icon-box offline">
+            <ion-icon name="flash-outline"></ion-icon>
+          </div>
+          <div class="pillar-text">
+            <h3 class="pillar-title">100% Offline-First</h3>
+            <p class="pillar-desc">Your financial logs remain on your device. Zero external cloud tracking.</p>
+          </div>
+        </div>
+      </div>
 
-    <!-- Action Button -->
-    <div class="action-wrap">
-      <ion-button
-        expand="block"
-        size="large"
-        class="start-btn"
-        (click)="completeOnboarding()"
-        id="btn-complete-onboarding">
-        <span>Commencer avec M. Pognon</span>
-        <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
-      </ion-button>
-    </div>
+      <!-- Step 1 CTA Button -->
+      <div class="action-footer">
+        <ion-button
+          expand="block"
+          size="large"
+          class="primary-action-btn"
+          (click)="goToStep(2)"
+          id="btn-start-journey">
+          <span>Get Started</span>
+          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- STEP 2: STUDENT IDENTITY & CAMPUS CARD     -->
+    <!-- ========================================== -->
+    <section *ngIf="currentStep === 2" class="step-section animate-fade-in">
+      <ion-card class="form-card ion-no-margin">
+        <ion-card-header>
+          <div class="section-badge-row">
+            <ion-icon name="person-outline" class="section-icon"></ion-icon>
+            <ion-card-title class="section-heading">Student Identity &amp; Campus</ion-card-title>
+          </div>
+          <ion-card-subtitle class="section-sub">
+            M. Pognon uses these details to calibrate your daily allowance and campus advice.
+          </ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content class="ion-no-padding">
+          <ion-list lines="none" class="input-list">
+            <!-- Student Name Input -->
+            <ion-item class="custom-input-item">
+              <ion-icon name="person-outline" slot="start" class="field-icon"></ion-icon>
+              <ion-input
+                label="Student Name or Nickname *"
+                labelPlacement="stacked"
+                placeholder="e.g. Jonas"
+                [(ngModel)]="userName">
+              </ion-input>
+            </ion-item>
+
+            <!-- Study City Section -->
+            <div class="field-group">
+              <ion-label class="field-group-title">Study City :</ion-label>
+              <div class="pill-selection-grid">
+                <ion-chip
+                  *ngFor="let city of popularCities"
+                  class="select-chip"
+                  [class.active]="!isCustomCity && userCity === city"
+                  (click)="selectCity(city)">
+                  <ion-label>{{ city }}</ion-label>
+                </ion-chip>
+
+                <ion-chip
+                  class="select-chip custom-chip"
+                  [class.active]="isCustomCity"
+                  (click)="enableCustomCity()">
+                  <ion-icon name="globe-outline"></ion-icon>
+                  <ion-label>Other / Custom</ion-label>
+                </ion-chip>
+              </div>
+
+              <!-- City Input Field -->
+              <ion-item class="custom-input-item sub-input">
+                <ion-icon name="globe-outline" slot="start" class="field-icon"></ion-icon>
+                <ion-input
+                  label="Selected City"
+                  labelPlacement="stacked"
+                  placeholder="e.g. Accra, Kumasi, Lomé..."
+                  [(ngModel)]="userCity">
+                </ion-input>
+              </ion-item>
+            </div>
+
+            <!-- University / Campus Section -->
+            <div class="field-group">
+              <ion-label class="field-group-title">University / Campus :</ion-label>
+              <div class="pill-selection-grid">
+                <ion-chip
+                  *ngFor="let camp of popularCampuses"
+                  class="select-chip"
+                  [class.active]="!isCustomCampus && userCampus === camp"
+                  (click)="selectCampus(camp)">
+                  <ion-label>{{ camp }}</ion-label>
+                </ion-chip>
+
+                <ion-chip
+                  class="select-chip custom-chip"
+                  [class.active]="isCustomCampus"
+                  (click)="enableCustomCampus()">
+                  <ion-icon name="school-outline"></ion-icon>
+                  <ion-label>Other Campus</ion-label>
+                </ion-chip>
+              </div>
+
+              <!-- Campus Input Field -->
+              <ion-item class="custom-input-item sub-input">
+                <ion-icon name="school-outline" slot="start" class="field-icon"></ion-icon>
+                <ion-input
+                  label="Selected Campus"
+                  labelPlacement="stacked"
+                  placeholder="e.g. University of Ghana (Legon)"
+                  [(ngModel)]="userCampus">
+                </ion-input>
+              </ion-item>
+            </div>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Step 2 Navigation -->
+      <div class="action-footer double-actions">
+        <ion-button
+          fill="outline"
+          class="secondary-action-btn"
+          (click)="goToStep(1)">
+          Back
+        </ion-button>
+
+        <ion-button
+          class="primary-action-btn flex-fill"
+          (click)="goToStep(3)"
+          id="btn-continue-step2">
+          <span>Continue to Financials</span>
+          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+        </ion-button>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- STEP 3: FINANCIAL ENGINE & CURRENCIES      -->
+    <!-- ========================================== -->
+    <section *ngIf="currentStep === 3" class="step-section animate-fade-in">
+      <ion-card class="form-card ion-no-margin">
+        <ion-card-header>
+          <div class="section-badge-row">
+            <ion-icon name="wallet-outline" class="section-icon"></ion-icon>
+            <ion-card-title class="section-heading">Currencies &amp; Exchange Rate</ion-card-title>
+          </div>
+          <ion-card-subtitle class="section-sub">
+            Pick your spending currencies and fetch real-time market rates from live financial APIs.
+          </ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content class="ion-no-padding">
+          <!-- Primary Currency Selector -->
+          <div class="currency-block">
+            <ion-label class="block-label">Primary Spending Currency :</ion-label>
+            <div class="currency-chips-row">
+              <ion-chip
+                *ngFor="let curr of supportedCurrencies"
+                class="currency-chip"
+                [class.selected]="primaryCurrency === curr.code"
+                (click)="selectPrimaryCurrency(curr.code)">
+                <span class="curr-symbol">{{ curr.symbol }}</span>
+                <span class="curr-name">{{ curr.code }}</span>
+              </ion-chip>
+            </div>
+          </div>
+
+          <!-- Secondary / Reference Currency Selector -->
+          <div class="currency-block">
+            <ion-label class="block-label">Home / Reference Currency :</ion-label>
+            <div class="currency-chips-row">
+              <ion-chip
+                *ngFor="let curr of supportedCurrencies"
+                class="currency-chip"
+                [class.selected]="secondaryCurrency === curr.code"
+                [class.disabled]="primaryCurrency === curr.code"
+                (click)="selectSecondaryCurrency(curr.code)">
+                <span class="curr-symbol">{{ curr.symbol }}</span>
+                <span class="curr-name">{{ curr.code }}</span>
+              </ion-chip>
+            </div>
+          </div>
+
+          <!-- Live Rate Engine Box -->
+          <div class="live-rate-box">
+            <div class="rate-status-row">
+              <div class="rate-meta">
+                <span class="rate-badge">
+                  <ion-icon name="globe-outline"></ion-icon>
+                  Live Market Engine
+                </span>
+                <p class="rate-status-text">{{ rateFetchStatusMessage || 'Ready to fetch live rates' }}</p>
+              </div>
+
+              <ion-button
+                fill="outline"
+                size="small"
+                class="refresh-rate-btn"
+                [disabled]="isFetchingLiveRate"
+                (click)="fetchLiveExchangeRate()">
+                <ion-spinner *ngIf="isFetchingLiveRate" name="crescent" slot="start"></ion-spinner>
+                <ion-icon *ngIf="!isFetchingLiveRate" name="refresh-outline" slot="start"></ion-icon>
+                <span>{{ isFetchingLiveRate ? 'Fetching...' : 'Fetch Live' }}</span>
+              </ion-button>
+            </div>
+
+            <!-- Applied Rate Input (Street / Negotiated Rate Override) -->
+            <ion-item class="custom-input-item embedded-rate-item" lines="none">
+              <ion-icon name="cash-outline" slot="start" class="field-icon"></ion-icon>
+              <ion-input
+                type="number"
+                [label]="'Applied Rate (1 ' + primaryCurrency + ' in ' + secondaryCurrency + ')'"
+                labelPlacement="stacked"
+                placeholder="e.g. 42.0"
+                [(ngModel)]="exchangeRate"
+                min="0.01"
+                step="0.1">
+              </ion-input>
+            </ion-item>
+            <p class="rate-hint">
+              You can keep the live API rate or adjust to your negotiated street rate (e.g., Circle or Border).
+            </p>
+          </div>
+
+          <!-- Monthly Budget Ceiling Input -->
+          <div class="budget-ceiling-block">
+            <ion-item class="custom-input-item" lines="none">
+              <ion-icon name="wallet-outline" slot="start" class="field-icon"></ion-icon>
+              <ion-input
+                type="number"
+                [label]="'Monthly Budget Ceiling (' + primaryCurrency + ') *'"
+                labelPlacement="stacked"
+                placeholder="e.g. 600"
+                [(ngModel)]="monthlyBudgetGhs"
+                min="10"
+                step="10">
+              </ion-input>
+            </ion-item>
+
+            <!-- Dynamic Allowance Calculation Preview -->
+            <div class="allowance-preview-card">
+              <div class="preview-metric">
+                <span class="metric-caption">Daily Allowance</span>
+                <span class="metric-value">{{ dailyAllowance.toFixed(2) }} {{ primaryCurrency }} / day</span>
+                <span class="metric-equiv">≈ {{ dailyAllowanceSecondary.toLocaleString() }} {{ secondaryCurrency }}</span>
+              </div>
+
+              <div class="preview-divider"></div>
+
+              <div class="preview-metric">
+                <span class="metric-caption">Meal Equivalent</span>
+                <span class="metric-value">≈ {{ campusMealEquivalent }} meals</span>
+                <span class="metric-equiv">~15 {{ primaryCurrency }} each</span>
+              </div>
+            </div>
+          </div>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Step 3 Action Buttons -->
+      <div class="action-footer double-actions">
+        <ion-button
+          fill="outline"
+          class="secondary-action-btn"
+          (click)="goToStep(2)">
+          Back
+        </ion-button>
+
+        <ion-button
+          class="primary-action-btn flex-fill"
+          (click)="completeOnboarding()"
+          id="btn-complete-onboarding">
+          <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+          <span>Launch My Student Vault</span>
+        </ion-button>
+      </div>
+    </section>
 
   </div>
 </ion-content>

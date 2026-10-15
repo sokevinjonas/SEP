@@ -1,5 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import {
   IonApp,
   IonTabs,
@@ -32,25 +34,45 @@ import { QuickLogModalComponent } from './shared/components/quick-log-modal/quic
     ActionBarComponent
   ],
 })
-export class AppComponent {
+export class AppComponent implements OnInit {
+  readonly showNavigation = signal<boolean>(false);
+
   constructor(
+    private router: Router,
     private modalCtrl: ModalController,
     private toastCtrl: ToastController
   ) {
     addIcons({ homeOutline, cameraOutline, walletOutline });
   }
 
-  async handleWantToBuy() {
+  ngOnInit(): void {
+    // Check initial route
+    this.updateNavigationVisibility(this.router.url);
+
+    // Track navigation events
+    this.router.events.pipe(
+      filter((event): event is NavigationEnd => event instanceof NavigationEnd)
+    ).subscribe((event: NavigationEnd) => {
+      this.updateNavigationVisibility(event.urlAfterRedirects || event.url);
+    });
+  }
+
+  private updateNavigationVisibility(url: string): void {
+    const isExcluded = !url || url.includes('/onboarding');
+    this.showNavigation.set(!isExcluded);
+  }
+
+  async handleWantToBuy(): Promise<void> {
     const toast = await this.toastCtrl.create({
-      message: 'Pause Réflexion (Anti-Pulsion) : Calcul des jours de budget...',
-      duration: 2000,
+      message: 'Reflection Pause (Anti-Impulse): Calculating budget days impact...',
+      duration: 2200,
       color: 'tertiary',
       position: 'top',
     });
     await toast.present();
   }
 
-  async handleQuickLog() {
+  async handleQuickLog(): Promise<void> {
     const modal = await this.modalCtrl.create({
       component: QuickLogModalComponent,
       breakpoints: [0, 0.9, 1],

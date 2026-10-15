@@ -89,12 +89,12 @@ export class DatabaseService {
     const catCount = await db.count('categories');
     if (catCount === 0) {
       const defaultCategories: Category[] = [
-        { id: 'cat-food', name: 'Nourriture & Chop', icon: 'restaurant-outline', monthlyAllocationGhs: 300, color: '#714B67' },
-        { id: 'cat-transport', name: 'Transport / Trotro', icon: 'bus-outline', monthlyAllocationGhs: 100, color: '#017e84' },
-        { id: 'cat-books', name: 'Polys & Livres', icon: 'book-outline', monthlyAllocationGhs: 80, color: '#58354f' },
-        { id: 'cat-social', name: 'Sorties & Campus', icon: 'people-outline', monthlyAllocationGhs: 70, color: '#ffac00' },
-        { id: 'cat-utilities', name: 'Forfait Data & Énergie', icon: 'flash-outline', monthlyAllocationGhs: 50, color: '#c0392b' },
-        { id: 'cat-other', name: 'Autre', icon: 'ellipsis-horizontal-circle-outline', monthlyAllocationGhs: 50, color: '#6B5966' },
+        { id: 'cat-food', name: 'Food & Chop', icon: 'restaurant-outline', monthlyAllocationGhs: 300, color: '#714B67' },
+        { id: 'cat-transport', name: 'Transport & Trotro', icon: 'bus-outline', monthlyAllocationGhs: 100, color: '#017e84' },
+        { id: 'cat-books', name: 'Books & Copies', icon: 'book-outline', monthlyAllocationGhs: 80, color: '#58354f' },
+        { id: 'cat-social', name: 'Campus & Social', icon: 'people-outline', monthlyAllocationGhs: 70, color: '#ffac00' },
+        { id: 'cat-utilities', name: 'Data & Utilities', icon: 'flash-outline', monthlyAllocationGhs: 50, color: '#c0392b' },
+        { id: 'cat-other', name: 'Other', icon: 'ellipsis-horizontal-circle-outline', monthlyAllocationGhs: 50, color: '#6B5966' },
       ];
 
       const tx = db.transaction('categories', 'readwrite');
@@ -126,9 +126,9 @@ export class DatabaseService {
           amount: 5.0,
           currency: 'GHS',
           categoryId: 'cat-transport',
-          categoryName: 'Transport / Trotro',
+          categoryName: 'Transport & Trotro',
           merchant: 'Campus Shuttle',
-          note: 'Navette matin',
+          note: 'Morning campus shuttle',
           date: new Date(Date.now() - 3600000 * 2).toISOString(),
           source: 'manual',
           createdAt: new Date().toISOString()
@@ -138,9 +138,9 @@ export class DatabaseService {
           amount: 18.0,
           currency: 'GHS',
           categoryId: 'cat-food',
-          categoryName: 'Nourriture & Chop',
+          categoryName: 'Food & Chop',
           merchant: 'Waakye Joint',
-          note: 'Waakye & Œuf',
+          note: 'Waakye & Egg lunch',
           date: new Date(Date.now() - 86400000).toISOString(),
           source: 'manual',
           createdAt: new Date().toISOString()
@@ -150,9 +150,9 @@ export class DatabaseService {
           amount: 12.0,
           currency: 'GHS',
           categoryId: 'cat-books',
-          categoryName: 'Polys & Livres',
+          categoryName: 'Books & Copies',
           merchant: 'Repro Legon',
-          note: 'Polycopiés de cours',
+          note: 'Lecture handouts printout',
           date: new Date(Date.now() - 86400000 * 2).toISOString(),
           source: 'manual',
           createdAt: new Date().toISOString()
@@ -171,10 +171,10 @@ export class DatabaseService {
     if (purCount === 0) {
       await db.put('purchases', {
         id: 'pur-demo-1',
-        title: 'Casque Bluetooth Anker',
+        title: 'Anker Bluetooth Headphones',
         amountGhs: 180.0,
         costInBudgetDays: 9,
-        reframingText: 'Cela représente 9 jours de repas sur le campus.',
+        reframingText: 'Represents 9 days of campus cafeteria meals.',
         status: 'abandoned',
         createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
         expiresAt: new Date(Date.now() - 86400000 * 3).toISOString(),
@@ -189,7 +189,7 @@ export class DatabaseService {
         id: 'current_user',
         name: 'Jonas',
         city: 'Accra',
-        campus: 'Campus Legon',
+        campus: 'University of Ghana (Legon)',
         primaryCurrency: 'GHS',
         hasCompletedOnboarding: false,
         createdAt: new Date().toISOString(),

@@ -132,7 +132,7 @@ export class QuickLogModalComponent implements OnInit {
     const amount = parseFloat(this.amountStr);
     if (!amount || amount <= 0) {
       const toast = await this.toastCtrl.create({
-        message: 'Veuillez saisir un montant valide supérieur à 0.',
+        message: 'Please enter a valid amount greater than 0.',
         duration: 2000,
         color: 'warning',
         position: 'top'
@@ -155,7 +155,7 @@ export class QuickLogModalComponent implements OnInit {
       categoryId: this.selectedCategory.id,
       categoryName: this.selectedCategory.name,
       merchant: this.merchant.trim() || undefined,
-      note: activeCurrency === 'XOF' ? `Payé ${amount} XOF` : undefined,
+      note: activeCurrency === 'XOF' ? `Paid ${amount} XOF` : undefined,
       date: new Date().toISOString(),
       source: 'manual',
       createdAt: new Date().toISOString()
@@ -164,7 +164,7 @@ export class QuickLogModalComponent implements OnInit {
     await this.db.addExpense(newExpense);
 
     const toast = await this.toastCtrl.create({
-      message: `Dépense de ${amount.toFixed(2)} ${activeCurrency} enregistrée !`,
+      message: `Expense of ${amount.toFixed(2)} ${activeCurrency} recorded!`,
       duration: 2000,
       color: 'success',
       position: 'top'

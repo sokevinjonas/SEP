@@ -1,8 +1,8 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="modal-toolbar">
-    <ion-title class="modal-title">Dépense Rapide</ion-title>
+    <ion-title class="modal-title">Quick Expense</ion-title>
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()" class="close-btn" aria-label="Fermer" fill="clear">
+      <ion-button (click)="dismiss()" class="close-btn" aria-label="Close" fill="clear">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -13,7 +13,7 @@
   <!-- Amount Display Card (Official ion-card) -->
   <ion-card class="amount-card ion-no-margin">
     <ion-card-content class="amount-card-content">
-      <span class="amount-caption">Montant de la dépense</span>
+      <span class="amount-caption">Expense Amount</span>
       <div class="amount-hero">
         <span class="amount-number">{{ amountStr }}</span>
         <span class="amount-currency">{{ currencyService.activeCurrency() }}</span>
@@ -40,7 +40,7 @@
 
   <!-- Categories Grid (1 Tap) -->
   <div class="section-label-row">
-    <ion-label class="section-label">Catégorie (1 tap)</ion-label>
+    <ion-label class="section-label">Category (1 tap)</ion-label>
   </div>
   <div class="category-grid">
     <ion-chip
@@ -58,7 +58,7 @@
     <ion-input
       class="merchant-input"
       fill="outline"
-      placeholder="Lieu / Note (optionnel, ex: Waakye)"
+      placeholder="Location / Note (optional, e.g. Waakye Joint)"
       [(ngModel)]="merchant"
       [clearInput]="true">
     </ion-input>
@@ -77,7 +77,7 @@
     <button type="button" class="num-key" (click)="pressNum('9')">9</button>
     <button type="button" class="num-key" (click)="pressNum('.')">.</button>
     <button type="button" class="num-key" (click)="pressNum('0')">0</button>
-    <button type="button" class="num-key del-key" (click)="pressNum('del')" aria-label="Effacer">
+    <button type="button" class="num-key del-key" (click)="pressNum('del')" aria-label="Delete">
       <ion-icon name="backspace-outline"></ion-icon>
     </button>
   </div>
@@ -86,7 +86,7 @@
   <div class="action-row">
     <ion-button expand="block" class="save-btn" (click)="saveExpense()" id="btn-confirm-save">
       <ion-icon name="checkmark-outline" slot="start"></ion-icon>
-      Enregistrer la dépense
+      Save Expense
     </ion-button>
   </div>
 </ion-content>

@@ -1,15 +1,38 @@
 .onboarding-toolbar {
   --background: var(--sep-base, #F7F3F6);
   --color: var(--sep-primary, #714B67);
-  padding: 8px 16px 0;
+  padding: 6px 12px 0;
+
+  .nav-back-btn {
+    --color: var(--sep-primary, #714B67);
+    font-size: 18px;
+    margin: 0;
+  }
 }
 
 .onboarding-title {
   font-family: var(--ion-font-family);
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 900;
   color: var(--sep-primary, #714B67);
   text-align: center;
+}
+
+.step-indicator-pill {
+  background: var(--sep-primary-soft, #f4ecf2);
+  color: var(--sep-primary, #714B67);
+  font-size: 11px;
+  font-weight: 900;
+  padding: 4px 10px;
+  border-radius: 12px;
+  border: 1px solid var(--sep-line, #EADFE7);
+  margin-right: 6px;
+}
+
+.step-progress-bar {
+  --progress-background: var(--sep-primary, #714B67);
+  --buffer-background: var(--sep-line, #EADFE7);
+  height: 3px;
 }
 
 .onboarding-content {
@@ -17,37 +40,48 @@
 }
 
 .onboarding-container {
-  max-width: 500px;
+  max-width: 520px;
   margin: 0 auto;
-  padding-bottom: 40px;
+  padding-bottom: 30px;
+}
+
+.step-section {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
-/* Mascot Welcome Card */
-.coach-welcome-card {
-  background: linear-gradient(145deg, #FFFFFF 0%, var(--sep-primary-soft, #f4ecf2) 100%);
-  border: 1.5px solid var(--sep-primary-light, #8d6482);
-  border-radius: 20px;
-  box-shadow: 0 4px 14px rgba(113, 75, 103, 0.08);
+/* ============================================================ */
+/* STEP 1: WELCOME & COACH INTRODUCTION STYLES                  */
+/* ============================================================ */
+.coach-hero-card {
+  background: linear-gradient(150deg, #FFFFFF 0%, #FAF5F8 60%, var(--sep-primary-soft, #f4ecf2) 100%);
+  border: 1.5px solid var(--sep-line, #EADFE7);
+  border-radius: 24px;
+  box-shadow: 0 8px 24px rgba(113, 75, 103, 0.08);
+  overflow: visible;
 
-  .coach-welcome-content {
+  .coach-hero-content {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: 16px;
-    padding: 18px;
+    text-align: center;
+    padding: 24px 18px 20px;
   }
 }
 
-.coach-avatar-lg {
-  width: 60px;
-  height: 60px;
-  min-width: 60px;
-  border-radius: 16px;
+.mascot-badge-wrap {
+  position: relative;
+  margin-bottom: 14px;
+}
+
+.coach-avatar-xl {
+  width: 84px;
+  height: 84px;
+  border-radius: 26px;
   overflow: hidden;
-  border: 2px solid var(--sep-line, #EADFE7);
-  box-shadow: 0 2px 8px rgba(113, 75, 103, 0.10);
+  border: 3px solid #FFFFFF;
+  box-shadow: 0 6px 18px rgba(113, 75, 103, 0.16);
 
   img {
     width: 100%;
@@ -56,39 +90,130 @@
   }
 }
 
-.coach-speech {
-  flex: 1;
+.mascot-sparkle {
+  position: absolute;
+  top: -4px;
+  right: -6px;
+  width: 26px;
+  height: 26px;
+  background: #FFD700;
+  color: #714B67;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
 
-  .welcome-heading {
-    font-family: var(--ion-font-family);
-    font-size: 16px;
-    font-weight: 900;
+.hero-speech {
+  .coach-role-pill {
+    display: inline-block;
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: var(--sep-primary, #714B67);
-    margin: 0 0 4px;
+    background: var(--sep-primary-soft, #f4ecf2);
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-bottom: 8px;
   }
 
-  .welcome-sub {
-    font-size: 12px;
-    font-weight: 600;
+  .hero-heading {
+    font-family: var(--ion-font-family);
+    font-size: 21px;
+    font-weight: 900;
+    color: var(--sep-primary, #714B67);
+    line-height: 1.25;
+    margin: 4px 0 10px;
+  }
+
+  .hero-sub {
+    font-size: 13px;
+    font-weight: 500;
     color: var(--sep-mut, #6B5966);
+    line-height: 1.45;
     margin: 0;
-    line-height: 1.35;
+    max-width: 440px;
   }
 }
 
-/* Form Cards */
+.pillars-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pillar-tile {
+  background: var(--sep-card, #FFFFFF);
+  border: 1px solid var(--sep-line, #EADFE7);
+  border-radius: 16px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-shadow: 0 2px 6px rgba(113, 75, 103, 0.03);
+
+  .pillar-icon-box {
+    width: 42px;
+    height: 42px;
+    min-width: 42px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+
+    &.vault {
+      background: rgba(1, 126, 132, 0.12);
+      color: var(--sep-action, #017e84);
+    }
+    &.currency {
+      background: var(--sep-primary-soft, #f4ecf2);
+      color: var(--sep-primary, #714B67);
+    }
+    &.offline {
+      background: rgba(255, 172, 0, 0.15);
+      color: #b37400;
+    }
+  }
+
+  .pillar-text {
+    flex: 1;
+
+    .pillar-title {
+      font-size: 13.5px;
+      font-weight: 800;
+      color: var(--sep-ink, #2B1F28);
+      margin: 0 0 2px;
+    }
+
+    .pillar-desc {
+      font-size: 11.5px;
+      font-weight: 500;
+      color: var(--sep-mut, #6B5966);
+      margin: 0;
+      line-height: 1.35;
+    }
+  }
+}
+
+/* ============================================================ */
+/* STEP 2 & 3: FORM CARDS & INPUTS                              */
+/* ============================================================ */
 .form-card {
   background: var(--sep-card, #FFFFFF);
   border: 1px solid var(--sep-line, #EADFE7);
-  border-radius: 18px;
-  box-shadow: 0 2px 8px rgba(113, 75, 103, 0.04);
+  border-radius: 20px;
+  box-shadow: 0 4px 14px rgba(113, 75, 103, 0.05);
 
   ion-card-header {
-    padding: 16px 16px 8px;
+    padding: 18px 16px 12px;
   }
 
   ion-card-content {
-    padding: 0 16px 16px;
+    padding: 0 16px 18px;
   }
 }
 
@@ -96,34 +221,75 @@
   display: flex;
   align-items: center;
   gap: 8px;
-}
+  margin-bottom: 4px;
 
-.section-icon {
-  font-size: 18px;
-  color: var(--sep-primary, #714B67);
-}
+  .section-icon {
+    font-size: 20px;
+    color: var(--sep-primary, #714B67);
+  }
 
-.section-heading {
-  font-family: var(--ion-font-family);
-  font-size: 14px;
-  font-weight: 900;
-  color: var(--sep-primary, #714B67);
-  margin: 0;
+  .section-heading {
+    font-family: var(--ion-font-family);
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--sep-primary, #714B67);
+  }
 }
 
 .section-sub {
-  font-family: var(--ion-font-family);
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 500;
   color: var(--sep-mut, #6B5966);
-  margin: 4px 0 0;
+  line-height: 1.35;
+  margin: 0;
 }
 
 .input-list {
   background: transparent;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 14px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .field-group-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--sep-ink, #2B1F28);
+  }
+}
+
+.pill-selection-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+
+  .select-chip {
+    --background: var(--sep-base, #F7F3F6);
+    --color: var(--sep-mut, #6B5966);
+    border: 1px solid var(--sep-line, #EADFE7);
+    font-size: 11.5px;
+    font-weight: 700;
+    border-radius: 10px;
+    height: 32px;
+    margin: 0;
+    transition: all 0.2s ease;
+
+    &.active {
+      --background: var(--sep-primary, #714B67);
+      --color: #FFFFFF;
+      border-color: var(--sep-primary, #714B67);
+      box-shadow: 0 2px 6px rgba(113, 75, 103, 0.25);
+    }
+
+    &.custom-chip {
+      font-style: italic;
+    }
+  }
 }
 
 .custom-input-item {
@@ -132,6 +298,10 @@
   --padding-start: 12px;
   --inner-padding-end: 12px;
   border: 1px solid var(--sep-line, #EADFE7);
+
+  &.sub-input {
+    margin-top: 2px;
+  }
 
   .field-icon {
     font-size: 18px;
@@ -147,50 +317,227 @@
   }
 }
 
-.segment-wrap {
-  margin-bottom: 12px;
-}
+/* ============================================================ */
+/* STEP 3: CURRENCIES & LIVE EXCHANGE ENGINE                    */
+/* ============================================================ */
+.currency-block {
+  margin-bottom: 14px;
 
-.segment-label {
-  display: block;
-  font-size: 11.5px;
-  font-weight: 800;
-  color: var(--sep-mut, #6B5966);
-  margin-bottom: 6px;
-}
-
-.currency-segment {
-  --background: var(--sep-base, #F7F3F6);
-  border-radius: 12px;
-  border: 1px solid var(--sep-line, #EADFE7);
-
-  ion-segment-button {
-    --color: var(--sep-mut, #6B5966);
-    --color-checked: var(--sep-primary, #714B67);
-    --indicator-color: #ffffff;
-    --indicator-box-shadow: 0 2px 6px rgba(113, 75, 103, 0.12);
-    font-family: var(--ion-font-family);
-    font-weight: 800;
+  .block-label {
+    display: block;
     font-size: 12px;
-    min-height: 38px;
+    font-weight: 800;
+    color: var(--sep-ink, #2B1F28);
+    margin-bottom: 6px;
   }
 }
 
-.action-wrap {
-  margin-top: 8px;
+.currency-chips-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  .currency-chip {
+    --background: var(--sep-base, #F7F3F6);
+    --color: var(--sep-ink, #2B1F28);
+    border: 1.5px solid var(--sep-line, #EADFE7);
+    border-radius: 12px;
+    padding: 0 12px;
+    height: 36px;
+    font-size: 12px;
+    font-weight: 800;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+
+    .curr-symbol {
+      color: var(--sep-primary, #714B67);
+      font-weight: 900;
+    }
+
+    &.selected {
+      --background: var(--sep-primary, #714B67);
+      --color: #FFFFFF;
+      border-color: var(--sep-primary, #714B67);
+      box-shadow: 0 3px 8px rgba(113, 75, 103, 0.25);
+
+      .curr-symbol {
+        color: #FFD700;
+      }
+    }
+
+    &.disabled {
+      opacity: 0.35;
+      pointer-events: none;
+    }
+  }
 }
 
-.start-btn {
-  --background: var(--sep-action, #017e84);
-  --border-radius: 16px;
+.live-rate-box {
+  background: var(--sep-base, #F7F3F6);
+  border: 1.5px solid var(--sep-line, #EADFE7);
+  border-radius: 16px;
+  padding: 14px;
+  margin-bottom: 16px;
+
+  .rate-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .rate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--sep-action, #017e84);
+    background: rgba(1, 126, 132, 0.10);
+    padding: 3px 8px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+  }
+
+  .rate-status-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sep-ink, #2B1F28);
+    margin: 0;
+  }
+
+  .refresh-rate-btn {
+    --color: var(--sep-action, #017e84);
+    --border-color: var(--sep-action, #017e84);
+    --border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    height: 32px;
+    margin: 0;
+  }
+
+  .embedded-rate-item {
+    --background: #FFFFFF;
+    margin-bottom: 6px;
+  }
+
+  .rate-hint {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--sep-mut, #6B5966);
+    margin: 0;
+    line-height: 1.35;
+  }
+}
+
+.budget-ceiling-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.allowance-preview-card {
+  background: linear-gradient(135deg, var(--sep-primary-soft, #f4ecf2) 0%, #FFFFFF 100%);
+  border: 1px solid var(--sep-line, #EADFE7);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  .preview-metric {
+    display: flex;
+    flex-direction: column;
+
+    .metric-caption {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--sep-mut, #6B5966);
+    }
+
+    .metric-value {
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--sep-primary, #714B67);
+      margin: 1px 0;
+    }
+
+    .metric-equiv {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--sep-mut, #6B5966);
+    }
+  }
+
+  .preview-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--sep-line, #EADFE7);
+  }
+}
+
+/* ============================================================ */
+/* FOOTER ACTION BUTTONS                                        */
+/* ============================================================ */
+.action-footer {
+  margin-top: 10px;
+
+  &.double-actions {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+}
+
+.primary-action-btn {
+  --background: var(--sep-primary, #714B67);
+  --border-radius: 14px;
   font-family: var(--ion-font-family);
   font-weight: 900;
-  font-size: 15px;
-  min-height: 52px;
-  box-shadow: 0 4px 14px rgba(1, 126, 132, 0.35);
+  font-size: 14.5px;
+  min-height: 50px;
+  box-shadow: 0 4px 14px rgba(113, 75, 103, 0.30);
+  margin: 0;
+
+  &.flex-fill {
+    flex: 1;
+  }
 
   ion-icon {
-    font-size: 20px;
-    margin-left: 6px;
+    font-size: 18px;
+  }
+}
+
+.secondary-action-btn {
+  --color: var(--sep-mut, #6B5966);
+  --border-color: var(--sep-line, #EADFE7);
+  --border-radius: 14px;
+  font-family: var(--ion-font-family);
+  font-weight: 800;
+  font-size: 13.5px;
+  min-height: 50px;
+  min-width: 90px;
+  margin: 0;
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.25s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }

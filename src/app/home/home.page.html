@@ -5,13 +5,13 @@
     </ion-avatar>
 
     <ion-label (click)="openSettings()" class="user-meta-label">
-      <h1 class="user-name">{{ userProfile?.name || 'Étudiant' }} · {{ userProfile?.city || 'Accra' }}</h1>
-      <p class="user-sub">{{ userProfile?.campus || 'Campus universitaire' }}</p>
+      <h1 class="user-name">{{ userProfile?.name || 'Student' }} · {{ userProfile?.city || 'Accra' }}</h1>
+      <p class="user-sub">{{ userProfile?.campus || 'University Campus' }}</p>
     </ion-label>
 
     <ion-buttons slot="end" class="header-buttons">
       <app-currency-pill></app-currency-pill>
-      <ion-button (click)="openSettings()" id="btn-settings" fill="clear" aria-label="Paramètres">
+      <ion-button (click)="openSettings()" id="btn-settings" fill="clear" aria-label="Settings">
         <ion-icon slot="icon-only" name="options-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -25,8 +25,8 @@
     <ion-card class="balance-card ion-no-margin">
       <ion-card-header>
         <div class="balance-header-row">
-          <app-breathing-badge label="Solde respirant" status="breathing" [pulse]="true"></app-breathing-badge>
-          <ion-note class="month-label">Mois en cours</ion-note>
+          <app-breathing-badge label="Breathing Balance" status="breathing" [pulse]="true"></app-breathing-badge>
+          <ion-note class="month-label">Current Month</ion-note>
         </div>
 
         <div class="balance-hero">
@@ -37,7 +37,7 @@
         </div>
 
         <ion-card-subtitle class="balance-secondary">
-          {{ currencyService.formatEquiv(consumption.balanceGhs) }} (Taux : {{ currencyService.rateDescription() }})
+          {{ currencyService.formatEquiv(consumption.balanceGhs) }} (Rate: {{ currencyService.rateDescription() }})
         </ion-card-subtitle>
       </ion-card-header>
 
@@ -50,17 +50,17 @@
         </ion-progress-bar>
 
         <div class="progress-label-row">
-          <span>Consommé : {{ consumption.totalSpentGhs.toFixed(2) }} GHS ({{ consumption.consumedPercent }}%)</span>
-          <span>Plafond : {{ consumption.totalBudgetGhs }} GHS</span>
+          <span>Spent: {{ consumption.totalSpentGhs.toFixed(2) }} GHS ({{ consumption.consumedPercent }}%)</span>
+          <span>Ceiling: {{ consumption.totalBudgetGhs }} GHS</span>
         </div>
 
         <div class="budget-days-strip">
           <ion-chip class="days-chip" color="primary">
             <ion-icon name="time-outline"></ion-icon>
-            <ion-label>{{ budgetDaysInfo.days }} Jours de Budget</ion-label>
+            <ion-label>{{ budgetDaysInfo.days }} Budget Days</ion-label>
           </ion-chip>
           <ion-note class="days-detail">
-            Calcul : {{ budgetDaysInfo.basis }} · {{ budgetDaysInfo.distinctDaysCount }} jour(s) enregistrés
+            Basis: {{ budgetDaysInfo.basis }} · {{ budgetDaysInfo.distinctDaysCount }} active day(s)
           </ion-note>
         </div>
       </ion-card-content>
@@ -72,10 +72,10 @@
         <div class="avoided-text">
           <ion-badge color="secondary" class="avoided-badge">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
-            Total Économisé (Anti-Pulsion)
+            Total Saved (Anti-Impulse)
           </ion-badge>
           <h3 class="avoided-amount">{{ currencyService.formatAmount(avoidedGhs) }}</h3>
-          <ion-note class="avoided-note">Achats impulsifs évités ce mois-ci</ion-note>
+          <ion-note class="avoided-note">Impulse purchases avoided this month</ion-note>
         </div>
         <div class="avoided-icon-wrap">
           <ion-icon name="trending-up-outline"></ion-icon>
@@ -91,16 +91,16 @@
         </ion-avatar>
         <div class="coach-body">
           <div class="coach-title-row">
-            <h4 class="coach-name">Conseil de M. Pognon</h4>
+            <h4 class="coach-name">M. Pognon Advice</h4>
             <ion-badge [color]="consumption.consumedPercent > 70 ? 'warning' : 'secondary'">
-              {{ consumption.consumedPercent > 70 ? 'Alerte 70%' : 'En maîtrise' }}
+              {{ consumption.consumedPercent > 70 ? '70% Alert' : 'On Track' }}
             </ion-badge>
           </div>
           <p class="coach-quote" *ngIf="consumption.consumedPercent > 70">
-            « Jonas, attention à l'enveloppe du campus. Privilégie le réfectoire plutôt que les achats spontanés pour sécuriser ta fin de mois ! »
+            "{{ userProfile?.name || 'Jonas' }}, watch out for food and campus outings! Stick to the cafeteria rather than spontaneous buys to protect your month-end."
           </p>
           <p class="coach-quote" *ngIf="consumption.consumedPercent <= 70">
-            « Allure régulière, Jonas. Ton rythme quotidien est sain. Continue à résister aux pulsions pour garder ton matelas de sécurité intact. »
+            "Steady pace, {{ userProfile?.name || 'Jonas' }}. Your daily burn rate is healthy. Keep resisting impulses to preserve your safety cushion."
           </p>
         </div>
       </ion-card-content>
@@ -109,13 +109,13 @@
     <!-- Recent Micro-Logs (Official ion-list & ion-item) -->
     <ion-list class="recent-list ion-no-padding" [inset]="true">
       <ion-list-header>
-        <ion-label class="section-title">Dépenses récentes</ion-label>
-        <ion-note class="section-action">Détails</ion-note>
+        <ion-label class="section-title">Recent Expenses</ion-label>
+        <ion-note class="section-action">Details</ion-note>
       </ion-list-header>
 
       <ion-item *ngIf="recentExpenses.length === 0" lines="none" class="empty-item">
         <ion-label class="ion-text-center">
-          <p>Aucune dépense enregistrée ce mois-ci. Appuyez sur « + Add » pour commencer.</p>
+          <p>No expenses recorded this month. Tap "+ Add" to begin.</p>
         </ion-label>
       </ion-item>
 
