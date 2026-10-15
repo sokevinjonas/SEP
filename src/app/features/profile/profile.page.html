@@ -128,35 +128,50 @@
       </ion-list>
     </div>
 
-    <!-- 4. Section: Cloud Backup & Data Resilience -->
+    <!-- 4. Section: Compte Cloud & Synchronisation -->
     <div class="settings-section">
-      <div class="section-title-label">BACKUP &amp; DATA RESILIENCE</div>
+      <div class="section-title-label">COMPTE CLOUD &amp; SYNCHRONISATION</div>
       <ion-list [inset]="true" lines="full" class="settings-group-list">
 
-        <!-- Cloud Backup (D1) -->
-        <ion-item [button]="true" [detail]="true" (click)="backupToCloud()" class="settings-list-item">
+        <!-- Connecter / Statut Compte Cloud -->
+        <ion-item [button]="true" [detail]="true" (click)="openLinkAccountModal()" class="settings-list-item" id="btn-link-account">
+          <div slot="start" class="item-icon-box" [ngClass]="isLinked ? 'green-bg' : 'orange-bg'">
+            <ion-icon [name]="isLinked ? 'cloud-done-outline' : 'cloud-offline-outline'"></ion-icon>
+          </div>
+          <ion-label>
+            <h3 class="item-title">{{ isLinked ? 'Compte Cloud Synchronisé' : 'Connecter le compte' }}</h3>
+            <p class="item-desc">
+              {{ isLinked ? linkedEmail : 'Activez la sauvegarde et synchronisation en ligne' }}
+            </p>
+          </ion-label>
+          <ion-badge [color]="isLinked ? 'success' : 'warning'" slot="end" class="link-status-badge">
+            <ion-icon [name]="isLinked ? 'checkmark-circle-outline' : 'alert-circle-outline'"></ion-icon>
+            {{ isLinked ? 'Lié' : 'Non lié' }}
+          </ion-badge>
+        </ion-item>
+
+        <!-- Cloud Backup -->
+        <ion-item [button]="true" [detail]="true" (click)="backupToCloud()" class="settings-list-item" [disabled]="!isLinked">
           <div slot="start" class="item-icon-box drive-bg">
             <ion-icon name="cloud-upload-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Backup to Cloud</h3>
-            <p class="item-desc">Secure mirror to Cloudflare D1</p>
+            <h3 class="item-title">Sauvegarder sur le Cloud</h3>
+            <p class="item-desc">Miroir sécurisé de votre budget et dépenses</p>
           </ion-label>
-          <ion-badge color="success" slot="end" class="drive-status-badge">
-            <ion-icon name="checkmark-outline"></ion-icon> Sync D1
-          </ion-badge>
+          <ion-note slot="end" class="item-value-note">Sync</ion-note>
         </ion-item>
 
-        <!-- Cloud Restore (D1) -->
-        <ion-item [button]="true" [detail]="true" (click)="restoreFromCloud()" class="settings-list-item">
+        <!-- Cloud Restore -->
+        <ion-item [button]="true" [detail]="true" (click)="restoreFromCloud()" class="settings-list-item" [disabled]="!isLinked">
           <div slot="start" class="item-icon-box teal-bg">
             <ion-icon name="cloud-download-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Restore from Cloud</h3>
-            <p class="item-desc">Recover all data if you reinstall the app</p>
+            <h3 class="item-title">Restaurer depuis le Cloud</h3>
+            <p class="item-desc">Récupérez vos données enregistrées</p>
           </ion-label>
-          <ion-note slot="end" class="item-value-note">Restore</ion-note>
+          <ion-note slot="end" class="item-value-note">Restaurer</ion-note>
         </ion-item>
 
         <!-- JSON Vault Export -->
@@ -491,6 +506,113 @@
             <ion-icon slot="start" name="save-outline"></ion-icon>
             <span>Save Budget Ceiling</span>
           </ion-button>
+        </div>
+  <!-- =========================================================================
+       MODAL 4: Connecter / Lier le compte (Email + OTP)
+       ========================================================================= -->
+  <ion-modal [isOpen]="activeModal === 'link-account'" (didDismiss)="closeModal()" class="settings-modal-sheet">
+    <ng-template>
+      <ion-header class="ion-no-border">
+        <ion-toolbar class="modal-toolbar">
+          <ion-title>{{ linkStep === 'email' ? 'Connecter mon compte' : 'Code de vérification' }}</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeModal()" fill="clear" color="medium">
+              <ion-icon slot="icon-only" name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content-pad ion-padding">
+        <!-- Step 1: Email Input -->
+        <div *ngIf="linkStep === 'email'" class="modal-link-wrap">
+          <div class="modal-hero-badge">
+            <ion-icon name="mail-outline"></ion-icon>
+          </div>
+          <h3 class="link-heading">Lier votre compte local</h3>
+          <p class="link-desc">
+            Saisissez votre adresse email. Si vous êtes nouveau, un email de bienvenue vous sera envoyé avec votre code de validation à 6 chiffres.
+          </p>
+
+          <ion-item class="modal-input-item" lines="none">
+            <ion-icon name="mail-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              type="email"
+              inputmode="email"
+              label="Adresse email étudiante *"
+              labelPlacement="stacked"
+              placeholder="ex: jonas.etudiant@gmail.com"
+              [(ngModel)]="linkEmailInput"
+              (keyup.enter)="sendLinkOtp()">
+            </ion-input>
+          </ion-item>
+
+          <div class="modal-actions-bar">
+            <ion-button
+              expand="block"
+              class="modal-submit-btn"
+              [disabled]="isLinking || !linkEmailInput.trim()"
+              (click)="sendLinkOtp()"
+              id="btn-submit-link-email">
+              <span *ngIf="!isLinking">Envoyer le code à 6 chiffres</span>
+              <ion-spinner *ngIf="isLinking" name="crescent"></ion-spinner>
+              <ion-icon *ngIf="!isLinking" slot="end" name="arrow-forward-outline"></ion-icon>
+            </ion-button>
+          </div>
+        </div>
+
+        <!-- Step 2: OTP Input -->
+        <div *ngIf="linkStep === 'otp'" class="modal-link-wrap">
+          <div class="modal-hero-badge otp-badge">
+            <ion-icon name="key-outline"></ion-icon>
+          </div>
+          <h3 class="link-heading">Code de validation</h3>
+          <p class="link-desc">
+            Saisissez le code temporaire à 6 chiffres envoyé à <strong class="text-highlight">{{ linkEmailInput }}</strong>
+          </p>
+
+          <ion-item class="modal-input-item otp-item" lines="none">
+            <ion-icon name="key-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              type="text"
+              inputmode="numeric"
+              maxlength="6"
+              label="Code OTP *"
+              labelPlacement="stacked"
+              placeholder="123456"
+              [(ngModel)]="linkOtpInput"
+              (keyup.enter)="verifyLinkOtp()"
+              class="otp-field-input">
+            </ion-input>
+          </ion-item>
+
+          <div class="modal-actions-bar">
+            <ion-button
+              expand="block"
+              class="modal-submit-btn"
+              [disabled]="isLinking || !linkOtpInput.trim() || linkOtpInput.trim().length < 6"
+              (click)="verifyLinkOtp()"
+              id="btn-submit-link-otp">
+              <span *ngIf="!isLinking">Valider &amp; Lier mon compte</span>
+              <ion-spinner *ngIf="isLinking" name="crescent"></ion-spinner>
+              <ion-icon *ngIf="!isLinking" slot="end" name="checkmark-circle-outline"></ion-icon>
+            </ion-button>
+          </div>
+
+          <div class="otp-resend-row">
+            <button
+              class="resend-text-btn"
+              [disabled]="linkCountdown > 0 || isLinking"
+              (click)="resendLinkOtp()">
+              <ion-icon name="refresh-outline"></ion-icon>
+              <span *ngIf="linkCountdown > 0">Renvoyer dans {{ linkCountdown }}s</span>
+              <span *ngIf="linkCountdown === 0">Renvoyer un nouveau code</span>
+            </button>
+
+            <button class="change-email-btn" (click)="linkStep = 'email'">
+              Modifier l'email
+            </button>
+          </div>
         </div>
       </ion-content>
     </ng-template>

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -61,7 +61,13 @@ import {
   checkmarkOutline,
   lockClosedOutline,
   cloudDownloadOutline,
-  documentTextOutline
+  documentTextOutline,
+  cloudOfflineOutline,
+  mailOutline,
+  keyOutline,
+  logOutOutline,
+  alertCircleOutline,
+  arrowForwardOutline
 } from 'ionicons/icons';
 import { ProfileFacade } from './facade/profile.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
@@ -74,7 +80,7 @@ import { ExportService } from '../../core/services/export.service';
 import { SyncService } from '../../core/services/sync.service';
 import { Category, MonthlyBudget, UserProfile } from '../../core/models/financial.models';
 
-export type SettingsModalType = 'none' | 'profile' | 'currencies' | 'budget';
+export type SettingsModalType = 'none' | 'profile' | 'currencies' | 'budget' | 'link-account';
 
 @Component({
   selector: 'app-profile',
@@ -105,7 +111,7 @@ export type SettingsModalType = 'none' | 'profile' | 'currencies' | 'budget';
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss']
 })
-export class ProfilePage implements OnInit {
+export class ProfilePage implements OnInit, OnDestroy {
   readonly Math = Math;
 
   userProfile: UserProfile = {
@@ -142,8 +148,23 @@ export class ProfilePage implements OnInit {
   // Settings modals controller
   activeModal: SettingsModalType = 'none';
 
-  // Backup State
+  // Backup & Account Linking State
   isCloudSyncing = false;
+
+  get isLinked(): boolean {
+    return this.syncService.isLinked();
+  }
+
+  get linkedEmail(): string | null {
+    return this.syncService.getUserEmail();
+  }
+
+  linkEmailInput = '';
+  linkOtpInput = '';
+  linkStep: 'email' | 'otp' = 'email';
+  isLinking = false;
+  linkCountdown = 0;
+  private linkTimer: any = null;
 
   constructor(
     private profileFacade: ProfileFacade,
@@ -188,12 +209,22 @@ export class ProfilePage implements OnInit {
       logoGoogle,
       cloudOutline,
       checkmarkOutline,
-      lockClosedOutline
+      lockClosedOutline,
+      cloudOfflineOutline,
+      mailOutline,
+      keyOutline,
+      logOutOutline,
+      alertCircleOutline,
+      arrowForwardOutline
     });
   }
 
-  async ngOnInit(): Promise<void> {
-    await this.loadProfileData();
+  ngOnInit(): void {
+    this.loadProfileData();
+  }
+
+  ngOnDestroy(): void {
+    this.clearLinkCountdown();
   }
 
   async ionViewWillEnter(): Promise<void> {
@@ -473,6 +504,145 @@ export class ProfilePage implements OnInit {
             ]);
             await this.loadProfileData();
             this.showToast('Local database successfully reset.', 'success');
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async openLinkAccountModal(): Promise<void> {
+    if (this.isLinked) {
+      const alert = await this.alertCtrl.create({
+        header: 'Compte Cloud Lié',
+        subHeader: this.linkedEmail || '',
+        message: 'Votre compte est connecté au serveur. Vos dépenses et votre budget peuvent être synchronisés automatiquement.',
+        buttons: [
+          {
+            text: 'Sauvegarder maintenant',
+            handler: () => {
+              this.backupToCloud();
+            }
+          },
+          {
+            text: 'Dissocier le compte',
+            role: 'destructive',
+            handler: () => {
+              this.unlinkAccount();
+            }
+          },
+          {
+            text: 'Fermer',
+            role: 'cancel'
+          }
+        ]
+      });
+      await alert.present();
+    } else {
+      this.linkStep = 'email';
+      this.linkEmailInput = this.userProfile.email || '';
+      this.linkOtpInput = '';
+      this.openModal('link-account');
+    }
+  }
+
+  async sendLinkOtp(): Promise<void> {
+    const email = this.linkEmailInput.trim();
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      await this.showToast('Veuillez saisir une adresse email valide.', 'warning');
+      return;
+    }
+
+    this.isLinking = true;
+    const res = await this.syncService.sendOtp(email);
+    this.isLinking = false;
+
+    if (res.success) {
+      this.linkStep = 'otp';
+      this.startLinkCountdown(60);
+      await this.showToast(res.message || 'Code à 6 chiffres envoyé par email.', 'success');
+    } else {
+      await this.showToast(res.error || "Erreur lors de l'envoi du code. Vérifiez votre connexion.", 'danger');
+    }
+  }
+
+  async verifyLinkOtp(): Promise<void> {
+    const code = this.linkOtpInput.trim();
+    if (!code || code.length < 6) {
+      await this.showToast('Veuillez saisir le code à 6 chiffres reçu par email.', 'warning');
+      return;
+    }
+
+    this.isLinking = true;
+    const res = await this.syncService.verifyOtp(this.linkEmailInput.trim(), code);
+    this.isLinking = false;
+
+    if (res.success) {
+      this.closeModal();
+      this.clearLinkCountdown();
+
+      // Update local profile with email & isLinked
+      const updatedProfile: UserProfile = {
+        ...this.userProfile,
+        email: this.linkEmailInput.trim(),
+        isLinked: true,
+        updatedAt: new Date().toISOString()
+      };
+      await this.profileFacade.saveUserProfile(updatedProfile);
+      this.userProfile = { ...updatedProfile };
+
+      // Push current local data as initial cloud backup
+      await this.syncService.backupToCloud();
+
+      await this.showToast('Compte lié avec succès ! La synchronisation Cloud est désormais active.', 'success');
+    } else {
+      await this.showToast(res.error || 'Code de vérification incorrect ou expiré.', 'danger');
+    }
+  }
+
+  async resendLinkOtp(): Promise<void> {
+    if (this.linkCountdown > 0 || this.isLinking) return;
+    await this.sendLinkOtp();
+  }
+
+  private startLinkCountdown(seconds: number): void {
+    this.linkCountdown = seconds;
+    this.clearLinkCountdown();
+    this.linkTimer = setInterval(() => {
+      if (this.linkCountdown > 0) {
+        this.linkCountdown--;
+      } else {
+        this.clearLinkCountdown();
+      }
+    }, 1000);
+  }
+
+  private clearLinkCountdown(): void {
+    if (this.linkTimer) {
+      clearInterval(this.linkTimer);
+      this.linkTimer = null;
+    }
+  }
+
+  async unlinkAccount(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Dissocier le compte ?',
+      message: 'La synchronisation en ligne sera désactivée. Toutes vos données locales resteront bien conservées sur cet appareil.',
+      buttons: [
+        { text: 'Annuler', role: 'cancel' },
+        {
+          text: 'Dissocier',
+          role: 'destructive',
+          handler: async () => {
+            this.syncService.logout();
+            const updatedProfile: UserProfile = {
+              ...this.userProfile,
+              isLinked: false,
+              updatedAt: new Date().toISOString()
+            };
+            await this.profileFacade.saveUserProfile(updatedProfile);
+            this.userProfile = { ...updatedProfile };
+            await this.showToast('Compte dissocié avec succès.', 'success');
           }
         }
       ]

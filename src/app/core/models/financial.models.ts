@@ -58,6 +58,8 @@ export interface UserProfile {
   campus: string;
   primaryCurrency: 'GHS' | 'XOF' | string;
   hasCompletedOnboarding: boolean;
+  email?: string;
+  isLinked?: boolean;
   createdAt: string;
   updatedAt: string;
 }

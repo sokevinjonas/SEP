@@ -15,11 +15,15 @@ authRouter.post('/send-otp', async (req: Request, res: Response) => {
     }
 
     const normEmail = email.toLowerCase().trim();
+    // Check if new or existing user
+    const existingUser = dbService.getUserByEmail(normEmail);
+    const isNew = !existingUser;
+
     // Generate secure 6-digit numeric code
     const code = Math.floor(100000 + Math.random() * 900000).toString();
 
     dbService.saveOtp(normEmail, code, 10);
-    const sent = await emailService.sendOtpEmail(normEmail, code);
+    const sent = await emailService.sendOtpEmail(normEmail, code, isNew);
 
     if (!sent) {
       return res.status(500).json({ success: false, error: "Erreur lors de l'envoi du mail de vérification." });
@@ -27,7 +31,10 @@ authRouter.post('/send-otp', async (req: Request, res: Response) => {
 
     return res.json({
       success: true,
-      message: 'Code OTP envoyé par email avec succès.',
+      isNew,
+      message: isNew
+        ? 'Bienvenue ! Un email avec votre code d\'activation à 6 chiffres vous a été envoyé.'
+        : 'Code de vérification envoyé à votre adresse email.',
       email: normEmail
     });
   } catch (err: any) {

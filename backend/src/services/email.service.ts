@@ -10,8 +10,18 @@ export class EmailService {
     }
   }
 
-  async sendOtpEmail(toEmail: string, otpCode: string): Promise<boolean> {
-    const subject = `[Student Savings] Votre code de connexion : ${otpCode}`;
+  async sendOtpEmail(toEmail: string, otpCode: string, isNew = false): Promise<boolean> {
+    const subject = isNew
+      ? `🎉 Bienvenue sur Student Savings ! Votre code d'activation : ${otpCode}`
+      : `[Student Savings] Votre code de connexion : ${otpCode}`;
+
+    const title = isNew
+      ? `Bienvenue sur Student Savings !`
+      : `Connexion & Synchronisation`;
+
+    const description = isNew
+      ? `Félicitations pour votre inscription ! Pour valider votre compte et activer la sauvegarde de votre budget et de vos dépenses d'étudiant, voici votre code d'activation à 6 chiffres :`
+      : `Voici votre code de vérification à usage unique pour connecter votre compte et synchroniser vos données financières :`;
 
     const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #EADFE7; overflow: hidden; color: #2B1F28;">
@@ -21,9 +31,9 @@ export class EmailService {
         </div>
 
         <div style="padding: 28px 24px; text-align: center;">
-          <h2 style="margin: 0 0 12px; font-size: 18px; color: #2B1F28;">Connexion sécurisée</h2>
+          <h2 style="margin: 0 0 12px; font-size: 18px; color: #2B1F28;">${title}</h2>
           <p style="margin: 0 0 24px; font-size: 14px; color: #6B5966; line-height: 1.5;">
-            Voici votre code de vérification à usage unique pour vous connecter et synchroniser vos données d'épargne :
+            ${description}
           </p>
 
           <div style="background: #F7F3F6; border: 2px dashed #714B67; border-radius: 14px; padding: 16px; display: inline-block; margin-bottom: 24px;">
@@ -44,7 +54,7 @@ export class EmailService {
 
     // Always log to console for instantaneous local testing
     console.log(`\n========================================`);
-    console.log(`[OTP] Email: ${toEmail} | Code: ${otpCode}`);
+    console.log(`[OTP] Email: ${toEmail} | IsNew: ${isNew} | Code: ${otpCode}`);
     console.log(`========================================\n`);
 
     if (!this.resend) {

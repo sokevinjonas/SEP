@@ -1,12 +1,1 @@
-{
-  "users": {
-    "test.student@gmail.com": {
-      "id": "usr_1792104616802_f2ffc",
-      "email": "test.student@gmail.com",
-      "createdAt": "2026-10-15T22:50:16.802Z",
-      "lastLoginAt": "2026-10-15T22:50:16.802Z"
-    }
-  },
-  "otps": {},
-  "backups": {}
-}
+{"users":{},"otps":{},"backups":{}}

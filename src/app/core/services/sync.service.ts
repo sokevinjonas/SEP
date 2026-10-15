@@ -79,6 +79,14 @@ export class SyncService {
     }
   }
 
+  isAuthenticated(): boolean {
+    return !!this.getAuthToken();
+  }
+
+  isLinked(): boolean {
+    return this.isAuthenticated() && !!this.getUserEmail();
+  }
+
   logout(): void {
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem(this.AUTH_TOKEN_KEY);
@@ -102,7 +110,7 @@ export class SyncService {
   /**
    * Request a 6-digit OTP code sent by email.
    */
-  async sendOtp(email: string): Promise<{ success: boolean; message?: string; error?: string }> {
+  async sendOtp(email: string): Promise<{ success: boolean; isNew?: boolean; message?: string; error?: string }> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       return { success: false, error: 'Connexion Internet requise pour envoyer le code.' };
     }
@@ -125,7 +133,7 @@ export class SyncService {
       }
 
       this.setUserEmail(email);
-      return { success: true, message: data.message };
+      return { success: true, isNew: data.isNew, message: data.message };
     } catch (err: any) {
       return { success: false, error: err.message || 'Impossible de contacter le serveur.' };
     }
@@ -140,6 +148,7 @@ export class SyncService {
     user?: any;
     hasBackup?: boolean;
     backupData?: any;
+    isNew?: boolean;
     error?: string;
   }> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
@@ -173,7 +182,8 @@ export class SyncService {
         token: data.token,
         user: data.user,
         hasBackup: data.hasBackup,
-        backupData: data.backupData
+        backupData: data.backupData,
+        isNew: data.isNew
       };
     } catch (err: any) {
       return { success: false, error: err.message || 'Erreur lors de la vérification du code.' };
@@ -182,9 +192,10 @@ export class SyncService {
 
   /**
    * Flushes all pending mutations and captures in FIFO order.
+   * Only active when the student has linked their account.
    */
   async flushPendingSync(): Promise<number> {
-    if (this.isSyncing || (typeof navigator !== 'undefined' && !navigator.onLine)) {
+    if (!this.isAuthenticated() || this.isSyncing || (typeof navigator !== 'undefined' && !navigator.onLine)) {
       return 0;
     }
 
@@ -245,6 +256,10 @@ export class SyncService {
    * Pushes full IndexedDB state (profile, budget, categories, expenses, purchases) to Backend.
    */
   async backupToCloud(): Promise<{ success: boolean; stats?: any; error?: string }> {
+    if (!this.isAuthenticated()) {
+      return { success: false, error: 'Compte non connecté. Connectez votre compte dans votre Profil pour activer la sauvegarde Cloud.' };
+    }
+
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       return { success: false, error: 'Connexion Internet requise pour la sauvegarde Cloud.' };
     }
@@ -282,6 +297,10 @@ export class SyncService {
    * Fetches full state from Backend and restores IndexedDB.
    */
   async restoreFromCloud(): Promise<{ success: boolean; stats?: { expenses: number; purchases: number; categories: number }; error?: string }> {
+    if (!this.isAuthenticated()) {
+      return { success: false, error: 'Compte non connecté. Connectez votre compte dans votre Profil pour restaurer depuis le Cloud.' };
+    }
+
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       return { success: false, error: 'Connexion Internet requise pour restaurer depuis le Cloud.' };
     }
