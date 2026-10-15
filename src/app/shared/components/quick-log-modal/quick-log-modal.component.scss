@@ -153,7 +153,7 @@
 
 /* Merchant Input */
 .input-field-row {
-  margin-bottom: 12px;
+  margin-bottom: 10px;
 }
 
 .merchant-input {
@@ -166,6 +166,70 @@
   font-size: 13px;
   font-weight: 700;
   color: var(--sep-ink, #2B1F28);
+}
+
+/* Date Selection Row */
+.date-selection-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.date-chips {
+  display: flex;
+  gap: 6px;
+}
+
+.date-pill {
+  padding: 6px 12px;
+  border-radius: 10px;
+  border: 1.5px solid var(--sep-line, #EADFE7);
+  background: var(--sep-card, #FFFFFF);
+  color: var(--sep-mut, #6B5966);
+  font-family: var(--ion-font-family);
+  font-size: 11px;
+  font-weight: 800;
+  cursor: pointer;
+  transition: all 0.15s ease;
+
+  &:active {
+    transform: scale(0.97);
+  }
+
+  &.active {
+    background: var(--sep-primary-soft, #f4ecf2);
+    border-color: var(--sep-primary, #714B67);
+    color: var(--sep-primary, #714B67);
+  }
+}
+
+.date-picker-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--sep-card, #FFFFFF);
+  border: 1.5px solid var(--sep-line, #EADFE7);
+  border-radius: 10px;
+  padding: 5px 8px;
+  box-shadow: 0 1px 3px rgba(113, 75, 103, 0.04);
+
+  .date-icon {
+    font-size: 15px;
+    color: var(--sep-primary, #714B67);
+  }
+
+  .native-date-input {
+    border: none;
+    background: transparent;
+    font-family: var(--ion-font-family);
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sep-ink, #2B1F28);
+    outline: none;
+    cursor: pointer;
+  }
 }
 
 /* Numpad */

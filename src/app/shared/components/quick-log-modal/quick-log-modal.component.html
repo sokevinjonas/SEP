@@ -64,6 +64,35 @@
     </ion-input>
   </div>
 
+  <!-- Date Selection (Today / Yesterday / Backdate custom date) -->
+  <div class="date-selection-row">
+    <div class="date-chips">
+      <button
+        type="button"
+        class="date-pill"
+        [class.active]="expenseDate === todayDate"
+        (click)="setDate('today')">
+        Today
+      </button>
+      <button
+        type="button"
+        class="date-pill"
+        [class.active]="expenseDate === yesterdayDate"
+        (click)="setDate('yesterday')">
+        Yesterday
+      </button>
+    </div>
+    <div class="date-picker-wrap">
+      <ion-icon name="calendar-outline" class="date-icon"></ion-icon>
+      <input
+        type="date"
+        class="native-date-input"
+        [(ngModel)]="expenseDate"
+        aria-label="Expense Date"
+      />
+    </div>
+  </div>
+
   <!-- Numpad -->
   <div class="numpad-grid">
     <button type="button" class="num-key" (click)="pressNum('1')">1</button>

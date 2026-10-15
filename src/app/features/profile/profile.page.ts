@@ -301,19 +301,19 @@ export class ProfilePage implements OnInit {
 
   async saveProfile(): Promise<void> {
     if (!this.userProfile.name.trim()) {
-      this.showToast('Veuillez entrer votre nom ou pseudo.', 'warning');
+      this.showToast('Please enter your student name or nickname.', 'warning');
       return;
     }
 
     this.userProfile.updatedAt = new Date().toISOString();
     await this.profileFacade.saveUserProfile(this.userProfile);
     this.closeModal();
-    await this.showToast('Profil étudiant mis à jour avec succès.', 'success');
+    await this.showToast('Student profile updated successfully.', 'success');
   }
 
   async saveCurrencies(): Promise<void> {
     if (this.monthlyBudget.exchangeRateXof <= 0) {
-      this.showToast('Le taux de change doit être supérieur à zéro.', 'warning');
+      this.showToast('Exchange rate must be greater than zero.', 'warning');
       return;
     }
 
@@ -324,12 +324,12 @@ export class ProfilePage implements OnInit {
     await this.budgetFacade.saveMonthlyBudget(this.monthlyBudget);
 
     this.closeModal();
-    await this.showToast('Devises et taux de change enregistrés.', 'success');
+    await this.showToast('Currencies and exchange rates saved.', 'success');
   }
 
   async saveBudget(): Promise<void> {
     if (this.monthlyBudget.totalBudgetGhs <= 0) {
-      this.showToast('Le budget mensuel doit être supérieur à zéro.', 'warning');
+      this.showToast('Monthly budget must be greater than zero.', 'warning');
       return;
     }
 
@@ -341,7 +341,7 @@ export class ProfilePage implements OnInit {
     }
 
     this.closeModal();
-    await this.showToast('Plafond budgétaire et enveloppes enregistrés.', 'success');
+    await this.showToast('Budget ceiling and envelopes saved.', 'success');
   }
 
   // Cloudflare D1 & JSON Vault Backup
@@ -351,26 +351,26 @@ export class ProfilePage implements OnInit {
     this.isCloudSyncing = false;
 
     if (result.success) {
-      await this.showToast('Données sauvegardées sur le Cloud avec succès !', 'success');
+      await this.showToast('Data backed up to Cloud successfully!', 'success');
       const alert = await this.alertCtrl.create({
-        header: 'Sauvegarde Cloud Réussie',
-        message: `Vos ${result.stats?.expenses || 0} dépense(s), ${result.stats?.purchases || 0} achat(s) et vos réglages sont en sécurité sur Cloudflare D1.`,
-        buttons: ['Parfait']
+        header: 'Cloud Backup Complete',
+        message: `Your ${result.stats?.expenses || 0} expense(s), ${result.stats?.purchases || 0} wishlist item(s), and settings are safely mirrored on Cloudflare D1.`,
+        buttons: ['Done']
       });
       await alert.present();
     } else {
-      await this.showToast(result.error || 'Erreur lors de la sauvegarde.', 'danger');
+      await this.showToast(result.error || 'Backup failed. Please check network connection.', 'danger');
     }
   }
 
   async restoreFromCloud(): Promise<void> {
     const confirmAlert = await this.alertCtrl.create({
-      header: 'Restaurer depuis le Cloud ?',
-      message: 'Cette action va charger toutes vos données depuis Cloudflare D1 et actualiser votre téléphone. Continuer ?',
+      header: 'Restore from Cloud?',
+      message: 'This will load all data from Cloudflare D1 and refresh your device. Continue?',
       buttons: [
-        { text: 'Annuler', role: 'cancel' },
+        { text: 'Cancel', role: 'cancel' },
         {
-          text: 'Restaurer',
+          text: 'Restore',
           role: 'destructive',
           handler: async () => {
             this.isCloudSyncing = true;
@@ -385,9 +385,9 @@ export class ProfilePage implements OnInit {
                 this.profileFacade.load()
               ]);
               await this.loadProfileData();
-              await this.showToast(`Restauration terminée : ${res.stats?.expenses || 0} dépenses récupérées.`, 'success');
+              await this.showToast(`Restore complete: ${res.stats?.expenses || 0} expenses recovered.`, 'success');
             } else {
-              await this.showToast(res.error || 'Erreur lors de la restauration.', 'danger');
+              await this.showToast(res.error || 'Failed to restore from Cloud.', 'danger');
             }
           }
         }
@@ -399,7 +399,7 @@ export class ProfilePage implements OnInit {
   async exportJsonBackup(): Promise<void> {
     const fullData = await this.idbService.exportAllData();
     this.exportService.exportBackupJson(fullData);
-    await this.showToast('Coffre-fort JSON téléchargé ! Conservez ce fichier en lieu sûr.', 'success');
+    await this.showToast('JSON Vault downloaded! Keep this backup file in a safe place.', 'success');
   }
 
   async triggerFileRestore(event: Event): Promise<void> {
@@ -410,12 +410,12 @@ export class ProfilePage implements OnInit {
     try {
       const backupData = await this.exportService.readBackupFile(file);
       const confirmAlert = await this.alertCtrl.create({
-        header: 'Restaurer ce fichier ?',
-        message: `Fichier : ${file.name}\nDépenses détectées : ${backupData.expenses?.length || 0}\nAchats détectés : ${backupData.purchases?.length || 0}\n\nVoulez-vous remplacer vos données actuelles par cette sauvegarde ?`,
+        header: 'Restore from file?',
+        message: `File: ${file.name}\nExpenses found: ${backupData.expenses?.length || 0}\nWishlist items found: ${backupData.purchases?.length || 0}\n\nDo you want to replace current data with this backup vault?`,
         buttons: [
-          { text: 'Annuler', role: 'cancel' },
+          { text: 'Cancel', role: 'cancel' },
           {
-            text: 'Restaurer maintenant',
+            text: 'Restore Now',
             role: 'destructive',
             handler: async () => {
               const stats = await this.idbService.restoreAllData(backupData);
@@ -426,14 +426,14 @@ export class ProfilePage implements OnInit {
                 this.profileFacade.load()
               ]);
               await this.loadProfileData();
-              await this.showToast(`Restauration réussie ! ${stats.expenses} dépenses restaurées.`, 'success');
+              await this.showToast(`Vault restored successfully! ${stats.expenses} expenses loaded.`, 'success');
             }
           }
         ]
       });
       await confirmAlert.present();
     } catch (err: any) {
-      await this.showToast(err.message || 'Fichier de sauvegarde invalide.', 'danger');
+      await this.showToast(err.message || 'Invalid backup file format.', 'danger');
     } finally {
       input.value = '';
     }
@@ -443,25 +443,25 @@ export class ProfilePage implements OnInit {
     await this.expensesFacade.load();
     const expenses = this.expensesFacade.expenses();
     if (expenses.length === 0) {
-      this.showToast('Aucune dépense enregistrée à exporter.', 'warning');
+      this.showToast('No recorded expenses found to export.', 'warning');
       return;
     }
 
     this.exportService.exportExpensesToCsv(expenses);
-    this.showToast(`${expenses.length} transactions exportées en CSV avec succès !`, 'success');
+    this.showToast(`${expenses.length} expenses exported to CSV successfully!`, 'success');
   }
 
   async confirmResetData(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Réinitialiser la base locale ?',
-      message: 'Cette action supprimera toutes vos dépenses enregistrées. Les plafonds et catégories retrouveront leurs valeurs par défaut. Continuer ?',
+      header: 'Reset local database?',
+      message: 'This will wipe all recorded expenses. Budget ceilings and categories will return to default presets. Continue?',
       buttons: [
         {
-          text: 'Annuler',
+          text: 'Cancel',
           role: 'cancel'
         },
         {
-          text: 'Réinitialiser',
+          text: 'Reset',
           role: 'destructive',
           handler: async () => {
             await this.idbService.resetAll();
@@ -472,7 +472,7 @@ export class ProfilePage implements OnInit {
               this.profileFacade.load()
             ]);
             await this.loadProfileData();
-            this.showToast('Base de données réinitialisée.', 'success');
+            this.showToast('Local database successfully reset.', 'success');
           }
         }
       ]

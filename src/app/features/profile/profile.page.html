@@ -1,6 +1,6 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="settings-toolbar">
-    <ion-title class="settings-page-title">Paramètres &amp; Profil</ion-title>
+    <ion-title class="settings-page-title">Settings &amp; Profile</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -13,22 +13,22 @@
         <ion-avatar class="settings-avatar">
           <img src="assets/images/m_pognon_coin_logo.jpg" alt="Avatar" />
         </ion-avatar>
-        <button class="avatar-edit-badge" (click)="openModal('profile')" aria-label="Modifier le profil">
+        <button class="avatar-edit-badge" (click)="openModal('profile')" aria-label="Edit Profile">
           <ion-icon name="create-outline"></ion-icon>
         </button>
       </div>
 
       <div class="hero-info">
         <div class="hero-name-row">
-          <h2 class="user-display-name">{{ userProfile.name || 'Étudiant Campus' }}</h2>
+          <h2 class="user-display-name">{{ userProfile.name || 'Campus Student' }}</h2>
           <ion-badge color="secondary" class="status-badge">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
-            Campus Actif
+            Campus Active
           </ion-badge>
         </div>
         <p class="user-sub-campus">
           <ion-icon name="school-outline"></ion-icon>
-          <span>{{ userProfile.campus || 'Université non définie' }}</span>
+          <span>{{ userProfile.campus || 'University not set' }}</span>
         </p>
         <p class="user-sub-loc">
           <ion-icon name="globe-outline"></ion-icon>
@@ -41,14 +41,14 @@
         size="small"
         class="hero-action-btn"
         (click)="openModal('profile')">
-        <span>Modifier</span>
+        <span>Edit</span>
         <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
       </ion-button>
     </div>
 
-    <!-- 2. Section: Mon Profil & Campus (Official ion-list inset) -->
+    <!-- 2. Section: Profile & Campus (Official ion-list inset) -->
     <div class="settings-section">
-      <div class="section-title-label">IDENTITÉ &amp; ÉTUDES</div>
+      <div class="section-title-label">IDENTITY &amp; CAMPUS</div>
       <ion-list [inset]="true" lines="full" class="settings-group-list">
 
         <!-- Update Profile Item -->
@@ -57,10 +57,10 @@
             <ion-icon name="person-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Informations personnelles</h3>
-            <p class="item-desc">{{ userProfile.name || 'Définir mon nom' }}</p>
+            <h3 class="item-title">Personal Information</h3>
+            <p class="item-desc">{{ userProfile.name || 'Set my name' }}</p>
           </ion-label>
-          <ion-note slot="end" class="item-value-note">Éditer</ion-note>
+          <ion-note slot="end" class="item-value-note">Edit</ion-note>
         </ion-item>
 
         <!-- Campus Item -->
@@ -69,8 +69,8 @@
             <ion-icon name="school-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Campus &amp; Université</h3>
-            <p class="item-desc">{{ userProfile.campus || 'Sélectionner un campus' }}</p>
+            <h3 class="item-title">Campus &amp; University</h3>
+            <p class="item-desc">{{ userProfile.campus || 'Select a campus' }}</p>
           </ion-label>
           <ion-note slot="end" class="item-value-note">{{ userProfile.city }}</ion-note>
         </ion-item>
@@ -78,19 +78,19 @@
       </ion-list>
     </div>
 
-    <!-- 3. Section: Finances & Devises (Official ion-list inset) -->
+    <!-- 3. Section: Finances & Currencies (Official ion-list inset) -->
     <div class="settings-section">
-      <div class="section-title-label">FINANCES &amp; DEVISES</div>
+      <div class="section-title-label">FINANCES &amp; CURRENCIES</div>
       <ion-list [inset]="true" lines="full" class="settings-group-list">
 
-        <!-- Select Devises -->
+        <!-- Select Currencies -->
         <ion-item [button]="true" [detail]="true" (click)="openModal('currencies')" class="settings-list-item">
           <div slot="start" class="item-icon-box teal-bg">
             <ion-icon name="globe-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Devises de conversion</h3>
-            <p class="item-desc">Principale &amp; Secondaire</p>
+            <h3 class="item-title">Currency Pair</h3>
+            <p class="item-desc">Primary &amp; Secondary</p>
           </ion-label>
           <ion-badge color="light" slot="end" class="currency-tag">
             {{ userProfile.primaryCurrency }} ⇄ {{ currencyService.secondaryCurrency() }}
@@ -103,8 +103,8 @@
             <ion-icon name="cash-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Taux de change (Street &amp; Live)</h3>
-            <p class="item-desc">Moteur FX &amp; taux négocié</p>
+            <h3 class="item-title">Exchange Rates (Street &amp; Live)</h3>
+            <p class="item-desc">FX engine &amp; negotiated rate</p>
           </ion-label>
           <ion-note slot="end" class="item-value-note rate-val">
             1 = {{ monthlyBudget.exchangeRateXof }}
@@ -117,8 +117,8 @@
             <ion-icon name="wallet-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Plafond budgétaire mensuel</h3>
-            <p class="item-desc">Enveloppes par catégories</p>
+            <h3 class="item-title">Monthly Budget Ceiling</h3>
+            <p class="item-desc">Category envelope allocations</p>
           </ion-label>
           <ion-note slot="end" class="item-value-note">
             {{ monthlyBudget.totalBudgetGhs }} {{ userProfile.primaryCurrency }}
@@ -128,9 +128,9 @@
       </ion-list>
     </div>
 
-    <!-- 4. Section: Sauvegardes & Restauration (Anti-Perte) -->
+    <!-- 4. Section: Cloud Backup & Data Resilience -->
     <div class="settings-section">
-      <div class="section-title-label">SAUVEGARDE &amp; SÉCURITÉ DES DONNÉES</div>
+      <div class="section-title-label">BACKUP &amp; DATA RESILIENCE</div>
       <ion-list [inset]="true" lines="full" class="settings-group-list">
 
         <!-- Cloud Backup (D1) -->
@@ -139,8 +139,8 @@
             <ion-icon name="cloud-upload-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Sauvegarder sur le Cloud</h3>
-            <p class="item-desc">Miroir complet sécurisé sur Cloudflare D1</p>
+            <h3 class="item-title">Backup to Cloud</h3>
+            <p class="item-desc">Secure mirror to Cloudflare D1</p>
           </ion-label>
           <ion-badge color="success" slot="end" class="drive-status-badge">
             <ion-icon name="checkmark-outline"></ion-icon> Sync D1
@@ -153,10 +153,10 @@
             <ion-icon name="cloud-download-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Restaurer depuis le Cloud</h3>
-            <p class="item-desc">Récupérer toutes vos données si vous réinstallez l'app</p>
+            <h3 class="item-title">Restore from Cloud</h3>
+            <p class="item-desc">Recover all data if you reinstall the app</p>
           </ion-label>
-          <ion-note slot="end" class="item-value-note">Restaurer</ion-note>
+          <ion-note slot="end" class="item-value-note">Restore</ion-note>
         </ion-item>
 
         <!-- JSON Vault Export -->
@@ -165,8 +165,8 @@
             <ion-icon name="lock-closed-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Exporter Coffre-Fort (.json)</h3>
-            <p class="item-desc">Fichier complet à garder sur Google Drive ou WhatsApp</p>
+            <h3 class="item-title">Export Data Vault (.json)</h3>
+            <p class="item-desc">Complete portable backup for Google Drive or storage</p>
           </ion-label>
           <ion-note slot="end" class="item-value-note">JSON</ion-note>
         </ion-item>
@@ -177,10 +177,10 @@
             <ion-icon name="document-text-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Restaurer un fichier (.json)</h3>
-            <p class="item-desc">Importer un fichier de sauvegarde local</p>
+            <h3 class="item-title">Restore from File (.json)</h3>
+            <p class="item-desc">Import a local backup vault file</p>
           </ion-label>
-          <ion-note slot="end" class="item-value-note">Importer</ion-note>
+          <ion-note slot="end" class="item-value-note">Import</ion-note>
         </ion-item>
         <input #jsonFileInput type="file" accept=".json" (change)="triggerFileRestore($event)" style="display: none;">
 
@@ -190,8 +190,8 @@
             <ion-icon name="download-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Exporter mes dépenses (CSV)</h3>
-            <p class="item-desc">Télécharger le relevé pour Excel ou Tableur</p>
+            <h3 class="item-title">Export Expenses (CSV)</h3>
+            <p class="item-desc">Download expense ledger for Excel or Sheets</p>
           </ion-label>
           <ion-note slot="end" class="item-value-note">Excel</ion-note>
         </ion-item>
@@ -199,9 +199,9 @@
       </ion-list>
     </div>
 
-    <!-- 5. Section: Sécurité & Données Locales -->
+    <!-- 5. Section: Security & Local Storage -->
     <div class="settings-section">
-      <div class="section-title-label">SÉCURITÉ &amp; STOCKAGE</div>
+      <div class="section-title-label">SECURITY &amp; LOCAL STORAGE</div>
       <ion-list [inset]="true" lines="full" class="settings-group-list">
 
         <ion-item lines="full" class="settings-list-item static-item">
@@ -209,10 +209,10 @@
             <ion-icon name="shield-checkmark-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Stockage Chiffré Offline-First</h3>
-            <p class="item-desc">IndexedDB local · Vos données ne quittent pas votre appareil</p>
+            <h3 class="item-title">Offline-First Encrypted Storage</h3>
+            <p class="item-desc">Local IndexedDB · Your data stays private on your device</p>
           </ion-label>
-          <ion-note slot="end" class="item-value-note text-success">Actif</ion-note>
+          <ion-note slot="end" class="item-value-note text-success">Active</ion-note>
         </ion-item>
 
         <!-- Reset Database Item -->
@@ -221,8 +221,8 @@
             <ion-icon name="trash-outline"></ion-icon>
           </div>
           <ion-label color="danger">
-            <h3 class="item-title text-danger">Réinitialiser la base locale</h3>
-            <p class="item-desc">Effacer toutes les transactions et restaurer les valeurs initiales</p>
+            <h3 class="item-title text-danger">Reset Local Database</h3>
+            <p class="item-desc">Wipe all transactions and restore default budget presets</p>
           </ion-label>
           <ion-note slot="end" color="danger" class="item-value-note">Reset</ion-note>
         </ion-item>
@@ -233,19 +233,19 @@
     <!-- Version & Coach Signature -->
     <div class="app-version-footer">
       <p class="app-name">M. Pognon Student Savings Coach</p>
-      <p class="app-sub">Version 1.0.0 (Release Campus) · 100% Hors-ligne</p>
+      <p class="app-sub">Version 1.0.0 (Campus Edition) · 100% Offline-First</p>
     </div>
 
   </div>
 
   <!-- =========================================================================
-       MODAL 1: Modifier Profil & Identité Étudiante
+       MODAL 1: Edit Profile & Student Identity
        ========================================================================= -->
   <ion-modal [isOpen]="activeModal === 'profile'" (didDismiss)="closeModal()" class="settings-modal-sheet">
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar class="modal-toolbar">
-          <ion-title>Mon Profil &amp; Campus</ion-title>
+          <ion-title>My Profile &amp; Campus</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="closeModal()" fill="clear" color="medium">
               <ion-icon name="close-outline"></ion-icon>
@@ -257,22 +257,22 @@
       <ion-content class="ion-padding modal-content">
         <ion-list lines="none" class="modal-form-list">
 
-          <!-- Nom -->
+          <!-- Name -->
           <ion-item class="modal-input-item">
             <ion-icon name="person-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-input
-              label="Nom ou Surnom de l'étudiant"
+              label="Student Name or Nickname"
               labelPlacement="stacked"
-              placeholder="ex: Jonas"
+              placeholder="e.g. Jonas"
               [(ngModel)]="userProfile.name">
             </ion-input>
           </ion-item>
 
-          <!-- Pays -->
+          <!-- Country -->
           <ion-item class="modal-input-item select-field">
             <ion-icon name="globe-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-select
-              label="Pays d'études"
+              label="Study Country"
               labelPlacement="stacked"
               interface="action-sheet"
               [value]="userProfile.country"
@@ -284,11 +284,11 @@
             <ion-spinner *ngIf="isLoadingCountries" name="dots" slot="end"></ion-spinner>
           </ion-item>
 
-          <!-- Ville -->
+          <!-- City -->
           <ion-item class="modal-input-item select-field">
             <ion-icon name="business-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-select
-              label="Ville d'études"
+              label="Study City"
               labelPlacement="stacked"
               interface="action-sheet"
               [value]="userProfile.city"
@@ -305,16 +305,16 @@
           <ion-item class="modal-input-item">
             <ion-icon name="school-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-input
-              label="Campus Universitaire"
+              label="University Campus"
               labelPlacement="stacked"
-              placeholder="ex: KNUST, Legon, etc."
+              placeholder="e.g. KNUST, Legon, etc."
               [(ngModel)]="userProfile.campus">
             </ion-input>
           </ion-item>
 
-          <!-- Suggestions rapides campus -->
+          <!-- Quick Campus Suggestions -->
           <div class="campus-chips-block" *ngIf="suggestedCampuses.length > 0">
-            <span class="chips-title">Suggestions campus rapides :</span>
+            <span class="chips-title">Quick campus suggestions:</span>
             <div class="chips-row">
               <ion-chip
                 *ngFor="let camp of suggestedCampuses"
@@ -331,7 +331,7 @@
         <div class="modal-actions-bar">
           <ion-button expand="block" class="modal-submit-btn" (click)="saveProfile()">
             <ion-icon slot="start" name="save-outline"></ion-icon>
-            <span>Enregistrer le profil</span>
+            <span>Save Profile</span>
           </ion-button>
         </div>
       </ion-content>
@@ -339,13 +339,13 @@
   </ion-modal>
 
   <!-- =========================================================================
-       MODAL 2: Devises & Taux de Change (Street & Live FX Engine)
+       MODAL 2: Currencies & Exchange Rates (Street & Live FX Engine)
        ========================================================================= -->
   <ion-modal [isOpen]="activeModal === 'currencies'" (didDismiss)="closeModal()" class="settings-modal-sheet">
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar class="modal-toolbar">
-          <ion-title>Devises &amp; Taux de Change</ion-title>
+          <ion-title>Currencies &amp; Exchange Rates</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="closeModal()" fill="clear" color="medium">
               <ion-icon name="close-outline"></ion-icon>
@@ -359,7 +359,7 @@
         <div class="live-fx-card">
           <div class="live-fx-header">
             <div>
-              <span class="live-fx-badge">Moteur Marché FX</span>
+              <span class="live-fx-badge">Live FX Market</span>
               <p class="live-fx-text">{{ rateStatusText }}</p>
             </div>
             <ion-button
@@ -370,24 +370,24 @@
               (click)="fetchLiveRate()">
               <ion-spinner *ngIf="isFetchingLiveRate" name="crescent" slot="start"></ion-spinner>
               <ion-icon *ngIf="!isFetchingLiveRate" name="refresh-outline" slot="start"></ion-icon>
-              <span>{{ isFetchingLiveRate ? 'Sync...' : 'Actualiser' }}</span>
+              <span>{{ isFetchingLiveRate ? 'Sync...' : 'Refresh' }}</span>
             </ion-button>
           </div>
         </div>
 
         <ion-list lines="none" class="modal-form-list">
 
-          <!-- Devise Principale -->
+          <!-- Primary Currency -->
           <ion-item class="modal-input-item select-field">
             <ion-icon name="globe-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-select
-              label="Devise principale locale"
+              label="Primary Local Currency"
               labelPlacement="stacked"
               [(ngModel)]="userProfile.primaryCurrency">
-              <ion-select-option value="GHS">GHS - Cedi ghanéen</ion-select-option>
-              <ion-select-option value="XOF">XOF - Franc CFA (UEMOA)</ion-select-option>
-              <ion-select-option value="NGN">NGN - Naira nigérian</ion-select-option>
-              <ion-select-option value="USD">USD - Dollar US</ion-select-option>
+              <ion-select-option value="GHS">GHS - Ghanaian Cedi</ion-select-option>
+              <ion-select-option value="XOF">XOF - CFA Franc (WAEMU)</ion-select-option>
+              <ion-select-option value="NGN">NGN - Nigerian Naira</ion-select-option>
+              <ion-select-option value="USD">USD - US Dollar</ion-select-option>
               <ion-select-option value="EUR">EUR - Euro</ion-select-option>
             </ion-select>
           </ion-item>
@@ -397,9 +397,9 @@
             <ion-icon name="cash-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-input
               type="number"
-              [label]="'Taux négocié terrain (1 ' + userProfile.primaryCurrency + ' en ' + currencyService.secondaryCurrency() + ')'"
+              [label]="'Street Negotiated Rate (1 ' + userProfile.primaryCurrency + ' to ' + currencyService.secondaryCurrency() + ')'"
               labelPlacement="stacked"
-              placeholder="ex: 42.0"
+              placeholder="e.g. 42.0"
               [(ngModel)]="monthlyBudget.exchangeRateXof"
               min="0.01"
               step="0.1">
@@ -407,7 +407,7 @@
           </ion-item>
 
           <p class="form-helper-note">
-            Astuce étudiant : Vous pouvez ajuster ce taux pour refléter précisément le taux obtenu auprès de vos bureaux de change habituels ou changeurs de frontière.
+            Student tip: Adjust this rate to match what you actually receive from your campus money changers, mobile money agents, or local forex bureau.
           </p>
 
         </ion-list>
@@ -415,7 +415,7 @@
         <div class="modal-actions-bar">
           <ion-button expand="block" class="modal-submit-btn" (click)="saveCurrencies()">
             <ion-icon slot="start" name="save-outline"></ion-icon>
-            <span>Appliquer les devises</span>
+            <span>Apply Currencies &amp; Rates</span>
           </ion-button>
         </div>
       </ion-content>
@@ -423,13 +423,13 @@
   </ion-modal>
 
   <!-- =========================================================================
-       MODAL 3: Plafond Budgétaire & Enveloppes Mensuelles
+       MODAL 3: Budget Ceiling & Monthly Envelopes
        ========================================================================= -->
   <ion-modal [isOpen]="activeModal === 'budget'" (didDismiss)="closeModal()" class="settings-modal-sheet">
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar class="modal-toolbar">
-          <ion-title>Plafond &amp; Enveloppes</ion-title>
+          <ion-title>Ceiling &amp; Envelopes</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="closeModal()" fill="clear" color="medium">
               <ion-icon name="close-outline"></ion-icon>
@@ -444,9 +444,9 @@
           <ion-icon name="wallet-outline" slot="start" class="modal-field-icon"></ion-icon>
           <ion-input
             type="number"
-            [label]="'Allocation mensuelle totale (' + userProfile.primaryCurrency + ')'"
+            [label]="'Total Monthly Allowance (' + userProfile.primaryCurrency + ')'"
             labelPlacement="stacked"
-            placeholder="ex: 600"
+            placeholder="e.g. 600"
             [(ngModel)]="monthlyBudget.totalBudgetGhs"
             min="10"
             step="10">
@@ -456,20 +456,20 @@
         <!-- Preview allowance -->
         <div class="allowance-stat-card">
           <div class="stat-col">
-            <span class="stat-title">Allocation journalière</span>
+            <span class="stat-title">Daily Allowance</span>
             <span class="stat-num">{{ dailyAllowance.toFixed(2) }} {{ userProfile.primaryCurrency }}</span>
             <span class="stat-sub">≈ {{ dailyAllowanceSecondary.toLocaleString() }} {{ currencyService.secondaryCurrency() }}</span>
           </div>
           <div class="stat-pipe"></div>
           <div class="stat-col">
-            <span class="stat-title">Repas campus</span>
-            <span class="stat-num">≈ {{ Math.round(monthlyBudget.totalBudgetGhs / 15) }} repas</span>
-            <span class="stat-sub">~15 {{ userProfile.primaryCurrency }} / repas</span>
+            <span class="stat-title">Campus Meals</span>
+            <span class="stat-num">≈ {{ Math.round(monthlyBudget.totalBudgetGhs / 15) }} meals</span>
+            <span class="stat-sub">~15 {{ userProfile.primaryCurrency }} / meal</span>
           </div>
         </div>
 
         <!-- Envelopes -->
-        <h4 class="modal-sub-heading">Répartition par enveloppe de dépenses :</h4>
+        <h4 class="modal-sub-heading">Category Envelope Allocation:</h4>
         <ion-list lines="full" class="envelopes-modal-list">
           <ion-item *ngFor="let cat of categories" class="modal-env-item">
             <ion-icon [name]="cat.icon" slot="start" class="env-icon"></ion-icon>
@@ -489,7 +489,7 @@
         <div class="modal-actions-bar">
           <ion-button expand="block" class="modal-submit-btn" (click)="saveBudget()">
             <ion-icon slot="start" name="save-outline"></ion-icon>
-            <span>Enregistrer le budget</span>
+            <span>Save Budget Ceiling</span>
           </ion-button>
         </div>
       </ion-content>

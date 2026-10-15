@@ -28,7 +28,8 @@ import {
   flashOutline,
   ellipsisHorizontalCircleOutline,
   checkmarkOutline,
-  backspaceOutline
+  backspaceOutline,
+  calendarOutline
 } from 'ionicons/icons';
 import { ExpensesFacade } from '../../../features/expenses/facade/expenses.facade';
 import { BudgetFacade } from '../../../features/budget/facade/budget.facade';
@@ -60,6 +61,7 @@ import { Category, Expense } from '../../../core/models/financial.models';
 export class QuickLogModalComponent implements OnInit {
   amountStr = '15';
   merchant = '';
+  expenseDate: string = this.getTodayDateString();
 
   categories: Category[] = [];
   selectedCategory: Category | null = null;
@@ -81,8 +83,42 @@ export class QuickLogModalComponent implements OnInit {
       flashOutline,
       ellipsisHorizontalCircleOutline,
       checkmarkOutline,
-      backspaceOutline
+      backspaceOutline,
+      calendarOutline
     });
+  }
+
+  get todayDate(): string {
+    return this.getTodayDateString();
+  }
+
+  get yesterdayDate(): string {
+    return this.getYesterdayDateString();
+  }
+
+  private getTodayDateString(): string {
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  private getYesterdayDateString(): string {
+    const d = new Date();
+    d.setDate(d.getDate() - 1);
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  }
+
+  setDate(preset: 'today' | 'yesterday'): void {
+    if (preset === 'today') {
+      this.expenseDate = this.getTodayDateString();
+    } else {
+      this.expenseDate = this.getYesterdayDateString();
+    }
   }
 
   async ngOnInit(): Promise<void> {
@@ -151,6 +187,18 @@ export class QuickLogModalComponent implements OnInit {
     const activeCurrency = this.currencyService.activeCurrency();
     const amountGhs = activeCurrency === 'GHS' ? amount : this.currencyService.toGhs(amount);
 
+    // Compute effective ISO date (respecting custom backdated date if selected)
+    let finalDateIso: string;
+    const todayStr = this.getTodayDateString();
+    if (this.expenseDate === todayStr) {
+      finalDateIso = new Date().toISOString();
+    } else if (this.expenseDate) {
+      // Use noon UTC for past dates to avoid local timezone day-shift
+      finalDateIso = new Date(`${this.expenseDate}T12:00:00.000Z`).toISOString();
+    } else {
+      finalDateIso = new Date().toISOString();
+    }
+
     const newExpense: Expense = {
       id: 'exp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
       amount: amountGhs,
@@ -159,7 +207,7 @@ export class QuickLogModalComponent implements OnInit {
       categoryName: this.selectedCategory.name,
       merchant: this.merchant.trim() || undefined,
       note: activeCurrency === 'XOF' ? `Paid ${amount} XOF` : undefined,
-      date: new Date().toISOString(),
+      date: finalDateIso,
       source: 'manual',
       createdAt: new Date().toISOString()
     };
