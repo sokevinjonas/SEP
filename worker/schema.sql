@@ -1,4 +1,4 @@
--- Cloudflare D1 SQLite Database Schema for Student Expense Tracker (SEP)
+-- Cloudflare D1 SQLite Database Schema for Student Savings
 
 CREATE TABLE IF NOT EXISTS expenses (
   id TEXT PRIMARY KEY,

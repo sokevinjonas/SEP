@@ -46,7 +46,7 @@ export class ExportService {
 
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10);
-    const filename = `SEP_Expenses_${dateStr}.csv`;
+    const filename = `Student_Savings_Expenses_${dateStr}.csv`;
 
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);
@@ -67,7 +67,7 @@ export class ExportService {
 
     const now = new Date();
     const dateStr = now.toISOString().slice(0, 10);
-    const filename = `SEP_Vault_Backup_${dateStr}.json`;
+    const filename = `Student_Savings_Vault_Backup_${dateStr}.json`;
 
     const link = document.createElement('a');
     const url = URL.createObjectURL(blob);

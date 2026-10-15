@@ -1,6 +1,6 @@
-# Guide de Déploiement et Configuration du Worker Cloudflare (SEP)
+# Guide de Déploiement et Configuration du Worker Cloudflare (Student Savings)
 
-Ce guide décrit pas à pas la configuration, l'initialisation des ressources Cloudflare (D1, R2, Cron, Secrets) et le déploiement du backend serverless de l'application **Student Expense Tracker (SEP)**.
+Ce guide décrit pas à pas la configuration, l'initialisation des ressources Cloudflare (D1, R2, Cron, Secrets) et le déploiement du backend serverless de l'application **Student Savings**.
 
 ---
 
@@ -21,7 +21,7 @@ Ce guide décrit pas à pas la configuration, l'initialisation des ressources Cl
 
 ## 1. Architecture & Rôle du Worker
 
-L'application SEP est **100% Offline-First**. IndexedDB dans le navigateur de l'utilisateur est la source de vérité locale. Le Worker Cloudflare intervient uniquement comme support cloud sécurisé pour :
+L'application Student Savings est **100% Offline-First**. IndexedDB dans le navigateur de l'utilisateur est la source de vérité locale. Le Worker Cloudflare intervient uniquement comme support cloud sécurisé pour :
 - **Extraction OCR / Vision (OpenAI GPT-4o-mini)** : Évite d'exposer la clé OpenAI dans le code client.
 - **Stockage R2 (`sep-captures`)** : Sauvegarde durable des reçus et factures photographiés sans frais d'egress AWS.
 - **Base D1 (`sep-d1`)** : Sauvegarde miroir des dépenses, calcul des seuils de budget (70%, 90%, 100%).
@@ -221,7 +221,7 @@ curl https://sep-backend.<votre-compte>.workers.dev/api/health
 
 Une fois le Worker déployé :
 
-1. Ouvrez `src/environments/environment.prod.ts` à la racine de votre projet SEP.
+1. Ouvrez `src/environments/environment.prod.ts` à la racine de votre projet Student Savings.
 2. Indiquez la vraie URL de votre Worker et votre token :
    ```typescript
    export const environment = {

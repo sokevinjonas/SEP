@@ -1,7 +1,7 @@
 {
   "name": "sep-backend",
   "version": "1.0.0",
-  "description": "Cloudflare Workers serverless backend for Student Expense Tracker (SEP)",
+  "description": "Cloudflare Workers serverless backend for Student Savings",
   "main": "src/index.ts",
   "scripts": {
     "dev": "wrangler dev",

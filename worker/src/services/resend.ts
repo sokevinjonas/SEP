@@ -190,7 +190,7 @@ export class ResendService {
             </table>
           </div>
           <div class="footer">
-            Student Expense &amp; Savings Tracker (SEP) · Développé avec rigueur pour Jonas
+            Student Savings · Développé avec rigueur pour Jonas
           </div>
         </div>
       </body>
