@@ -43,7 +43,8 @@ import {
   helpCircleOutline,
   flashOutline
 } from 'ionicons/icons';
-import { DatabaseService } from '../../core/db/database.service';
+import { ExpensesFacade } from '../expenses/facade/expenses.facade';
+import { BudgetFacade } from '../budget/facade/budget.facade';
 import { CurrencyService } from '../../core/services/currency.service';
 import { OcrService, ExtractedTransaction, QueuedCapture } from '../../core/services/ocr.service';
 import { Category, Expense } from '../../core/models/financial.models';
@@ -97,7 +98,8 @@ export class CapturePage implements OnInit, OnDestroy {
   private offlineListener = () => { this.isOnline = false; };
 
   constructor(
-    private db: DatabaseService,
+    private expensesFacade: ExpensesFacade,
+    private budgetFacade: BudgetFacade,
     public currencyService: CurrencyService,
     private ocrService: OcrService,
     private alertCtrl: AlertController,
@@ -125,7 +127,8 @@ export class CapturePage implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.categories = await this.db.getCategories();
+    await this.budgetFacade.load();
+    this.categories = this.budgetFacade.categories();
     this.samplePresets = this.ocrService.getSamplePresets();
     this.loadQueuedCaptures();
 
@@ -239,7 +242,7 @@ export class CapturePage implements OnInit, OnDestroy {
 
     if (!ref || !ref.trim()) return;
 
-    const existing = await this.db.checkDuplicateReference(ref);
+    const existing = await this.expensesFacade.checkDuplicateReference(ref);
     if (existing) {
       this.isDuplicateDetected = true;
       this.existingDuplicateExpense = existing;
@@ -286,7 +289,7 @@ export class CapturePage implements OnInit, OnDestroy {
       createdAt: new Date().toISOString()
     };
 
-    await this.db.addExpense(expense);
+    await this.expensesFacade.addExpense(expense);
 
     if (this.activeCapture) {
       this.activeCapture.status = 'synced';

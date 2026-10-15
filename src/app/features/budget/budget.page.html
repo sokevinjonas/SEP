@@ -11,16 +11,16 @@
     <ion-list class="budget-list ion-no-padding" [inset]="true">
       <ion-list-header>
         <ion-label class="section-title">Budget Envelopes</ion-label>
-        <ion-note class="section-action">Total: {{ totalSpentGhs.toFixed(0) }} / {{ totalBudgetAllocatedGhs }} GHS</ion-note>
+        <ion-note class="section-action">Total: {{ totalSpentGhs().toFixed(0) }} / {{ totalBudgetAllocatedGhs() }} GHS</ion-note>
       </ion-list-header>
 
-      <ion-item *ngIf="envelopes.length === 0" lines="none" class="empty-item">
+      <ion-item *ngIf="envelopes().length === 0" lines="none" class="empty-item">
         <ion-label class="ion-text-center">
           <p>No envelopes configured for this month.</p>
         </ion-label>
       </ion-item>
 
-      <ion-card *ngFor="let env of envelopes" class="envelope-card ion-no-margin">
+      <ion-card *ngFor="let env of envelopes()" class="envelope-card ion-no-margin">
         <ion-card-content class="envelope-card-content">
           <div class="env-top">
             <div class="env-label-group">
@@ -79,42 +79,42 @@
           <h3 class="section-title">Considered Purchases (Anti-Impulse)</h3>
           <p class="section-sub-desc">Manage your 48h cooling-off and celebrate your savings</p>
         </div>
-        <ion-badge color="secondary" class="avoided-total-badge" *ngIf="totalAvoidedGhs > 0">
+        <ion-badge color="secondary" class="avoided-total-badge" *ngIf="totalAvoidedGhs() > 0">
           <ion-icon name="trophy-outline"></ion-icon>
-          +{{ totalAvoidedGhs.toFixed(0) }} GHS Saved
+          +{{ totalAvoidedGhs().toFixed(0) }} GHS Saved
         </ion-badge>
       </div>
 
       <!-- Segment Filters (Story 2.5) -->
-      <ion-segment [(ngModel)]="selectedFilter" class="purchase-segment">
+      <ion-segment [value]="selectedFilter()" (ionChange)="onSegmentChange($event.detail.value)" class="purchase-segment">
         <ion-segment-button value="all">
-          <ion-label>All ({{ allPurchases.length }})</ion-label>
+          <ion-label>All ({{ allPurchases().length }})</ion-label>
         </ion-segment-button>
         <ion-segment-button value="pending">
-          <ion-label>Thinking ({{ pendingCount }})</ion-label>
+          <ion-label>Thinking ({{ pendingCount() }})</ion-label>
         </ion-segment-button>
         <ion-segment-button value="abandoned">
-          <ion-label>Saved ({{ abandonedCount }})</ion-label>
+          <ion-label>Saved ({{ abandonedCount() }})</ion-label>
         </ion-segment-button>
         <ion-segment-button value="bought">
-          <ion-label>Bought ({{ boughtCount }})</ion-label>
+          <ion-label>Bought ({{ boughtCount() }})</ion-label>
         </ion-segment-button>
       </ion-segment>
 
       <!-- Empty state for filtered purchases -->
-      <ion-card *ngIf="filteredPurchases.length === 0" class="empty-purchase-card ion-no-margin">
+      <ion-card *ngIf="filteredPurchases().length === 0" class="empty-purchase-card ion-no-margin">
         <ion-card-content class="empty-content">
           <ion-icon name="shield-checkmark-outline" class="empty-icon"></ion-icon>
-          <p *ngIf="selectedFilter === 'pending'">No pending purchases currently. Your financial discipline is intact!</p>
-          <p *ngIf="selectedFilter === 'abandoned'">No abandoned purchases yet. Resist an impulse to earn your victories!</p>
-          <p *ngIf="selectedFilter === 'bought'">No impulse purchases completed.</p>
-          <p *ngIf="selectedFilter === 'all'">No evaluated purchases yet. Tap "I want to buy" whenever an urge strikes!</p>
+          <p *ngIf="selectedFilter() === 'pending'">No pending purchases currently. Your financial discipline is intact!</p>
+          <p *ngIf="selectedFilter() === 'abandoned'">No abandoned purchases yet. Resist an impulse to earn your victories!</p>
+          <p *ngIf="selectedFilter() === 'bought'">No impulse purchases completed.</p>
+          <p *ngIf="selectedFilter() === 'all'">No evaluated purchases yet. Tap "I want to buy" whenever an urge strikes!</p>
         </ion-card-content>
       </ion-card>
 
       <!-- Purchases List (Story 2.5) -->
-      <div class="purchases-list-cards" *ngIf="filteredPurchases.length > 0">
-        <ion-card *ngFor="let pur of filteredPurchases" class="purchase-card ion-no-margin" [class.is-abandoned]="pur.status === 'abandoned'" [class.is-bought]="pur.status === 'bought'">
+      <div class="purchases-list-cards" *ngIf="filteredPurchases().length > 0">
+        <ion-card *ngFor="let pur of filteredPurchases()" class="purchase-card ion-no-margin" [class.is-abandoned]="pur.status === 'abandoned'" [class.is-bought]="pur.status === 'bought'">
           <ion-card-header>
             <div class="pur-header-row">
               <div>
@@ -159,9 +159,8 @@
                 (click)="abandonPurchase(pur)"
                 id="btn-abandon-{{ pur.id }}">
                 <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
-                <span>Resist (+{{ pur.amountGhs.toFixed(0) }} GHS saved)</span>
+                Resist &amp; Save (+{{ pur.amountGhs }} GHS)
               </ion-button>
-
               <ion-button
                 size="small"
                 fill="outline"
@@ -170,7 +169,7 @@
                 (click)="buyPurchase(pur)"
                 id="btn-buy-{{ pur.id }}">
                 <ion-icon slot="start" name="cart-outline"></ion-icon>
-                <span>Buy anyway</span>
+                Buy Anyway
               </ion-button>
             </div>
           </ion-card-content>

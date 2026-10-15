@@ -1,333 +1,141 @@
-import { Injectable } from '@angular/core';
-import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { Injectable, inject } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Expense, Category, MonthlyBudget, Purchase, SyncItem, UserProfile } from '../models/financial.models';
+import { IdbService, currentMonthKey } from './idb.service';
+import { ExpensesFacade } from '../../features/expenses/facade/expenses.facade';
+import { PurchasesFacade } from '../../features/purchases/facade/purchases.facade';
+import { BudgetFacade } from '../../features/budget/facade/budget.facade';
+import { ProfileFacade } from '../../features/profile/facade/profile.facade';
+import { ExpensesRepository } from '../../features/expenses/data-access/expenses.repository';
+import { PurchasesRepository } from '../../features/purchases/data-access/purchases.repository';
+import { BudgetRepository } from '../../features/budget/data-access/budget.repository';
+import { ProfileRepository } from '../../features/profile/data-access/profile.repository';
+import { SyncQueueRepository } from './sync-queue.repository';
 
-export interface SepDbSchema extends DBSchema {
-  expenses: {
-    key: string;
-    value: Expense;
-    indexes: { 'by-date': string; 'by-category': string };
-  };
-  categories: {
-    key: string;
-    value: Category;
-  };
-  monthly_budgets: {
-    key: string;
-    value: MonthlyBudget;
-  };
-  purchases: {
-    key: string;
-    value: Purchase;
-    indexes: { 'by-status': string };
-  };
-  sync_queue: {
-    key: string;
-    value: SyncItem;
-    indexes: { 'by-status': string };
-  };
-  user_profile: {
-    key: string;
-    value: UserProfile;
-  };
-}
+export { SepDbSchema } from './idb.service';
 
+/**
+ * Compatibility bridge during migration: delegates directly to the new
+ * domain repositories and facades while keeping existing call signatures working.
+ */
 @Injectable({
   providedIn: 'root'
 })
 export class DatabaseService {
-  private dbPromise: Promise<IDBPDatabase<SepDbSchema>>;
+  private readonly idb = inject(IdbService);
+  private readonly expensesFacade = inject(ExpensesFacade);
+  private readonly purchasesFacade = inject(PurchasesFacade);
+  private readonly budgetFacade = inject(BudgetFacade);
+  private readonly profileFacade = inject(ProfileFacade);
+
+  private readonly expensesRepo = inject(ExpensesRepository);
+  private readonly purchasesRepo = inject(PurchasesRepository);
+  private readonly budgetRepo = inject(BudgetRepository);
+  private readonly profileRepo = inject(ProfileRepository);
+  private readonly syncQueueRepo = inject(SyncQueueRepository);
+
   public readonly dataChanged$ = new Subject<void>();
 
-  constructor() {
-    this.dbPromise = this.initDb();
-  }
-
-  private async initDb(): Promise<IDBPDatabase<SepDbSchema>> {
-    return openDB<SepDbSchema>('sep_local_db', 2, {
-      upgrade(db) {
-        // Expenses store
-        if (!db.objectStoreNames.contains('expenses')) {
-          const expenseStore = db.createObjectStore('expenses', { keyPath: 'id' });
-          expenseStore.createIndex('by-date', 'date');
-          expenseStore.createIndex('by-category', 'categoryId');
-        }
-
-        // Categories store
-        if (!db.objectStoreNames.contains('categories')) {
-          db.createObjectStore('categories', { keyPath: 'id' });
-        }
-
-        // Monthly Budgets store
-        if (!db.objectStoreNames.contains('monthly_budgets')) {
-          db.createObjectStore('monthly_budgets', { keyPath: 'id' });
-        }
-
-        // Purchases store (Anti-pulsion / Wishlist)
-        if (!db.objectStoreNames.contains('purchases')) {
-          const purchaseStore = db.createObjectStore('purchases', { keyPath: 'id' });
-          purchaseStore.createIndex('by-status', 'status');
-        }
-
-        // Sync queue store
-        if (!db.objectStoreNames.contains('sync_queue')) {
-          const syncStore = db.createObjectStore('sync_queue', { keyPath: 'id' });
-          syncStore.createIndex('by-status', 'status');
-        }
-
-        // User profile store
-        if (!db.objectStoreNames.contains('user_profile')) {
-          db.createObjectStore('user_profile', { keyPath: 'id' });
-        }
-      }
-    }).then(async (db) => {
-      await this.seedDefaultsIfEmpty(db);
-      return db;
-    });
-  }
-
-  private async seedDefaultsIfEmpty(db: IDBPDatabase<SepDbSchema>): Promise<void> {
-    const catCount = await db.count('categories');
-    if (catCount === 0) {
-      const defaultCategories: Category[] = [
-        { id: 'cat-food', name: 'Food & Chop', icon: 'restaurant-outline', monthlyAllocationGhs: 300, color: '#714B67' },
-        { id: 'cat-transport', name: 'Transport & Trotro', icon: 'bus-outline', monthlyAllocationGhs: 100, color: '#017e84' },
-        { id: 'cat-books', name: 'Books & Copies', icon: 'book-outline', monthlyAllocationGhs: 80, color: '#58354f' },
-        { id: 'cat-social', name: 'Campus & Social', icon: 'people-outline', monthlyAllocationGhs: 70, color: '#ffac00' },
-        { id: 'cat-utilities', name: 'Data & Utilities', icon: 'flash-outline', monthlyAllocationGhs: 50, color: '#c0392b' },
-        { id: 'cat-other', name: 'Other', icon: 'ellipsis-horizontal-circle-outline', monthlyAllocationGhs: 50, color: '#6B5966' },
-      ];
-
-      const tx = db.transaction('categories', 'readwrite');
-      for (const cat of defaultCategories) {
-        await tx.store.put(cat);
-      }
-      await tx.done;
-    }
-
-    const now = new Date();
-    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-    const budget = await db.get('monthly_budgets', currentMonthKey);
-    if (!budget) {
-      await db.put('monthly_budgets', {
-        id: currentMonthKey,
-        monthYear: currentMonthKey,
-        totalBudgetGhs: 600.0,
-        plannedDailyBudgetGhs: 20.0,
-        exchangeRateXof: 42.0
-      });
-    }
-
-    // User profile initial container if empty
-    const profile = await db.get('user_profile', 'current_user');
-    if (!profile) {
-      await db.put('user_profile', {
-        id: 'current_user',
-        name: '',
-        country: 'Ghana',
-        city: 'Accra',
-        campus: '',
-        primaryCurrency: 'GHS',
-        hasCompletedOnboarding: false,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString()
-      });
-    }
-
-    // Automatically purge legacy demo mock expenses and purchases if present
-    const existingExpenses = await db.getAll('expenses');
-    for (const exp of existingExpenses) {
-      if (exp.id.startsWith('exp-demo-')) {
-        await db.delete('expenses', exp.id);
-      }
-    }
-    const existingPurchases = await db.getAll('purchases');
-    for (const pur of existingPurchases) {
-      if (pur.id.startsWith('pur-demo-')) {
-        await db.delete('purchases', pur.id);
-      }
-    }
+  getCurrentMonthKey(): string {
+    return currentMonthKey();
   }
 
   // Expense Methods
   async getExpenses(): Promise<Expense[]> {
-    const db = await this.dbPromise;
-    const all = await db.getAll('expenses');
-    return all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return this.expensesFacade.load();
   }
 
   async checkDuplicateReference(ref: string): Promise<Expense | undefined> {
-    if (!ref || !ref.trim()) return undefined;
-    const all = await this.getExpenses();
-    return all.find(e => e.transactionRef && e.transactionRef.toLowerCase() === ref.trim().toLowerCase());
+    return this.expensesFacade.checkDuplicateReference(ref);
   }
 
   async addExpense(expense: Expense): Promise<void> {
-    const db = await this.dbPromise;
-    const tx = db.transaction(['expenses', 'sync_queue'], 'readwrite');
-    await tx.objectStore('expenses').put(expense);
-    await tx.objectStore('sync_queue').put({
-      id: `sync-${expense.id}`,
-      entity: 'expense',
-      action: 'create',
-      payload: expense,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    });
-    await tx.done;
+    await this.expensesFacade.addExpense(expense);
     this.dataChanged$.next();
   }
 
   async deleteExpense(id: string): Promise<void> {
-    const db = await this.dbPromise;
-    const tx = db.transaction(['expenses', 'sync_queue'], 'readwrite');
-    await tx.objectStore('expenses').delete(id);
-    await tx.objectStore('sync_queue').put({
-      id: `sync-del-${id}`,
-      entity: 'expense',
-      action: 'delete',
-      payload: { id },
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    });
-    await tx.done;
+    await this.expensesFacade.deleteExpense(id);
     this.dataChanged$.next();
   }
 
   // Category Methods
   async getCategories(): Promise<Category[]> {
-    const db = await this.dbPromise;
-    return db.getAll('categories');
+    await this.budgetFacade.load();
+    return this.budgetFacade.categories();
   }
 
   async addCategory(category: Category): Promise<void> {
-    const db = await this.dbPromise;
-    await db.put('categories', category);
+    await this.budgetFacade.addCategory(category);
     this.dataChanged$.next();
   }
 
   // Budget Methods
   async getMonthlyBudget(monthKey?: string): Promise<MonthlyBudget> {
-    const db = await this.dbPromise;
-    const key = monthKey || this.getCurrentMonthKey();
-    const budget = await db.get('monthly_budgets', key);
-    if (budget) return budget;
-
-    const fallback: MonthlyBudget = {
-      id: key,
-      monthYear: key,
-      totalBudgetGhs: 600.0,
-      plannedDailyBudgetGhs: 20.0,
-      exchangeRateXof: 42.0
-    };
-    await db.put('monthly_budgets', fallback);
-    return fallback;
+    if (!monthKey || monthKey === currentMonthKey()) {
+      await this.budgetFacade.load();
+      const current = this.budgetFacade.monthlyBudget();
+      if (current) return current;
+    }
+    return this.budgetRepo.getMonthlyBudget(monthKey);
   }
 
   async saveMonthlyBudget(budget: MonthlyBudget): Promise<void> {
-    const db = await this.dbPromise;
-    await db.put('monthly_budgets', budget);
+    await this.budgetFacade.saveMonthlyBudget(budget);
     this.dataChanged$.next();
   }
 
-  // Purchase Methods (Anti-Pulsion & Wishlist)
+  // Purchase Methods
   async getPurchases(statusFilter?: 'pending' | 'bought' | 'abandoned'): Promise<Purchase[]> {
-    const db = await this.dbPromise;
+    const list = await this.purchasesFacade.load();
     if (statusFilter) {
-      return db.getAllFromIndex('purchases', 'by-status', statusFilter);
+      return list.filter(p => p.status === statusFilter);
     }
-    const all = await db.getAll('purchases');
-    return all.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    return list;
   }
 
   async addPurchase(purchase: Purchase): Promise<void> {
-    const db = await this.dbPromise;
-    const tx = db.transaction(['purchases', 'sync_queue'], 'readwrite');
-    await tx.objectStore('purchases').put(purchase);
-    await tx.objectStore('sync_queue').put({
-      id: `sync-pur-${purchase.id}`,
-      entity: 'purchase',
-      action: 'create',
-      payload: purchase,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    });
-    await tx.done;
+    await this.purchasesFacade.addPurchase(purchase);
     this.dataChanged$.next();
   }
 
   async updatePurchase(purchase: Purchase): Promise<void> {
-    const db = await this.dbPromise;
-    const tx = db.transaction(['purchases', 'sync_queue'], 'readwrite');
-    await tx.objectStore('purchases').put(purchase);
-    await tx.objectStore('sync_queue').put({
-      id: `sync-pur-upd-${purchase.id}`,
-      entity: 'purchase',
-      action: 'update',
-      payload: purchase,
-      status: 'pending',
-      createdAt: new Date().toISOString()
-    });
-    await tx.done;
+    await this.purchasesFacade.updatePurchase(purchase);
     this.dataChanged$.next();
   }
 
   async getAvoidedTotal(): Promise<number> {
-    const db = await this.dbPromise;
-    const abandoned = await db.getAllFromIndex('purchases', 'by-status', 'abandoned');
-    return abandoned.reduce((sum, p) => sum + p.amountGhs, 0);
+    await this.purchasesFacade.load();
+    return this.purchasesFacade.avoidedTotal();
   }
 
+  // Sync Queue Methods
   async getSyncQueue(): Promise<SyncItem[]> {
-    const db = await this.dbPromise;
-    return db.getAll('sync_queue');
+    return this.syncQueueRepo.getAll();
   }
 
   async updateSyncItem(item: SyncItem): Promise<void> {
-    const db = await this.dbPromise;
-    await db.put('sync_queue', item);
-  }
-
-  getCurrentMonthKey(): string {
-    const now = new Date();
-    return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    await this.syncQueueRepo.update(item);
   }
 
   // User Profile Methods
   async getUserProfile(): Promise<UserProfile> {
-    const db = await this.dbPromise;
-    const profile = await db.get('user_profile', 'current_user');
-    if (profile) return profile;
-
-    const fallback: UserProfile = {
-      id: 'current_user',
-      name: '',
-      country: 'Ghana',
-      city: 'Accra',
-      campus: '',
-      primaryCurrency: 'GHS',
-      hasCompletedOnboarding: false,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-    await db.put('user_profile', fallback);
-    return fallback;
+    return this.profileFacade.load();
   }
 
   async saveUserProfile(profile: UserProfile): Promise<void> {
-    const db = await this.dbPromise;
-    profile.updatedAt = new Date().toISOString();
-    await db.put('user_profile', profile);
+    await this.profileFacade.saveUserProfile(profile);
     this.dataChanged$.next();
   }
 
   async clearAllData(): Promise<void> {
-    const db = await this.dbPromise;
-    await db.clear('expenses');
-    await db.clear('purchases');
-    await db.clear('sync_queue');
-    await this.seedDefaultsIfEmpty(db);
+    await this.idb.resetAll();
+    await Promise.all([
+      this.expensesFacade.load(),
+      this.purchasesFacade.load(),
+      this.budgetFacade.load(),
+      this.profileFacade.load()
+    ]);
     this.dataChanged$.next();
   }
 }

@@ -1,14 +1,10 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import {
   IonHeader,
   IonToolbar,
-  IonTitle,
   IonButtons,
-  IonButton,
   IonContent,
   IonCard,
   IonCardHeader,
@@ -43,10 +39,11 @@ import {
   chatbubblesOutline,
   sparklesOutline
 } from 'ionicons/icons';
-import { DatabaseService } from '../core/db/database.service';
+import { ExpensesFacade } from '../features/expenses/facade/expenses.facade';
+import { PurchasesFacade } from '../features/purchases/facade/purchases.facade';
+import { BudgetFacade } from '../features/budget/facade/budget.facade';
+import { ProfileFacade } from '../features/profile/facade/profile.facade';
 import { CurrencyService } from '../core/services/currency.service';
-import { BudgetCalculatorService, BudgetConsumption, BudgetDaysCalculation } from '../core/services/budget-calculator.service';
-import { Expense, MonthlyBudget, UserProfile } from '../core/models/financial.models';
 import { CurrencyPillComponent } from '../shared/components/currency-pill/currency-pill.component';
 import { BreathingBadgeComponent } from '../shared/components/breathing-badge/breathing-badge.component';
 import { PognonChatModalComponent } from '../shared/components/pognon-chat-modal/pognon-chat-modal.component';
@@ -59,7 +56,6 @@ import { PognonChatModalComponent } from '../shared/components/pognon-chat-modal
     IonHeader,
     IonToolbar,
     IonButtons,
-    IonButton,
     IonContent,
     IonCard,
     IonCardHeader,
@@ -81,35 +77,24 @@ import { PognonChatModalComponent } from '../shared/components/pognon-chat-modal
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  userProfile: UserProfile | null = null;
+export class HomePage implements OnInit {
+  // Reactive Signals from Facades - drive UI instantly without zone.js or clicks
+  readonly userProfile = this.profileFacade.userProfile;
+  readonly consumption = this.budgetFacade.consumption;
+  readonly budgetDaysInfo = this.budgetFacade.budgetDaysInfo;
+  readonly avoidedGhs = this.purchasesFacade.avoidedTotal;
+  readonly recentExpenses = this.expensesFacade.recentExpenses;
 
-  consumption: BudgetConsumption = {
-    totalBudgetGhs: 600,
-    totalSpentGhs: 0,
-    balanceGhs: 600,
-    consumedPercent: 0,
-    status: 'safe'
-  };
-
-  budgetDaysInfo: BudgetDaysCalculation = {
-    days: 30,
-    basis: '(planned)',
-    distinctDaysCount: 0,
-    dailyBurnRateGhs: 20
-  };
-
-  avoidedGhs = 0;
-  recentExpenses: Expense[] = [];
-  monthlyBudget: MonthlyBudget | null = null;
+  isCelebratingAvoided = false;
 
   constructor(
-    private db: DatabaseService,
-    public currencyService: CurrencyService,
-    private budgetCalculator: BudgetCalculatorService,
-    private router: Router,
-    private modalCtrl: ModalController
+    public readonly expensesFacade: ExpensesFacade,
+    public readonly purchasesFacade: PurchasesFacade,
+    public readonly budgetFacade: BudgetFacade,
+    public readonly profileFacade: ProfileFacade,
+    public readonly currencyService: CurrencyService,
+    private readonly router: Router,
+    private readonly modalCtrl: ModalController
   ) {
     addIcons({
       optionsOutline,
@@ -129,30 +114,13 @@ export class HomePage implements OnInit, OnDestroy {
     });
   }
 
-  isCelebratingAvoided = false;
-
-  async openPognonChat(): Promise<void> {
-    const modal = await this.modalCtrl.create({
-      component: PognonChatModalComponent,
-      cssClass: 'pognon-chat-modal'
-    });
-    await modal.present();
+  async ngOnInit(): Promise<void> {
+    await this.refreshAllData();
   }
 
-  async ngOnInit() {
-    await this.loadDashboardData();
-    this.db.dataChanged$.pipe(takeUntil(this.destroy$)).subscribe(async () => {
-      await this.loadDashboardData();
-    });
-  }
+  async ionViewWillEnter(): Promise<void> {
+    await this.refreshAllData();
 
-  ngOnDestroy() {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  async ionViewWillEnter() {
-    await this.loadDashboardData();
     if (sessionStorage.getItem('sep_celebrate_avoided') === 'true') {
       sessionStorage.removeItem('sep_celebrate_avoided');
       this.isCelebratingAvoided = true;
@@ -162,30 +130,22 @@ export class HomePage implements OnInit, OnDestroy {
     }
   }
 
-  async loadDashboardData() {
-    this.userProfile = await this.db.getUserProfile();
-    this.monthlyBudget = await this.db.getMonthlyBudget();
-    await this.currencyService.initFromDb();
+  async refreshAllData(): Promise<void> {
+    await Promise.all([
+      this.profileFacade.load(),
+      this.budgetFacade.load(),
+      this.expensesFacade.load(),
+      this.purchasesFacade.load(),
+      this.currencyService.initFromDb()
+    ]);
+  }
 
-    const allExpenses = await this.db.getExpenses();
-    this.recentExpenses = allExpenses.slice(0, 5);
-
-    const currentMonthKey = this.db.getCurrentMonthKey();
-    const monthExpenses = allExpenses.filter(e => e.date.startsWith(currentMonthKey));
-    const totalSpentGhs = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
-
-    this.consumption = this.budgetCalculator.calculateConsumption(
-      this.monthlyBudget.totalBudgetGhs,
-      totalSpentGhs
-    );
-
-    this.budgetDaysInfo = this.budgetCalculator.calculateBudgetDays(
-      this.consumption.balanceGhs,
-      monthExpenses,
-      this.monthlyBudget.plannedDailyBudgetGhs
-    );
-
-    this.avoidedGhs = await this.db.getAvoidedTotal();
+  async openPognonChat(): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: PognonChatModalComponent,
+      cssClass: 'pognon-chat-modal'
+    });
+    await modal.present();
   }
 
   getCategoryIcon(iconName: string): string {

@@ -38,7 +38,8 @@ import {
   cashOutline,
   checkmarkCircleOutline
 } from 'ionicons/icons';
-import { DatabaseService } from '../../core/db/database.service';
+import { ProfileFacade } from '../profile/facade/profile.facade';
+import { BudgetFacade } from '../budget/facade/budget.facade';
 import { CurrencyService, CurrencyCode, LiveRateInfo } from '../../core/services/currency.service';
 import { LocationService, CountryItem } from '../../core/services/location.service';
 import { UserProfile, MonthlyBudget } from '../../core/models/financial.models';
@@ -100,7 +101,8 @@ export class RegisterPage implements OnInit {
   rateStatusText = '';
 
   constructor(
-    private db: DatabaseService,
+    private profileFacade: ProfileFacade,
+    private budgetFacade: BudgetFacade,
     private currencyService: CurrencyService,
     private locationService: LocationService,
     private router: Router,
@@ -264,7 +266,7 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    // 1. Save User Profile to IndexedDB
+    // 1. Save User Profile via ProfileFacade
     const profile: UserProfile = {
       id: 'current_user',
       name: this.userName.trim(),
@@ -276,14 +278,19 @@ export class RegisterPage implements OnInit {
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
-    await this.db.saveUserProfile(profile);
+    await this.profileFacade.saveUserProfile(profile);
 
-    // 2. Save Monthly Budget & Rates to IndexedDB
-    const budget = await this.db.getMonthlyBudget();
-    budget.totalBudgetGhs = this.monthlyBudget;
-    budget.exchangeRateXof = this.exchangeRate;
-    budget.plannedDailyBudgetGhs = Math.round(this.monthlyBudget / 30);
-    await this.db.saveMonthlyBudget(budget);
+    // 2. Save Monthly Budget & Rates via BudgetFacade
+    await this.budgetFacade.load();
+    const existingBudget = this.budgetFacade.monthlyBudget();
+    const budget: MonthlyBudget = {
+      id: existingBudget?.id || '2026-10',
+      monthYear: existingBudget?.monthYear || '2026-10',
+      totalBudgetGhs: this.monthlyBudget,
+      exchangeRateXof: this.exchangeRate,
+      plannedDailyBudgetGhs: Math.round(this.monthlyBudget / 30)
+    };
+    await this.budgetFacade.saveMonthlyBudget(budget);
 
     // 3. Update Currency Service
     await this.currencyService.setCurrency(this.primaryCurrency);

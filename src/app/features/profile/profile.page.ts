@@ -61,7 +61,11 @@ import {
   checkmarkOutline,
   lockClosedOutline
 } from 'ionicons/icons';
-import { DatabaseService } from '../../core/db/database.service';
+import { ProfileFacade } from './facade/profile.facade';
+import { BudgetFacade } from '../budget/facade/budget.facade';
+import { ExpensesFacade } from '../expenses/facade/expenses.facade';
+import { PurchasesFacade } from '../purchases/facade/purchases.facade';
+import { IdbService } from '../../core/db/idb.service';
 import { CurrencyService, CurrencyCode, LiveRateInfo } from '../../core/services/currency.service';
 import { LocationService, CountryItem } from '../../core/services/location.service';
 import { ExportService } from '../../core/services/export.service';
@@ -141,7 +145,11 @@ export class ProfilePage implements OnInit {
   isConnectingDrive = false;
 
   constructor(
-    private db: DatabaseService,
+    private profileFacade: ProfileFacade,
+    private budgetFacade: BudgetFacade,
+    private expensesFacade: ExpensesFacade,
+    private purchasesFacade: PurchasesFacade,
+    private idbService: IdbService,
     public currencyService: CurrencyService,
     private locationService: LocationService,
     private exportService: ExportService,
@@ -189,22 +197,25 @@ export class ProfilePage implements OnInit {
   }
 
   async loadProfileData(): Promise<void> {
-    // 1. Load User Profile from DB
-    const profile = await this.db.getUserProfile();
+    // 1. Load data via Facades
+    await Promise.all([
+      this.profileFacade.load(),
+      this.budgetFacade.load()
+    ]);
+
+    const profile = this.profileFacade.userProfile();
     if (profile) {
       this.userProfile = { ...profile };
     }
 
-    // 2. Load Monthly Budget from DB
-    const budget = await this.db.getMonthlyBudget();
+    const budget = this.budgetFacade.monthlyBudget();
     if (budget) {
       this.monthlyBudget = { ...budget };
     }
 
-    // 3. Load Categories from DB
-    this.categories = await this.db.getCategories();
+    this.categories = [...this.budgetFacade.categories()];
 
-    // 4. Load Countries & Cities
+    // 2. Load Countries & Cities
     this.isLoadingCountries = true;
     this.countries = await this.locationService.getCountries();
     this.isLoadingCountries = false;
@@ -298,7 +309,7 @@ export class ProfilePage implements OnInit {
     }
 
     this.userProfile.updatedAt = new Date().toISOString();
-    await this.db.saveUserProfile(this.userProfile);
+    await this.profileFacade.saveUserProfile(this.userProfile);
     this.closeModal();
     await this.showToast('Profil étudiant mis à jour avec succès.', 'success');
   }
@@ -313,7 +324,7 @@ export class ProfilePage implements OnInit {
     await this.currencyService.setExchangeRate(this.monthlyBudget.exchangeRateXof);
 
     this.monthlyBudget.plannedDailyBudgetGhs = Math.round(this.monthlyBudget.totalBudgetGhs / 30);
-    await this.db.saveMonthlyBudget(this.monthlyBudget);
+    await this.budgetFacade.saveMonthlyBudget(this.monthlyBudget);
 
     this.closeModal();
     await this.showToast('Devises et taux de change enregistrés.', 'success');
@@ -326,10 +337,10 @@ export class ProfilePage implements OnInit {
     }
 
     this.monthlyBudget.plannedDailyBudgetGhs = Math.round(this.monthlyBudget.totalBudgetGhs / 30);
-    await this.db.saveMonthlyBudget(this.monthlyBudget);
+    await this.budgetFacade.saveMonthlyBudget(this.monthlyBudget);
 
     for (const cat of this.categories) {
-      await this.db.addCategory(cat);
+      await this.budgetFacade.addCategory(cat);
     }
 
     this.closeModal();
@@ -400,7 +411,8 @@ export class ProfilePage implements OnInit {
   }
 
   async syncToGoogleDrive(): Promise<void> {
-    const expenses = await this.db.getExpenses();
+    await this.expensesFacade.load();
+    const expenses = this.expensesFacade.expenses();
     const alert = await this.alertCtrl.create({
       header: 'Synchronisation Cloud Réussie',
       message: `${expenses.length} dépense(s) et vos paramètres de budget ont été sauvegardés sur votre Google Drive (${this.googleDriveEmail}).`,
@@ -417,7 +429,8 @@ export class ProfilePage implements OnInit {
   }
 
   async exportCsv(): Promise<void> {
-    const expenses = await this.db.getExpenses();
+    await this.expensesFacade.load();
+    const expenses = this.expensesFacade.expenses();
     if (expenses.length === 0) {
       this.showToast('Aucune dépense enregistrée à exporter.', 'warning');
       return;
@@ -440,7 +453,13 @@ export class ProfilePage implements OnInit {
           text: 'Réinitialiser',
           role: 'destructive',
           handler: async () => {
-            await this.db.clearAllData();
+            await this.idbService.resetAll();
+            await Promise.all([
+              this.expensesFacade.load(),
+              this.purchasesFacade.load(),
+              this.budgetFacade.load(),
+              this.profileFacade.load()
+            ]);
             await this.loadProfileData();
             this.showToast('Base de données réinitialisée.', 'success');
           }

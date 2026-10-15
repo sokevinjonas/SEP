@@ -30,7 +30,8 @@ import {
   checkmarkOutline,
   backspaceOutline
 } from 'ionicons/icons';
-import { DatabaseService } from '../../../core/db/database.service';
+import { ExpensesFacade } from '../../../features/expenses/facade/expenses.facade';
+import { BudgetFacade } from '../../../features/budget/facade/budget.facade';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Category, Expense } from '../../../core/models/financial.models';
 
@@ -66,7 +67,8 @@ export class QuickLogModalComponent implements OnInit {
   constructor(
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
-    private db: DatabaseService,
+    private expensesFacade: ExpensesFacade,
+    private budgetFacade: BudgetFacade,
     public currencyService: CurrencyService
   ) {
     addIcons({
@@ -83,8 +85,9 @@ export class QuickLogModalComponent implements OnInit {
     });
   }
 
-  async ngOnInit() {
-    this.categories = await this.db.getCategories();
+  async ngOnInit(): Promise<void> {
+    await this.budgetFacade.load();
+    this.categories = this.budgetFacade.categories();
     if (this.categories.length > 0) {
       this.selectedCategory = this.categories[0];
     }
@@ -99,12 +102,12 @@ export class QuickLogModalComponent implements OnInit {
     return `≈ ${ghsVal.toFixed(2)} GHS`;
   }
 
-  addPill(val: number) {
+  addPill(val: number): void {
     const cur = parseFloat(this.amountStr) || 0;
     this.amountStr = String(cur + val);
   }
 
-  pressNum(char: string) {
+  pressNum(char: string): void {
     if (char === 'del') {
       this.amountStr = this.amountStr.length > 1 ? this.amountStr.slice(0, -1) : '0';
     } else if (char === '.') {
@@ -120,15 +123,15 @@ export class QuickLogModalComponent implements OnInit {
     }
   }
 
-  selectCategory(cat: Category) {
+  selectCategory(cat: Category): void {
     this.selectedCategory = cat;
   }
 
-  dismiss() {
+  dismiss(): void {
     this.modalCtrl.dismiss({ saved: false });
   }
 
-  async saveExpense() {
+  async saveExpense(): Promise<void> {
     const amount = parseFloat(this.amountStr);
     if (!amount || amount <= 0) {
       const toast = await this.toastCtrl.create({
@@ -161,7 +164,8 @@ export class QuickLogModalComponent implements OnInit {
       createdAt: new Date().toISOString()
     };
 
-    await this.db.addExpense(newExpense);
+    // Updates repository + updates signal state immediately
+    await this.expensesFacade.addExpense(newExpense);
 
     const toast = await this.toastCtrl.create({
       message: `Expense of ${amount.toFixed(2)} ${activeCurrency} recorded!`,

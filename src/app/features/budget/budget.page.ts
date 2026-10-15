@@ -1,8 +1,6 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
 import {
   IonHeader,
   IonToolbar,
@@ -47,19 +45,15 @@ import {
   trophyOutline,
   chatbubblesOutline
 } from 'ionicons/icons';
-import { DatabaseService } from '../../core/db/database.service';
+import { BudgetFacade } from './facade/budget.facade';
+import { ExpensesFacade } from '../expenses/facade/expenses.facade';
+import { PurchasesFacade } from '../purchases/facade/purchases.facade';
 import { CurrencyService } from '../../core/services/currency.service';
 import { BudgetCalculatorService } from '../../core/services/budget-calculator.service';
-import { Category, Purchase, Expense } from '../../core/models/financial.models';
+import { Purchase, Expense } from '../../core/models/financial.models';
 import { PognonChatModalComponent } from '../../shared/components/pognon-chat-modal/pognon-chat-modal.component';
 
-export interface CategoryEnvelopeView {
-  category: Category;
-  spentGhs: number;
-  allocatedGhs: number;
-  percentage: number;
-  status: 'safe' | 'warning' | 'danger';
-}
+export { CategoryEnvelopeView } from './domain/budget.model';
 
 @Component({
   selector: 'app-budget',
@@ -92,24 +86,35 @@ export interface CategoryEnvelopeView {
   templateUrl: './budget.page.html',
   styleUrls: ['./budget.page.scss']
 })
-export class BudgetPage implements OnInit, OnDestroy {
-  private destroy$ = new Subject<void>();
-  envelopes: CategoryEnvelopeView[] = [];
+export class BudgetPage implements OnInit {
+  // Reactive Signals from Facades
+  readonly envelopes = this.budgetFacade.envelopes;
+  readonly totalSpentGhs = this.expensesFacade.currentMonthTotalSpent;
+  readonly totalBudgetAllocatedGhs = this.budgetFacade.totalBudgetAllocatedGhs;
+  readonly allPurchases = this.purchasesFacade.purchases;
+  readonly totalAvoidedGhs = this.purchasesFacade.avoidedTotal;
+  readonly pendingCount = this.purchasesFacade.pendingCount;
+  readonly abandonedCount = this.purchasesFacade.abandonedCount;
+  readonly boughtCount = this.purchasesFacade.boughtCount;
 
-  allPurchases: Purchase[] = [];
-  selectedFilter: 'all' | 'pending' | 'abandoned' | 'bought' = 'all';
+  readonly selectedFilter = signal<'all' | 'pending' | 'abandoned' | 'bought'>('all');
 
-  totalSpentGhs = 0;
-  totalBudgetAllocatedGhs = 0;
-  totalAvoidedGhs = 0;
+  readonly filteredPurchases = computed(() => {
+    const filter = this.selectedFilter();
+    const list = this.allPurchases();
+    if (filter === 'all') return list;
+    return list.filter(p => p.status === filter);
+  });
 
   constructor(
-    private db: DatabaseService,
-    public currencyService: CurrencyService,
-    public budgetCalculator: BudgetCalculatorService,
-    private modalCtrl: ModalController,
-    private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    public readonly budgetFacade: BudgetFacade,
+    public readonly expensesFacade: ExpensesFacade,
+    public readonly purchasesFacade: PurchasesFacade,
+    public readonly currencyService: CurrencyService,
+    public readonly budgetCalculator: BudgetCalculatorService,
+    private readonly modalCtrl: ModalController,
+    private readonly alertCtrl: AlertController,
+    private readonly toastCtrl: ToastController
   ) {
     addIcons({
       walletOutline,
@@ -130,6 +135,29 @@ export class BudgetPage implements OnInit, OnDestroy {
     });
   }
 
+  async ngOnInit(): Promise<void> {
+    await this.loadAll();
+  }
+
+  async ionViewWillEnter(): Promise<void> {
+    await this.loadAll();
+  }
+
+  async loadAll(): Promise<void> {
+    await Promise.all([
+      this.budgetFacade.load(),
+      this.expensesFacade.load(),
+      this.purchasesFacade.load(),
+      this.currencyService.initFromDb()
+    ]);
+  }
+
+  onSegmentChange(value: any): void {
+    if (value) {
+      this.selectedFilter.set(value);
+    }
+  }
+
   async openPognonChat(): Promise<void> {
     const modal = await this.modalCtrl.create({
       component: PognonChatModalComponent,
@@ -138,85 +166,10 @@ export class BudgetPage implements OnInit, OnDestroy {
     await modal.present();
   }
 
-  async ngOnInit(): Promise<void> {
-    await this.loadBudgetData();
-    this.db.dataChanged$.pipe(takeUntil(this.destroy$)).subscribe(async () => {
-      await this.loadBudgetData();
-    });
-  }
-
-  ngOnDestroy(): void {
-    this.destroy$.next();
-    this.destroy$.complete();
-  }
-
-  async ionViewWillEnter(): Promise<void> {
-    await this.loadBudgetData();
-  }
-
-  async loadBudgetData(): Promise<void> {
-    const categories = await this.db.getCategories();
-    const allExpenses = await this.db.getExpenses();
-    const currentMonthKey = this.db.getCurrentMonthKey();
-    const monthExpenses = allExpenses.filter(e => e.date.startsWith(currentMonthKey));
-
-    const spentByCategory = new Map<string, number>();
-    for (const exp of monthExpenses) {
-      const cur = spentByCategory.get(exp.categoryId) || 0;
-      spentByCategory.set(exp.categoryId, cur + exp.amount);
-    }
-
-    this.totalSpentGhs = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
-    this.totalBudgetAllocatedGhs = categories.reduce((sum, c) => sum + (c.monthlyAllocationGhs || 0), 0);
-
-    this.envelopes = categories.map(cat => {
-      const allocated = cat.monthlyAllocationGhs || 50;
-      const spent = spentByCategory.get(cat.id) || 0;
-      const percentage = Math.min(100, Math.round((spent / allocated) * 100));
-
-      let status: 'safe' | 'warning' | 'danger' = 'safe';
-      if (percentage >= 90) {
-        status = 'danger';
-      } else if (percentage >= 70) {
-        status = 'warning';
-      }
-
-      return {
-        category: cat,
-        spentGhs: spent,
-        allocatedGhs: allocated,
-        percentage,
-        status
-      };
-    });
-
-    this.allPurchases = await this.db.getPurchases();
-    this.totalAvoidedGhs = await this.db.getAvoidedTotal();
-  }
-
-  get filteredPurchases(): Purchase[] {
-    if (this.selectedFilter === 'all') {
-      return this.allPurchases;
-    }
-    return this.allPurchases.filter(p => p.status === this.selectedFilter);
-  }
-
-  get pendingCount(): number {
-    return this.allPurchases.filter(p => p.status === 'pending').length;
-  }
-
-  get abandonedCount(): number {
-    return this.allPurchases.filter(p => p.status === 'abandoned').length;
-  }
-
-  get boughtCount(): number {
-    return this.allPurchases.filter(p => p.status === 'bought').length;
-  }
-
   getHoursRemaining(expiresAt?: string): string {
     if (!expiresAt) return '48h';
     const remainingMs = new Date(expiresAt).getTime() - Date.now();
-    if (remainingMs <= 0) return 'Prêt à décider';
+    if (remainingMs <= 0) return 'Ready to decide';
     const hours = Math.ceil(remainingMs / (1000 * 60 * 60));
     return `${hours}h left`;
   }
@@ -231,12 +184,9 @@ export class BudgetPage implements OnInit, OnDestroy {
         {
           text: 'Victory! I resist',
           handler: async () => {
-            pur.status = 'abandoned';
-            pur.resolvedAt = new Date().toISOString();
-            await this.db.updatePurchase(pur);
-            await this.loadBudgetData();
+            await this.purchasesFacade.abandonPurchase(pur);
 
-            // Set flag for celebratory trophy animation on home tab
+            // Flag for celebratory trophy animation on home tab
             sessionStorage.setItem('sep_celebrate_avoided', 'true');
 
             const toast = await this.toastCtrl.create({
@@ -265,12 +215,10 @@ export class BudgetPage implements OnInit, OnDestroy {
           handler: async () => {
             const now = new Date();
 
-            // 1. Mark purchase as bought
-            pur.status = 'bought';
-            pur.resolvedAt = now.toISOString();
-            await this.db.updatePurchase(pur);
+            // 1. Mark purchase as bought in state + IDB
+            await this.purchasesFacade.buyPurchase(pur);
 
-            // 2. Create actual expense in db
+            // 2. Create actual expense in state + IDB
             const expense: Expense = {
               id: `exp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
               amount: pur.amountGhs,
@@ -283,9 +231,7 @@ export class BudgetPage implements OnInit, OnDestroy {
               source: 'manual',
               createdAt: now.toISOString()
             };
-            await this.db.addExpense(expense);
-
-            await this.loadBudgetData();
+            await this.expensesFacade.addExpense(expense);
 
             const toast = await this.toastCtrl.create({
               message: `Expense of ${pur.amountGhs} GHS recorded in your ledger.`,

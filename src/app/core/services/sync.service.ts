@@ -1,5 +1,5 @@
-import { Injectable } from '@angular/core';
-import { DatabaseService } from '../db/database.service';
+import { Injectable, inject } from '@angular/core';
+import { SyncQueueRepository } from '../db/sync-queue.repository';
 import { SyncItem } from '../models/financial.models';
 
 export interface SyncStatus {
@@ -13,10 +13,11 @@ export interface SyncStatus {
   providedIn: 'root'
 })
 export class SyncService {
+  private readonly syncQueueRepo = inject(SyncQueueRepository);
   private isSyncing = false;
   private lastSyncedAt?: string;
 
-  constructor(private db: DatabaseService) {
+  constructor() {
     this.initNetworkListener();
   }
 
@@ -29,7 +30,7 @@ export class SyncService {
   }
 
   async getSyncStatus(): Promise<SyncStatus> {
-    const queue = await this.db.getSyncQueue();
+    const queue = await this.syncQueueRepo.getAll();
     const pendingItems = queue.filter(item => item.status === 'pending');
     return {
       isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
@@ -51,7 +52,7 @@ export class SyncService {
     let syncedCount = 0;
 
     try {
-      const queue = await this.db.getSyncQueue();
+      const queue = await this.syncQueueRepo.getAll();
       const pendingItems = queue.filter(item => item.status === 'pending');
 
       for (const item of pendingItems) {
@@ -59,12 +60,12 @@ export class SyncService {
           // Simulate streaming to Cloudflare Worker D1/R2 endpoint
           await this.syncItemToCloudflare(item);
           item.status = 'synced';
-          await this.db.updateSyncItem(item);
+          await this.syncQueueRepo.update(item);
           syncedCount++;
         } catch (error) {
           item.status = 'failed';
           item.error = error instanceof Error ? error.message : 'Network drop';
-          await this.db.updateSyncItem(item);
+          await this.syncQueueRepo.update(item);
           break; // Stop FIFO processing on network drop
         }
       }

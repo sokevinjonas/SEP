@@ -1,5 +1,6 @@
-import { Injectable, signal, computed } from '@angular/core';
-import { DatabaseService } from '../db/database.service';
+import { Injectable, signal, computed, inject } from '@angular/core';
+import { ProfileRepository } from '../../features/profile/data-access/profile.repository';
+import { BudgetRepository } from '../../features/budget/data-access/budget.repository';
 
 export type CurrencyCode = 'GHS' | 'XOF' | 'USD' | 'EUR' | 'NGN' | string;
 
@@ -15,6 +16,9 @@ export interface LiveRateInfo {
   providedIn: 'root'
 })
 export class CurrencyService {
+  private readonly profileRepo = inject(ProfileRepository);
+  private readonly budgetRepo = inject(BudgetRepository);
+
   // Reactive Signals for active currency and exchange rate (1 GHS = X XOF)
   readonly activeCurrency = signal<CurrencyCode>('GHS');
   readonly secondaryCurrency = signal<CurrencyCode>('XOF');
@@ -25,17 +29,17 @@ export class CurrencyService {
     () => `1 ${this.activeCurrency() === 'GHS' ? 'GHS' : 'GHS'} = ${this.exchangeRate()} ${this.secondaryCurrency()}`
   );
 
-  constructor(private db: DatabaseService) {
+  constructor() {
     this.initFromDb();
   }
 
   async initFromDb(): Promise<void> {
-    const profile = await this.db.getUserProfile();
+    const profile = await this.profileRepo.getUserProfile();
     if (profile && profile.primaryCurrency) {
       this.activeCurrency.set(profile.primaryCurrency);
     }
 
-    const budget = await this.db.getMonthlyBudget();
+    const budget = await this.budgetRepo.getMonthlyBudget();
     if (budget && budget.exchangeRateXof) {
       this.exchangeRate.set(budget.exchangeRateXof);
     }
@@ -84,10 +88,10 @@ export class CurrencyService {
 
   async setCurrency(currency: CurrencyCode): Promise<void> {
     this.activeCurrency.set(currency);
-    const profile = await this.db.getUserProfile();
+    const profile = await this.profileRepo.getUserProfile();
     if (profile) {
       profile.primaryCurrency = currency as any;
-      await this.db.saveUserProfile(profile);
+      await this.profileRepo.saveUserProfile(profile);
     }
   }
 
@@ -98,9 +102,9 @@ export class CurrencyService {
   async setExchangeRate(newRate: number): Promise<void> {
     if (newRate <= 0) return;
     this.exchangeRate.set(newRate);
-    const budget = await this.db.getMonthlyBudget();
+    const budget = await this.budgetRepo.getMonthlyBudget();
     budget.exchangeRateXof = newRate;
-    await this.db.saveMonthlyBudget(budget);
+    await this.budgetRepo.saveMonthlyBudget(budget);
   }
 
   toXof(amountGhs: number): number {

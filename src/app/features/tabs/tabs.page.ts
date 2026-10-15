@@ -7,15 +7,13 @@ import {
   IonTabButton,
   IonIcon,
   IonLabel,
-  ModalController,
-  ToastController
+  ModalController
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import { homeOutline, cameraOutline, walletOutline, personOutline } from 'ionicons/icons';
 import { ActionBarComponent } from '../../shared/components/action-bar/action-bar.component';
 import { QuickLogModalComponent } from '../../shared/components/quick-log-modal/quick-log-modal.component';
 import { HesitationModalComponent } from '../../shared/components/hesitation-modal/hesitation-modal.component';
-import { DatabaseService } from '../../core/db/database.service';
 
 @Component({
   selector: 'app-tabs',
@@ -37,9 +35,7 @@ export class TabsPage implements OnInit {
 
   constructor(
     private modalCtrl: ModalController,
-    private toastCtrl: ToastController,
-    private router: Router,
-    private db: DatabaseService
+    private router: Router
   ) {
     addIcons({ homeOutline, cameraOutline, walletOutline, personOutline });
   }
@@ -77,10 +73,6 @@ export class TabsPage implements OnInit {
       cssClass: 'hesitation-modal-sheet'
     });
     await modal.present();
-    const result = await modal.onDidDismiss();
-    if (result.data?.saved) {
-      this.db.dataChanged$.next();
-    }
   }
 
   async handleQuickLog(): Promise<void> {
@@ -91,9 +83,5 @@ export class TabsPage implements OnInit {
       cssClass: 'quick-log-sheet'
     });
     await modal.present();
-    const result = await modal.onDidDismiss();
-    if (result.data?.saved) {
-      this.db.dataChanged$.next();
-    }
   }
 }

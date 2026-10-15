@@ -1,12 +1,12 @@
 import { inject } from '@angular/core';
 import { CanActivateFn, Router } from '@angular/router';
-import { DatabaseService } from '../db/database.service';
+import { ProfileFacade } from '../../features/profile/facade/profile.facade';
 
 export const onboardingGuard: CanActivateFn = async (route, state) => {
-  const db = inject(DatabaseService);
+  const profileFacade = inject(ProfileFacade);
   const router = inject(Router);
 
-  const profile = await db.getUserProfile();
+  const profile = await profileFacade.load();
   const isAuthRoute = state.url.includes('/onboarding') || state.url.includes('/register');
 
   if (!profile.hasCompletedOnboarding) {

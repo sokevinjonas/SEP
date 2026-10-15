@@ -5,8 +5,8 @@
     </ion-avatar>
 
     <ion-label (click)="openSettings()" class="user-meta-label">
-      <h1 class="user-name">{{ userProfile?.name || 'Student' }} · {{ userProfile?.city || 'Accra' }}</h1>
-      <p class="user-sub">{{ userProfile?.campus || 'University Campus' }}</p>
+      <h1 class="user-name">{{ userProfile()?.name || 'Student' }} · {{ userProfile()?.city || 'Accra' }}</h1>
+      <p class="user-sub">{{ userProfile()?.campus || 'University Campus' }}</p>
     </ion-label>
 
     <ion-buttons slot="end" class="header-buttons">
@@ -28,35 +28,35 @@
 
         <div class="balance-hero">
           <span class="balance-amount">
-            {{ currencyService.activeCurrency() === 'GHS' ? consumption.balanceGhs.toFixed(2) :
-            currencyService.toXof(consumption.balanceGhs).toLocaleString() }}
+            {{ currencyService.activeCurrency() === 'GHS' ? consumption().balanceGhs.toFixed(2) :
+            currencyService.toXof(consumption().balanceGhs).toLocaleString() }}
           </span>
           <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
         </div>
 
         <ion-card-subtitle class="balance-secondary">
-          {{ currencyService.formatEquiv(consumption.balanceGhs) }} (Rate: {{ currencyService.rateDescription() }})
+          {{ currencyService.formatEquiv(consumption().balanceGhs) }} (Rate: {{ currencyService.rateDescription() }})
         </ion-card-subtitle>
       </ion-card-header>
 
       <ion-card-content>
         <!-- Official Ionic Progress Bar -->
-        <ion-progress-bar class="budget-progress-bar" [value]="consumption.consumedPercent / 100"
-          [color]="consumption.status === 'safe' ? 'secondary' : (consumption.status === 'warning' ? 'warning' : 'danger')">
+        <ion-progress-bar class="budget-progress-bar" [value]="consumption().consumedPercent / 100"
+          [color]="consumption().status === 'safe' ? 'secondary' : (consumption().status === 'warning' ? 'warning' : 'danger')">
         </ion-progress-bar>
 
         <div class="progress-label-row">
-          <span>Spent: {{ consumption.totalSpentGhs.toFixed(2) }} GHS ({{ consumption.consumedPercent }}%)</span>
-          <span>Ceiling: {{ consumption.totalBudgetGhs }} GHS</span>
+          <span>Spent: {{ consumption().totalSpentGhs.toFixed(2) }} GHS ({{ consumption().consumedPercent }}%)</span>
+          <span>Ceiling: {{ consumption().totalBudgetGhs }} GHS</span>
         </div>
 
         <div class="budget-days-strip">
           <ion-chip class="days-chip" color="primary">
             <ion-icon name="time-outline"></ion-icon>
-            <ion-label>{{ budgetDaysInfo.days }} Budget Days</ion-label>
+            <ion-label>{{ budgetDaysInfo().days }} Budget Days</ion-label>
           </ion-chip>
           <ion-note class="days-detail">
-            Basis: {{ budgetDaysInfo.basis }} · {{ budgetDaysInfo.distinctDaysCount }} active day(s)
+            Basis: {{ budgetDaysInfo().basis }} · {{ budgetDaysInfo().distinctDaysCount }} active day(s)
           </ion-note>
         </div>
       </ion-card-content>
@@ -71,7 +71,7 @@
             Total Saved (Anti-Impulse)
             <span *ngIf="isCelebratingAvoided"> +Saved!</span>
           </ion-badge>
-          <h3 class="avoided-amount">{{ currencyService.formatAmount(avoidedGhs) }}</h3>
+          <h3 class="avoided-amount">{{ currencyService.formatAmount(avoidedGhs()) }}</h3>
           <ion-note class="avoided-note">Impulse purchases avoided this month</ion-note>
         </div>
         <div class="avoided-icon-wrap" [class.celebrating-icon]="isCelebratingAvoided">
@@ -91,8 +91,8 @@
           <div class="coach-title-row">
             <h4 class="coach-name">M. Pognon Advice</h4>
             <div class="coach-tags-wrap">
-              <ion-badge [color]="consumption.consumedPercent > 70 ? 'warning' : 'secondary'">
-                {{ consumption.consumedPercent > 70 ? '70% Alert' : 'On Track' }}
+              <ion-badge [color]="consumption().consumedPercent > 70 ? 'warning' : 'secondary'">
+                {{ consumption().consumedPercent > 70 ? '70% Alert' : 'On Track' }}
               </ion-badge>
               <ion-chip class="coach-chat-pill" color="primary">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
@@ -100,12 +100,12 @@
               </ion-chip>
             </div>
           </div>
-          <p class="coach-quote" *ngIf="consumption.consumedPercent > 70">
-            "{{ userProfile?.name || 'Student' }}, watch out for food and campus outings! Stick to the cafeteria
+          <p class="coach-quote" *ngIf="consumption().consumedPercent > 70">
+            "{{ userProfile()?.name || 'Student' }}, watch out for food and campus outings! Stick to the cafeteria
             rather than spontaneous buys to protect your month-end."
           </p>
-          <p class="coach-quote" *ngIf="consumption.consumedPercent <= 70">
-            "Steady pace, {{ userProfile?.name || 'Student' }}. Your daily burn rate is healthy. Tap to consult me
+          <p class="coach-quote" *ngIf="consumption().consumedPercent <= 70">
+            "Steady pace, {{ userProfile()?.name || 'Student' }}. Your daily burn rate is healthy. Tap to consult me
             before any expense!"
           </p>
         </div>
@@ -119,13 +119,13 @@
         <ion-note class="section-action">Details</ion-note>
       </ion-list-header>
 
-      <ion-item *ngIf="recentExpenses.length === 0" lines="none" class="empty-item">
+      <ion-item *ngIf="recentExpenses().length === 0" lines="none" class="empty-item">
         <ion-label class="ion-text-center">
           <p>No expenses recorded this month. Tap "+ Add" to begin.</p>
         </ion-label>
       </ion-item>
 
-      <ion-item *ngFor="let exp of recentExpenses" lines="full" class="log-item">
+      <ion-item *ngFor="let exp of recentExpenses()" lines="full" class="log-item">
         <ion-avatar slot="start" class="log-avatar">
           <ion-icon
             [name]="getCategoryIcon(exp.categoryId === 'cat-food' ? 'restaurant-outline' : exp.categoryId === 'cat-transport' ? 'bus-outline' : 'book-outline')"></ion-icon>

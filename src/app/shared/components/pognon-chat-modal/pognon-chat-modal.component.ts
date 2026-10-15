@@ -4,17 +4,19 @@ import { FormsModule } from '@angular/forms';
 import {
   IonHeader,
   IonToolbar,
+  IonTitle,
   IonButtons,
   IonButton,
   IonContent,
   IonFooter,
   IonInput,
   IonIcon,
-  IonAvatar,
+  IonBadge,
+  ModalController,
   IonChip,
+  IonAvatar,
   IonLabel,
-  IonSpinner,
-  ModalController
+  IonSpinner
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -26,10 +28,13 @@ import {
   cloudOfflineOutline,
   chatbubblesOutline
 } from 'ionicons/icons';
-import { DatabaseService } from '../../../core/db/database.service';
+import { ProfileFacade } from '../../../features/profile/facade/profile.facade';
+import { BudgetFacade } from '../../../features/budget/facade/budget.facade';
+import { ExpensesFacade } from '../../../features/expenses/facade/expenses.facade';
+import { PurchasesFacade } from '../../../features/purchases/facade/purchases.facade';
 import { CurrencyService } from '../../../core/services/currency.service';
-import { BudgetCalculatorService, BudgetConsumption } from '../../../core/services/budget-calculator.service';
-import { MonthlyBudget, UserProfile, Purchase, Expense } from '../../../core/models/financial.models';
+import { BudgetConsumption } from '../../../core/services/budget-calculator.service';
+import { UserProfile, MonthlyBudget, Purchase, Expense } from '../../../core/models/financial.models';
 
 export interface ChatMessage {
   id: string;
@@ -52,8 +57,8 @@ export interface ChatMessage {
     IonFooter,
     IonInput,
     IonIcon,
-    IonAvatar,
     IonChip,
+    IonAvatar,
     IonLabel,
     IonSpinner
   ],
@@ -81,9 +86,11 @@ export class PognonChatModalComponent implements OnInit {
 
   constructor(
     private modalCtrl: ModalController,
-    private db: DatabaseService,
-    public currencyService: CurrencyService,
-    private budgetCalculator: BudgetCalculatorService
+    private profileFacade: ProfileFacade,
+    private budgetFacade: BudgetFacade,
+    private expensesFacade: ExpensesFacade,
+    private purchasesFacade: PurchasesFacade,
+    public currencyService: CurrencyService
   ) {
     addIcons({
       closeOutline,
@@ -102,21 +109,18 @@ export class PognonChatModalComponent implements OnInit {
   }
 
   private async loadFinancialContext(): Promise<void> {
-    this.userProfile = await this.db.getUserProfile();
-    this.monthlyBudget = await this.db.getMonthlyBudget();
-    this.allExpenses = await this.db.getExpenses();
+    await Promise.all([
+      this.profileFacade.load(),
+      this.budgetFacade.load(),
+      this.expensesFacade.load(),
+      this.purchasesFacade.load()
+    ]);
 
-    const currentMonthKey = this.db.getCurrentMonthKey();
-    const monthExpenses = this.allExpenses.filter(e => e.date.startsWith(currentMonthKey));
-    const totalSpent = monthExpenses.reduce((sum, e) => sum + e.amount, 0);
-
-    this.consumption = this.budgetCalculator.calculateConsumption(
-      this.monthlyBudget.totalBudgetGhs,
-      totalSpent
-    );
-
-    const purchases = await this.db.getPurchases();
-    this.pendingPurchases = purchases.filter(p => p.status === 'pending');
+    this.userProfile = this.profileFacade.userProfile();
+    this.monthlyBudget = this.budgetFacade.monthlyBudget();
+    this.allExpenses = [...this.expensesFacade.expenses()];
+    this.consumption = this.budgetFacade.consumption();
+    this.pendingPurchases = [...this.purchasesFacade.pendingPurchases()];
   }
 
   private initWelcomeMessage(): void {

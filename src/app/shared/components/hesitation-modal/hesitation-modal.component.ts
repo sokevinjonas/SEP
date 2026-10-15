@@ -8,14 +8,20 @@ import {
   IonButtons,
   IonButton,
   IonContent,
+  IonCard,
+  IonCardHeader,
+  IonCardTitle,
+  IonCardSubtitle,
+  IonCardContent,
   IonItem,
   IonLabel,
   IonInput,
   IonIcon,
-  IonChip,
-  IonAvatar,
+  IonBadge,
   ModalController,
-  ToastController
+  ToastController,
+  IonChip,
+  IonAvatar
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -36,10 +42,13 @@ import {
   arrowForwardOutline,
   arrowBackOutline
 } from 'ionicons/icons';
-import { DatabaseService } from '../../../core/db/database.service';
+import { ExpensesFacade } from '../../../features/expenses/facade/expenses.facade';
+import { PurchasesFacade } from '../../../features/purchases/facade/purchases.facade';
+import { BudgetFacade } from '../../../features/budget/facade/budget.facade';
+import { ProfileFacade } from '../../../features/profile/facade/profile.facade';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { BudgetCalculatorService } from '../../../core/services/budget-calculator.service';
-import { Category, Expense, MonthlyBudget, Purchase, UserProfile } from '../../../core/models/financial.models';
+import { Category, Purchase, Expense, UserProfile, MonthlyBudget } from '../../../core/models/financial.models';
 
 @Component({
   selector: 'app-hesitation-modal',
@@ -78,14 +87,17 @@ export class HesitationModalComponent implements OnInit {
 
   // Computed Hesitation metrics
   computedCostDays = 0;
-  basisText = '(budget planifié)';
+  basisText = '(planned budget)';
   budgetPercent = 0;
   concreteReframing = '';
 
   constructor(
     private modalCtrl: ModalController,
     private toastCtrl: ToastController,
-    private db: DatabaseService,
+    private expensesFacade: ExpensesFacade,
+    private purchasesFacade: PurchasesFacade,
+    private budgetFacade: BudgetFacade,
+    private profileFacade: ProfileFacade,
     public currencyService: CurrencyService,
     private budgetCalculator: BudgetCalculatorService
   ) {
@@ -110,12 +122,16 @@ export class HesitationModalComponent implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    this.categories = await this.db.getCategories();
+    await Promise.all([
+      this.budgetFacade.load(),
+      this.profileFacade.load()
+    ]);
+    this.categories = this.budgetFacade.categories();
     if (this.categories.length > 0) {
       this.selectedCategory = this.categories[0];
     }
-    this.userProfile = await this.db.getUserProfile();
-    this.monthlyBudget = await this.db.getMonthlyBudget();
+    this.userProfile = this.profileFacade.userProfile();
+    this.monthlyBudget = this.budgetFacade.monthlyBudget();
   }
 
   get amountNumber(): number {
@@ -168,7 +184,7 @@ export class HesitationModalComponent implements OnInit {
     this.modalCtrl.dismiss({ action: 'dismissed' });
   }
 
-  // Option 1: "I'll think about it" (48h pause without spending) - Story 2.3
+  // Option 1: "I'll think about it" (48h cooling-off pause without spending) - Story 2.3
   async chooseToThink(): Promise<void> {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 48 * 3600 * 1000).toISOString();
@@ -184,7 +200,8 @@ export class HesitationModalComponent implements OnInit {
       expiresAt: expiresAt
     };
 
-    await this.db.addPurchase(purchase);
+    // Reflects in PurchasesState signal immediately
+    await this.purchasesFacade.addPurchase(purchase);
 
     const toast = await this.toastCtrl.create({
       message: `Well done! ${purchase.amountGhs} GHS protected. Placed in 48h cooling-off pause.`,
@@ -201,7 +218,7 @@ export class HesitationModalComponent implements OnInit {
   async chooseToBuy(): Promise<void> {
     const now = new Date();
 
-    // 1. Create immediate expense
+    // 1. Create immediate expense (reflects in ExpensesState signal immediately)
     const expense: Expense = {
       id: `exp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       amount: this.amountNumber,
@@ -214,7 +231,7 @@ export class HesitationModalComponent implements OnInit {
       source: 'manual',
       createdAt: now.toISOString()
     };
-    await this.db.addExpense(expense);
+    await this.expensesFacade.addExpense(expense);
 
     // 2. Track in purchases as bought
     const purchase: Purchase = {
@@ -228,7 +245,7 @@ export class HesitationModalComponent implements OnInit {
       expiresAt: now.toISOString(),
       resolvedAt: now.toISOString()
     };
-    await this.db.addPurchase(purchase);
+    await this.purchasesFacade.addPurchase(purchase);
 
     const toast = await this.toastCtrl.create({
       message: `Expense of ${expense.amount} GHS recorded. No judgment, stay on track for the month!`,
