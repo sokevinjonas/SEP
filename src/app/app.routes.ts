@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { onboardingGuard } from './core/guards/onboarding.guard';
 
+// Application Routes with Onboarding & Register Guards
 export const routes: Routes = [
   {
     path: 'onboarding',
