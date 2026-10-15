@@ -27,6 +27,7 @@ import {
 import { addIcons } from 'ionicons';
 import {
   arrowBackOutline,
+  arrowForwardOutline,
   personOutline,
   globeOutline,
   businessOutline,
@@ -74,6 +75,8 @@ import { UserProfile, MonthlyBudget } from '../../core/models/financial.models';
 export class RegisterPage implements OnInit {
   readonly Math = Math;
 
+  currentStep: 1 | 2 = 1;
+
   userName = '';
   selectedCountry = 'Ghana';
   selectedCity = 'Accra';
@@ -105,6 +108,7 @@ export class RegisterPage implements OnInit {
   ) {
     addIcons({
       arrowBackOutline,
+      arrowForwardOutline,
       personOutline,
       globeOutline,
       businessOutline,
@@ -121,6 +125,50 @@ export class RegisterPage implements OnInit {
     await this.loadCountries();
     await this.onCountryChanged(this.selectedCountry);
     this.fetchLiveRate();
+  }
+
+  nextStep(): void {
+    if (!this.userName.trim()) {
+      this.showToast('Please enter your name or nickname.', 'warning');
+      return;
+    }
+
+    if (!this.selectedCountry) {
+      this.showToast('Please select your study country.', 'warning');
+      return;
+    }
+
+    if (!this.selectedCity) {
+      this.showToast('Please select your study city.', 'warning');
+      return;
+    }
+
+    if (!this.campus.trim()) {
+      this.showToast('Please enter your university campus.', 'warning');
+      return;
+    }
+
+    this.currentStep = 2;
+  }
+
+  prevStep(): void {
+    this.currentStep = 1;
+  }
+
+  goToStep(step: 1 | 2): void {
+    if (step === 1) {
+      this.currentStep = 1;
+    } else if (step === 2) {
+      this.nextStep();
+    }
+  }
+
+  goBack(): void {
+    if (this.currentStep === 2) {
+      this.currentStep = 1;
+    } else {
+      this.router.navigate(['/onboarding']);
+    }
   }
 
   async loadCountries(): Promise<void> {
@@ -181,9 +229,6 @@ export class RegisterPage implements OnInit {
     }
   }
 
-  goBack(): void {
-    this.router.navigate(['/onboarding']);
-  }
 
   get dailyAllowance(): number {
     return this.monthlyBudget > 0 ? parseFloat((this.monthlyBudget / 30).toFixed(2)) : 0;

@@ -12,7 +12,7 @@
 
 .register-title {
   font-family: var(--ion-font-family);
-  font-size: 16.5px;
+  font-size: 15.5px;
   font-weight: 900;
   color: var(--sep-primary, #714B67);
   text-align: center;
@@ -31,8 +31,138 @@
   gap: 16px;
 }
 
+/* ==========================================================================
+   2-Step Progress Tracker Bar
+   ========================================================================== */
+.steps-progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--sep-card, #FFFFFF);
+  border: 1px solid var(--sep-line, #EADFE7);
+  border-radius: 18px;
+  padding: 12px 18px;
+  box-shadow: 0 4px 12px rgba(113, 75, 103, 0.04);
+  margin-bottom: 4px;
+
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--sep-base, #F7F3F6);
+      border: 2px solid var(--sep-line, #EADFE7);
+      color: var(--sep-mut, #6B5966);
+      font-size: 12px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+
+      ion-icon {
+        font-size: 18px;
+        color: var(--sep-action, #017e84);
+      }
+    }
+
+    .step-text-meta {
+      display: flex;
+      flex-direction: column;
+
+      .step-badge {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+        color: var(--sep-mut, #6B5966);
+      }
+
+      .step-title {
+        font-size: 12.5px;
+        font-weight: 800;
+        color: var(--sep-ink, #2B1F28);
+      }
+    }
+
+    &.active {
+      .step-circle {
+        background: var(--sep-primary, #714B67);
+        border-color: var(--sep-primary, #714B67);
+        color: #FFFFFF;
+        box-shadow: 0 2px 8px rgba(113, 75, 103, 0.35);
+      }
+
+      .step-text-meta .step-badge {
+        color: var(--sep-primary, #714B67);
+      }
+
+      .step-text-meta .step-title {
+        color: var(--sep-primary, #714B67);
+      }
+    }
+
+    &.completed {
+      .step-circle {
+        background: rgba(1, 126, 132, 0.12);
+        border-color: var(--sep-action, #017e84);
+        color: var(--sep-action, #017e84);
+      }
+
+      .step-text-meta .step-title {
+        color: var(--sep-action, #017e84);
+      }
+    }
+  }
+
+  .step-track {
+    flex: 1;
+    height: 3px;
+    background: var(--sep-line, #EADFE7);
+    margin: 0 14px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+
+    .step-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      background: var(--sep-primary, #714B67);
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &.filled {
+        width: 100%;
+      }
+    }
+  }
+}
+
+/* Step transition animation */
+.step-fade-in {
+  animation: stepFadeIn 0.28s ease-out forwards;
+}
+
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .intro-banner {
-  padding: 4px 4px 8px;
+  padding: 4px 4px 6px;
 
   .banner-heading {
     font-family: var(--ion-font-family);
@@ -274,8 +404,9 @@
   }
 }
 
+/* Action Wrappers */
 .register-action-wrap {
-  margin-top: 10px;
+  margin-top: 16px;
 
   .submit-register-btn {
     --background: var(--sep-primary, #714B67);
@@ -285,6 +416,49 @@
     font-size: 15px;
     min-height: 54px;
     box-shadow: 0 6px 18px rgba(113, 75, 103, 0.32);
+    margin: 0;
+
+    ion-icon {
+      font-size: 20px;
+      margin-left: 6px;
+    }
+  }
+}
+
+/* Step 2 dual buttons (Back + Complete) */
+.step-two-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+
+  .prev-step-btn {
+    --color: var(--sep-primary, #714B67);
+    --border-color: var(--sep-line, #EADFE7);
+    --border-radius: 16px;
+    font-family: var(--ion-font-family);
+    font-weight: 800;
+    font-size: 14px;
+    min-height: 54px;
+    min-width: 130px;
+    margin: 0;
+
+    ion-icon {
+      font-size: 18px;
+      margin-right: 4px;
+    }
+  }
+
+  .submit-register-btn {
+    flex: 1;
+    --background: linear-gradient(135deg, #FFAC00 0%, #E68A00 100%);
+    --color: #1A0D18;
+    --border-radius: 16px;
+    font-family: var(--ion-font-family);
+    font-weight: 900;
+    font-size: 15px;
+    min-height: 54px;
+    box-shadow: 0 6px 18px rgba(255, 172, 0, 0.35);
     margin: 0;
 
     ion-icon {
