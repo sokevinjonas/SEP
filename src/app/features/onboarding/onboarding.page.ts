@@ -13,7 +13,10 @@ import {
   sparklesOutline,
   shieldCheckmarkOutline,
   globeOutline,
-  flashOutline
+  flashOutline,
+  cashOutline,
+  timeOutline,
+  helpCircleOutline
 } from 'ionicons/icons';
 
 @Component({
@@ -36,7 +39,10 @@ export class OnboardingPage {
       sparklesOutline,
       shieldCheckmarkOutline,
       globeOutline,
-      flashOutline
+      flashOutline,
+      cashOutline,
+      timeOutline,
+      helpCircleOutline
     });
   }
 
