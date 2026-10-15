@@ -9,7 +9,7 @@ compatibility_date = "2024-04-01"
 [vars]
 ENVIRONMENT = "production"
 APP_SECRET_TOKEN = "sep_secret_bearer_token_2026"
-RESEND_FROM_EMAIL = "M. Pognon <mail-omnelyo.kgslab.com>"
+RESEND_FROM_EMAIL = "M. Pognon <coach@mail-omnelyo.kgslab.com>"
 JONAS_EMAIL = "sokevin7@gmail.com"
 MONTHLY_AI_BUDGET_USD = "5.00"
 
@@ -19,10 +19,10 @@ binding = "DB"
 database_name = "sep-d1"
 database_id = "8c3d3d5d-aa7c-4b37-a6dd-4ea61f154be4"
 
-# R2 Object Storage for Receipt Captures
-[[r2_buckets]]
-binding = "CAPTURES_BUCKET"
-bucket_name = "sep-captures"
+# R2 Object Storage for Receipt Captures (Optional: Uncomment once R2 is enabled in Cloudflare Dashboard)
+# [[r2_buckets]]
+# binding = "CAPTURES_BUCKET"
+# bucket_name = "sep-captures"
 
 # Scheduled Cron Triggers:
 # 1. 06:00 UTC (Ghana Morning Digest)

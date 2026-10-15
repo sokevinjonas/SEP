@@ -229,10 +229,12 @@ export default {
         const captureId = `cap-${crypto.randomUUID()}`;
         const r2Key = `captures/${captureId}.${ext}`;
 
-        // Stream into Cloudflare R2
-        await env.CAPTURES_BUCKET.put(r2Key, file.stream(), {
-          httpMetadata: { contentType: file.type }
-        });
+        // Stream into Cloudflare R2 if configured
+        if (env.CAPTURES_BUCKET) {
+          await env.CAPTURES_BUCKET.put(r2Key, file.stream(), {
+            httpMetadata: { contentType: file.type }
+          });
+        }
 
         // Record in D1
         await env.DB.prepare(`

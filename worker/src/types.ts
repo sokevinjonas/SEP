@@ -1,6 +1,6 @@
 export interface Env {
   DB: D1Database;
-  CAPTURES_BUCKET: R2Bucket;
+  CAPTURES_BUCKET?: R2Bucket;
   ENVIRONMENT: string;
   APP_SECRET_TOKEN: string;
   OPENAI_API_KEY: string;
