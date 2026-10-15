@@ -12,7 +12,13 @@ $RECYCLE.BIN/
 *.log
 log.txt
 
-
+# Environment and Secrets
+.env
+.env.*
+.dev.vars
+.dev.vars.*
+worker/.dev.vars
+worker/.dev.vars.*
 /.sourcemaps
 /.versions
 /coverage

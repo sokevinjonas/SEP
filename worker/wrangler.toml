@@ -2,6 +2,10 @@ name = "sep-backend"
 main = "src/index.ts"
 compatibility_date = "2024-04-01"
 
+# Public non-sensitive environment variables
+# Note: Sensitive secrets (OPENAI_API_KEY, RESEND_API_KEY) must NOT be declared here in plaintext.
+# - In local dev: wrangler automatically injects them from worker/.dev.vars
+# - In production: set them via 'npx wrangler secret put OPENAI_API_KEY' and 'npx wrangler secret put RESEND_API_KEY'
 [vars]
 ENVIRONMENT = "production"
 APP_SECRET_TOKEN = "sep_secret_bearer_token_2026"

@@ -1,6 +1,4 @@
-import { Injectable, inject } from '@angular/core';
-import { SyncQueueRepository } from '../db/sync-queue.repository';
-import { SyncItem } from '../models/financial.models';
+import { environment } from '../../../environments/environment';
 
 export interface SyncStatus {
   isOnline: boolean;
@@ -54,33 +52,50 @@ export class SyncService {
     try {
       const queue = await this.syncQueueRepo.getAll();
       const pendingItems = queue.filter(item => item.status === 'pending');
+      if (pendingItems.length === 0) {
+        return 0;
+      }
 
-      for (const item of pendingItems) {
-        try {
-          // Simulate streaming to Cloudflare Worker D1/R2 endpoint
-          await this.syncItemToCloudflare(item);
+      // Group items for batch sync
+      const payloadItems = pendingItems.map(item => ({
+        id: item.id,
+        type: item.entity,
+        action: item.action,
+        payload: item.payload,
+        timestamp: item.createdAt
+      }));
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+
+      const response = await fetch(`${environment.workerUrl}/api/sync`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${environment.appSecretToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ items: payloadItems }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (response.ok) {
+        for (const item of pendingItems) {
           item.status = 'synced';
           await this.syncQueueRepo.update(item);
           syncedCount++;
-        } catch (error) {
-          item.status = 'failed';
-          item.error = error instanceof Error ? error.message : 'Network drop';
-          await this.syncQueueRepo.update(item);
-          break; // Stop FIFO processing on network drop
         }
+        this.lastSyncedAt = new Date().toISOString();
+      } else {
+        console.warn('[SyncService] Backend returned non-200. Queue preserved offline.');
       }
-
-      this.lastSyncedAt = new Date().toISOString();
+    } catch (error) {
+      // Offline or network drop: items stay pending in IndexedDB safely
+      console.warn('[SyncService] Sync attempt deferred (offline or server unreachable).');
     } finally {
       this.isSyncing = false;
     }
 
     return syncedCount;
-  }
-
-  private async syncItemToCloudflare(item: SyncItem): Promise<boolean> {
-    // Artificial small delay for network roundtrip simulation
-    await new Promise(resolve => setTimeout(resolve, 300));
-    return true;
   }
 }

@@ -35,6 +35,7 @@ import { PurchasesFacade } from '../../../features/purchases/facade/purchases.fa
 import { CurrencyService } from '../../../core/services/currency.service';
 import { BudgetConsumption } from '../../../core/services/budget-calculator.service';
 import { UserProfile, MonthlyBudget, Purchase, Expense } from '../../../core/models/financial.models';
+import { environment } from '../../../../environments/environment';
 
 export interface ChatMessage {
   id: string;
@@ -158,11 +159,46 @@ export class PognonChatModalComponent implements OnInit {
     this.userInput = '';
     this.isTyping = true;
 
-    // Simulate smart backend response with real financial context
+    // 2. Attempt online backend call to Cloudflare Worker /api/chat (OpenAI LLM)
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      try {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+        const res = await fetch(`${environment.workerUrl}/api/chat`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${environment.appSecretToken}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ message: text }),
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (res.ok) {
+          const data: any = await res.json();
+          if (data && data.reply) {
+            this.messages.push({
+              id: `pog-${Date.now()}`,
+              sender: 'pognon',
+              text: data.reply,
+              time: this.formatNow()
+            });
+            this.isTyping = false;
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('[PognonChat] Online worker chat unavailable, using local coach heuristics.', err);
+      }
+    }
+
+    // 3. Graceful offline fallback with local heuristics
     setTimeout(() => {
       this.generatePognonResponse(text);
       this.isTyping = false;
-    }, 900);
+    }, 600);
   }
 
   private generatePognonResponse(query: string): void {

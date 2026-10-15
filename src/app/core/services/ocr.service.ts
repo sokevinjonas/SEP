@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { environment } from '../../../environments/environment';
 
 export interface ExtractedFieldConfidence {
   field: string;
@@ -44,13 +45,64 @@ export class OcrService {
 
   /**
    * Processes an image file or DataURL through intelligent OCR extraction.
-   * Simulates/calls the gpt-4o-mini vision pipeline with structured output.
+   * Calls the Cloudflare Worker GPT-4o-mini vision pipeline when online,
+   * with graceful local fallback if offline.
    */
   async extractFromImage(file: File | string, fileName?: string): Promise<ExtractedTransaction> {
-    // Artificial extraction delay to display real scanning state
-    await new Promise(resolve => setTimeout(resolve, 1400));
-
     const name = typeof file === 'string' ? (fileName || 'capture.jpg') : file.name;
+
+    // 1. Attempt online Worker Vision extraction if online
+    if (typeof navigator !== 'undefined' && navigator.onLine) {
+      try {
+        const formData = new FormData();
+        if (file instanceof File) {
+          formData.append('file', file);
+        } else if (typeof file === 'string' && file.startsWith('data:')) {
+          // Convert Data URL to Blob
+          const res = await fetch(file);
+          const blob = await res.blob();
+          formData.append('file', blob, name);
+        }
+
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 12000);
+
+        const response = await fetch(`${environment.workerUrl}/api/captures`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${environment.appSecretToken}`
+          },
+          body: formData,
+          signal: controller.signal
+        });
+        clearTimeout(timeoutId);
+
+        if (response.ok) {
+          const result: any = await response.json();
+          if (result && result.extracted) {
+            return {
+              amount: result.extracted.amount || 0,
+              currency: result.extracted.currency || 'GHS',
+              categoryId: result.extracted.categoryId || 'cat-food',
+              categoryName: result.extracted.categoryName || 'Food & Chop',
+              merchant: result.extracted.merchant || 'Campus Vendor',
+              date: result.extracted.date || new Date().toISOString(),
+              transactionReference: result.extracted.transactionReference || '',
+              source: result.extracted.transactionReference?.includes('MTN') ? 'ocr_momo' : 'ocr_receipt',
+              confidence: result.extracted.confidence || { amount: true, merchant: true, category: true, reference: true },
+              uncertainNote: result.extracted.uncertainNote,
+              fileName: name
+            };
+          }
+        }
+      } catch (err) {
+        console.warn('[OcrService] Online vision extraction unavailable, using local heuristic engine.', err);
+      }
+    }
+
+    // 2. Offline / local fallback with realistic scanning state
+    await new Promise(resolve => setTimeout(resolve, 800));
+
     const lowerName = name.toLowerCase();
 
     // Contextual intelligent heuristic rules based on filename or receipt hints
