@@ -10,7 +10,7 @@ import {
   ToastController
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
-import { homeOutline, cameraOutline, walletOutline } from 'ionicons/icons';
+import { homeOutline, cameraOutline, walletOutline, personOutline } from 'ionicons/icons';
 import { ActionBarComponent } from '../../shared/components/action-bar/action-bar.component';
 import { QuickLogModalComponent } from '../../shared/components/quick-log-modal/quick-log-modal.component';
 
@@ -34,7 +34,7 @@ export class TabsPage {
     private modalCtrl: ModalController,
     private toastCtrl: ToastController
   ) {
-    addIcons({ homeOutline, cameraOutline, walletOutline });
+    addIcons({ homeOutline, cameraOutline, walletOutline, personOutline });
   }
 
   async handleWantToBuy(): Promise<void> {

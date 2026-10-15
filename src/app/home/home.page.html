@@ -97,10 +97,10 @@
             </ion-badge>
           </div>
           <p class="coach-quote" *ngIf="consumption.consumedPercent > 70">
-            "{{ userProfile?.name || 'Jonas' }}, watch out for food and campus outings! Stick to the cafeteria rather than spontaneous buys to protect your month-end."
+            "{{ userProfile?.name || 'Student' }}, watch out for food and campus outings! Stick to the cafeteria rather than spontaneous buys to protect your month-end."
           </p>
           <p class="coach-quote" *ngIf="consumption.consumedPercent <= 70">
-            "Steady pace, {{ userProfile?.name || 'Jonas' }}. Your daily burn rate is healthy. Keep resisting impulses to preserve your safety cushion."
+            "Steady pace, {{ userProfile?.name || 'Student' }}. Your daily burn rate is healthy. Keep resisting impulses to preserve your safety cushion."
           </p>
         </div>
       </ion-card-content>

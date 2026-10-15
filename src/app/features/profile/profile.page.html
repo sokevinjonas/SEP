@@ -1,0 +1,327 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="profile-toolbar">
+    <ion-title class="profile-page-title">Profile &amp; Settings</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="profile-content ion-padding">
+  <div class="profile-container has-bottom-bars">
+
+    <!-- Hero Identity Card -->
+    <div class="profile-hero-card">
+      <div class="hero-top-row">
+        <ion-avatar class="student-avatar">
+          <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+        </ion-avatar>
+        <div class="student-details">
+          <h2 class="student-name">{{ userProfile.name || 'Campus Student' }}</h2>
+          <p class="student-campus">
+            <ion-icon name="school-outline"></ion-icon>
+            <span>{{ userProfile.campus || 'University Campus' }}</span>
+          </p>
+          <p class="student-location">
+            <ion-icon name="globe-outline"></ion-icon>
+            <span>{{ userProfile.city }}, {{ userProfile.country }}</span>
+          </p>
+        </div>
+      </div>
+
+      <!-- Quick Currencies Strip -->
+      <div class="currency-chips-strip">
+        <div class="currency-chip-item">
+          <span class="chip-label">Primary</span>
+          <span class="chip-val">{{ userProfile.primaryCurrency }}</span>
+        </div>
+        <div class="currency-chip-divider">⇄</div>
+        <div class="currency-chip-item">
+          <span class="chip-label">Secondary</span>
+          <span class="chip-val">{{ currencyService.secondaryCurrency() }}</span>
+        </div>
+        <div class="currency-chip-divider">·</div>
+        <div class="currency-chip-item rate-item">
+          <span class="chip-label">Rate</span>
+          <span class="chip-val">1 = {{ monthlyBudget.exchangeRateXof }}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 1. Student Identity & Campus Location (Official ion-card) -->
+    <ion-card class="settings-card ion-no-margin">
+      <ion-card-header>
+        <div class="card-header-row">
+          <ion-icon name="person-outline" class="card-header-icon"></ion-icon>
+          <ion-card-title class="card-title">Identity &amp; Campus</ion-card-title>
+        </div>
+        <ion-card-subtitle class="card-desc">
+          Your personal student identity and university affiliation.
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="ion-no-padding">
+        <ion-list lines="none" class="settings-input-list">
+
+          <!-- Name -->
+          <ion-item class="custom-input-item">
+            <ion-icon name="person-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              label="Student Name or Nickname"
+              labelPlacement="stacked"
+              placeholder="e.g. Jonas"
+              [(ngModel)]="userProfile.name">
+            </ion-input>
+          </ion-item>
+
+          <!-- Country Selection -->
+          <ion-item class="custom-input-item select-item">
+            <ion-icon name="globe-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-select
+              label="Country of Study"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [value]="userProfile.country"
+              (ionChange)="onCountryChanged($event.detail.value)"
+              placeholder="Select Country">
+              <ion-select-option *ngFor="let c of countries" [value]="c.name">
+                {{ c.flag }} {{ c.name }} ({{ c.currency }})
+              </ion-select-option>
+            </ion-select>
+            <ion-spinner *ngIf="isLoadingCountries" name="dots" slot="end" class="field-spinner"></ion-spinner>
+          </ion-item>
+
+          <!-- City Selection -->
+          <ion-item class="custom-input-item select-item">
+            <ion-icon name="business-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-select
+              label="City of Study"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [value]="userProfile.city"
+              (ionChange)="userProfile.city = $event.detail.value"
+              [disabled]="isLoadingCities || cities.length === 0"
+              placeholder="Select City">
+              <ion-select-option *ngFor="let city of cities" [value]="city">
+                {{ city }}
+              </ion-select-option>
+            </ion-select>
+            <ion-spinner *ngIf="isLoadingCities" name="dots" slot="end" class="field-spinner"></ion-spinner>
+          </ion-item>
+
+          <!-- Campus (Editable + Suggestions) -->
+          <div class="campus-edit-section">
+            <ion-item class="custom-input-item">
+              <ion-icon name="school-outline" slot="start" class="field-icon"></ion-icon>
+              <ion-input
+                label="University Campus (Editable)"
+                labelPlacement="stacked"
+                placeholder="e.g. KNUST, Kumasi"
+                [(ngModel)]="userProfile.campus">
+              </ion-input>
+            </ion-item>
+
+            <div class="campus-chips-wrap" *ngIf="suggestedCampuses.length > 0">
+              <span class="chips-hint">Campus quick suggestions:</span>
+              <div class="chips-scroll">
+                <ion-chip
+                  *ngFor="let camp of suggestedCampuses"
+                  class="profile-campus-chip"
+                  [class.active]="userProfile.campus === camp"
+                  (click)="selectSuggestedCampus(camp)">
+                  <ion-label>{{ camp }}</ion-label>
+                </ion-chip>
+              </div>
+            </div>
+          </div>
+
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- 2. Currencies & Exchange Rate Engine (Official ion-card) -->
+    <ion-card class="settings-card ion-no-margin">
+      <ion-card-header>
+        <div class="card-header-row">
+          <ion-icon name="globe-outline" class="card-header-icon"></ion-icon>
+          <ion-card-title class="card-title">Currencies &amp; Street Exchange Rates</ion-card-title>
+        </div>
+        <ion-card-subtitle class="card-desc">
+          Live market engine and negotiated street rates for multi-currency tracking.
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="ion-no-padding">
+        <!-- Live Rate Engine Box -->
+        <div class="profile-rate-box">
+          <div class="rate-header-row">
+            <div class="rate-meta">
+              <span class="rate-status-badge">
+                <ion-icon name="globe-outline"></ion-icon>
+                Live FX Engine
+              </span>
+              <p class="rate-status-msg">{{ rateStatusText }}</p>
+            </div>
+
+            <ion-button
+              fill="outline"
+              size="small"
+              class="fetch-live-btn"
+              [disabled]="isFetchingLiveRate"
+              (click)="fetchLiveRate()">
+              <ion-spinner *ngIf="isFetchingLiveRate" name="crescent" slot="start"></ion-spinner>
+              <ion-icon *ngIf="!isFetchingLiveRate" name="refresh-outline" slot="start"></ion-icon>
+              <span>{{ isFetchingLiveRate ? 'Syncing...' : 'Fetch Live Rate' }}</span>
+            </ion-button>
+          </div>
+
+          <!-- Applied Negotiated / Street Rate -->
+          <ion-item class="custom-input-item rate-input-item" lines="none">
+            <ion-icon name="cash-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              type="number"
+              [label]="'Applied Street Rate (1 ' + userProfile.primaryCurrency + ' in ' + currencyService.secondaryCurrency() + ')'"
+              labelPlacement="stacked"
+              placeholder="e.g. 42.0"
+              [(ngModel)]="monthlyBudget.exchangeRateXof"
+              min="0.01"
+              step="0.1">
+            </ion-input>
+          </ion-item>
+          <p class="field-note">
+            You can type your exact negotiated rate at Accra forex bureaus or border changers.
+          </p>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- 3. Monthly Budget Ceiling & Allowance Breakdown (Official ion-card) -->
+    <ion-card class="settings-card ion-no-margin">
+      <ion-card-header>
+        <div class="card-header-row">
+          <ion-icon name="wallet-outline" class="card-header-icon"></ion-icon>
+          <ion-card-title class="card-title">Monthly Budget &amp; Ceiling</ion-card-title>
+        </div>
+        <ion-card-subtitle class="card-desc">
+          Total student allowance to manage and protect against impulse buys.
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="ion-no-padding">
+        <div class="budget-input-wrapper">
+          <ion-item class="custom-input-item" lines="none">
+            <ion-icon name="wallet-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input
+              type="number"
+              [label]="'Monthly Allowance (' + userProfile.primaryCurrency + ')'"
+              labelPlacement="stacked"
+              placeholder="e.g. 600"
+              [(ngModel)]="monthlyBudget.totalBudgetGhs"
+              min="10"
+              step="10">
+            </ion-input>
+          </ion-item>
+
+          <!-- Allowance Preview Card -->
+          <div class="allowance-preview-pill">
+            <div class="preview-metric">
+              <span class="metric-title">Daily Allowance</span>
+              <span class="metric-value">{{ dailyAllowance.toFixed(2) }} {{ userProfile.primaryCurrency }}</span>
+              <span class="metric-sub">≈ {{ dailyAllowanceSecondary.toLocaleString() }} {{ currencyService.secondaryCurrency() }}</span>
+            </div>
+            <div class="preview-pipe"></div>
+            <div class="preview-metric">
+              <span class="metric-title">Campus Meals</span>
+              <span class="metric-value">≈ {{ Math.round(monthlyBudget.totalBudgetGhs / 15) }} meals</span>
+              <span class="metric-sub">~15 {{ userProfile.primaryCurrency }} per meal</span>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- 4. Category Envelopes (Official ion-card & ion-list) -->
+    <ion-card class="settings-card ion-no-margin" *ngIf="categories.length > 0">
+      <ion-card-header>
+        <div class="card-header-row">
+          <ion-icon name="restaurant-outline" class="card-header-icon"></ion-icon>
+          <ion-card-title class="card-title">Category Envelopes</ion-card-title>
+        </div>
+        <ion-card-subtitle class="card-desc">
+          Planned monthly ceiling per spending category.
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="ion-no-padding">
+        <ion-list lines="full" class="envelopes-list">
+          <ion-item *ngFor="let cat of categories" class="envelope-item">
+            <ion-icon [name]="cat.icon" slot="start" class="cat-icon"></ion-icon>
+            <ion-label class="cat-label">{{ cat.name }}</ion-label>
+            <div slot="end" class="cat-budget-input-wrap">
+              <ion-input
+                type="number"
+                class="cat-amount-field"
+                [(ngModel)]="cat.monthlyAllocationGhs"
+                min="0">
+              </ion-input>
+              <span class="cat-currency-unit">{{ userProfile.primaryCurrency }}</span>
+            </div>
+          </ion-item>
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Save Action Button -->
+    <div class="profile-save-action">
+      <ion-button
+        expand="block"
+        size="large"
+        class="save-profile-btn"
+        (click)="saveProfile()"
+        id="btn-save-profile">
+        <ion-icon slot="start" name="save-outline"></ion-icon>
+        <span>Save Profile &amp; Settings</span>
+      </ion-button>
+    </div>
+
+    <!-- 5. Data Vault & Storage Management (Official ion-card) -->
+    <ion-card class="settings-card vault-card ion-no-margin">
+      <ion-card-header>
+        <div class="card-header-row">
+          <ion-icon name="download-outline" class="card-header-icon action"></ion-icon>
+          <ion-card-title class="card-title">Data Vault &amp; Export</ion-card-title>
+        </div>
+        <ion-card-subtitle class="card-desc">
+          Full ownership of your campus financial records.
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="vault-card-body">
+        <ion-button
+          expand="block"
+          fill="outline"
+          class="export-csv-btn"
+          (click)="exportCsv()"
+          id="btn-export-csv-profile">
+          <ion-icon slot="start" name="download-outline"></ion-icon>
+          <span>Export All Expenses (CSV)</span>
+        </ion-button>
+
+        <ion-button
+          expand="block"
+          fill="clear"
+          color="danger"
+          class="reset-db-btn"
+          (click)="confirmResetData()"
+          id="btn-reset-db">
+          <ion-icon slot="start" name="trash-outline"></ion-icon>
+          <span>Reset Database to Defaults</span>
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- IndexedDB Local Storage Status Badge -->
+    <div class="storage-badge-wrap">
+      <ion-icon name="cloud-done-outline"></ion-icon>
+      <span>IndexedDB Encrypted Local Storage · 100% Offline-First</span>
+    </div>
+
+  </div>
+</ion-content>

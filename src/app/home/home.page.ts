@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router } from '@angular/router';
 import {
   IonHeader,
   IonToolbar,
@@ -9,7 +10,6 @@ import {
   IonContent,
   IonCard,
   IonCardHeader,
-  IonCardTitle,
   IonCardSubtitle,
   IonCardContent,
   IonProgressBar,
@@ -21,8 +21,7 @@ import {
   IonList,
   IonListHeader,
   IonItem,
-  IonIcon,
-  ModalController
+  IonIcon
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -42,7 +41,6 @@ import { DatabaseService } from '../core/db/database.service';
 import { CurrencyService } from '../core/services/currency.service';
 import { BudgetCalculatorService, BudgetConsumption, BudgetDaysCalculation } from '../core/services/budget-calculator.service';
 import { Expense, MonthlyBudget, UserProfile } from '../core/models/financial.models';
-import { SettingsModalComponent } from '../shared/components/settings-modal/settings-modal.component';
 import { CurrencyPillComponent } from '../shared/components/currency-pill/currency-pill.component';
 import { BreathingBadgeComponent } from '../shared/components/breathing-badge/breathing-badge.component';
 
@@ -102,7 +100,7 @@ export class HomePage implements OnInit {
     private db: DatabaseService,
     public currencyService: CurrencyService,
     private budgetCalculator: BudgetCalculatorService,
-    private modalCtrl: ModalController
+    private router: Router
   ) {
     addIcons({
       optionsOutline,
@@ -157,16 +155,7 @@ export class HomePage implements OnInit {
     return iconName || 'ellipsis-horizontal-circle-outline';
   }
 
-  async openSettings() {
-    const modal = await this.modalCtrl.create({
-      component: SettingsModalComponent,
-      breakpoints: [0, 0.95, 1],
-      initialBreakpoint: 0.95
-    });
-    await modal.present();
-    const { data } = await modal.onWillDismiss();
-    if (data?.updated) {
-      await this.loadDashboardData();
-    }
+  openSettings(): void {
+    this.router.navigate(['/tabs/profile']);
   }
 }

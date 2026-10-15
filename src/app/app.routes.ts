@@ -31,6 +31,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/budget/budget.page').then((m) => m.BudgetPage),
       },
       {
+        path: 'profile',
+        loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
+      },
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full',
@@ -50,6 +54,16 @@ export const routes: Routes = [
   {
     path: 'budget',
     redirectTo: 'tabs/budget',
+    pathMatch: 'full',
+  },
+  {
+    path: 'profile',
+    redirectTo: 'tabs/profile',
+    pathMatch: 'full',
+  },
+  {
+    path: 'settings',
+    redirectTo: 'tabs/profile',
     pathMatch: 'full',
   },
   {

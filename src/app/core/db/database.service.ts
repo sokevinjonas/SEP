@@ -117,84 +117,34 @@ export class DatabaseService {
       });
     }
 
-    // Seed initial demo expenses if empty for first launch richness
-    const expCount = await db.count('expenses');
-    if (expCount === 0) {
-      const demoExpenses: Expense[] = [
-        {
-          id: 'exp-demo-1',
-          amount: 5.0,
-          currency: 'GHS',
-          categoryId: 'cat-transport',
-          categoryName: 'Transport & Trotro',
-          merchant: 'Campus Shuttle',
-          note: 'Morning campus shuttle',
-          date: new Date(Date.now() - 3600000 * 2).toISOString(),
-          source: 'manual',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'exp-demo-2',
-          amount: 18.0,
-          currency: 'GHS',
-          categoryId: 'cat-food',
-          categoryName: 'Food & Chop',
-          merchant: 'Waakye Joint',
-          note: 'Waakye & Egg lunch',
-          date: new Date(Date.now() - 86400000).toISOString(),
-          source: 'manual',
-          createdAt: new Date().toISOString()
-        },
-        {
-          id: 'exp-demo-3',
-          amount: 12.0,
-          currency: 'GHS',
-          categoryId: 'cat-books',
-          categoryName: 'Books & Copies',
-          merchant: 'Repro Legon',
-          note: 'Lecture handouts printout',
-          date: new Date(Date.now() - 86400000 * 2).toISOString(),
-          source: 'manual',
-          createdAt: new Date().toISOString()
-        }
-      ];
-
-      const tx = db.transaction('expenses', 'readwrite');
-      for (const exp of demoExpenses) {
-        await tx.store.put(exp);
-      }
-      await tx.done;
-    }
-
-    // Seed initial avoided purchase for Avoided Total counter
-    const purCount = await db.count('purchases');
-    if (purCount === 0) {
-      await db.put('purchases', {
-        id: 'pur-demo-1',
-        title: 'Anker Bluetooth Headphones',
-        amountGhs: 180.0,
-        costInBudgetDays: 9,
-        reframingText: 'Represents 9 days of campus cafeteria meals.',
-        status: 'abandoned',
-        createdAt: new Date(Date.now() - 86400000 * 5).toISOString(),
-        expiresAt: new Date(Date.now() - 86400000 * 3).toISOString(),
-        resolvedAt: new Date(Date.now() - 86400000 * 3).toISOString()
-      });
-    }
-
-    // Seed initial user profile if empty
+    // User profile initial container if empty
     const profile = await db.get('user_profile', 'current_user');
     if (!profile) {
       await db.put('user_profile', {
         id: 'current_user',
-        name: 'Jonas',
+        name: '',
+        country: 'Ghana',
         city: 'Accra',
-        campus: 'University of Ghana (Legon)',
+        campus: '',
         primaryCurrency: 'GHS',
         hasCompletedOnboarding: false,
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
+    }
+
+    // Automatically purge legacy demo mock expenses and purchases if present
+    const existingExpenses = await db.getAll('expenses');
+    for (const exp of existingExpenses) {
+      if (exp.id.startsWith('exp-demo-')) {
+        await db.delete('expenses', exp.id);
+      }
+    }
+    const existingPurchases = await db.getAll('purchases');
+    for (const pur of existingPurchases) {
+      if (pur.id.startsWith('pur-demo-')) {
+        await db.delete('purchases', pur.id);
+      }
     }
   }
 
@@ -333,10 +283,10 @@ export class DatabaseService {
 
     const fallback: UserProfile = {
       id: 'current_user',
-      name: 'Jonas',
+      name: '',
       country: 'Ghana',
       city: 'Accra',
-      campus: 'University of Ghana (Legon)',
+      campus: '',
       primaryCurrency: 'GHS',
       hasCompletedOnboarding: false,
       createdAt: new Date().toISOString(),
@@ -350,5 +300,13 @@ export class DatabaseService {
     const db = await this.dbPromise;
     profile.updatedAt = new Date().toISOString();
     await db.put('user_profile', profile);
+  }
+
+  async clearAllData(): Promise<void> {
+    const db = await this.dbPromise;
+    await db.clear('expenses');
+    await db.clear('purchases');
+    await db.clear('sync_queue');
+    await this.seedDefaultsIfEmpty(db);
   }
 }
