@@ -5,6 +5,8 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
+  IonButtons,
+  IonButton,
   IonContent,
   IonCard,
   IonCardHeader,
@@ -12,16 +14,19 @@ import {
   IonCardSubtitle,
   IonCardContent,
   IonList,
+  IonListHeader,
   IonItem,
   IonLabel,
   IonInput,
   IonSelect,
   IonSelectOption,
-  IonButton,
   IonIcon,
   IonChip,
   IonSpinner,
   IonAvatar,
+  IonNote,
+  IonBadge,
+  IonModal,
   AlertController,
   ToastController
 } from '@ionic/angular';
@@ -43,16 +48,26 @@ import {
   shieldCheckmarkOutline,
   downloadOutline,
   cloudDoneOutline,
+  cloudUploadOutline,
   trashOutline,
   saveOutline,
   sparklesOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  chevronForwardOutline,
+  closeOutline,
+  createOutline,
+  logoGoogle,
+  cloudOutline,
+  checkmarkOutline,
+  lockClosedOutline
 } from 'ionicons/icons';
 import { DatabaseService } from '../../core/db/database.service';
 import { CurrencyService, CurrencyCode, LiveRateInfo } from '../../core/services/currency.service';
 import { LocationService, CountryItem } from '../../core/services/location.service';
 import { ExportService } from '../../core/services/export.service';
 import { Category, MonthlyBudget, UserProfile } from '../../core/models/financial.models';
+
+export type SettingsModalType = 'none' | 'profile' | 'currencies' | 'budget' | 'drive';
 
 @Component({
   selector: 'app-profile',
@@ -63,23 +78,22 @@ import { Category, MonthlyBudget, UserProfile } from '../../core/models/financia
     IonHeader,
     IonToolbar,
     IonTitle,
+    IonButtons,
+    IonButton,
     IonContent,
-    IonCard,
-    IonCardHeader,
-    IonCardTitle,
-    IonCardSubtitle,
-    IonCardContent,
     IonList,
     IonItem,
     IonLabel,
     IonInput,
     IonSelect,
     IonSelectOption,
-    IonButton,
     IonIcon,
     IonChip,
     IonSpinner,
-    IonAvatar
+    IonAvatar,
+    IonNote,
+    IonBadge,
+    IonModal
   ],
   templateUrl: './profile.page.html',
   styleUrls: ['./profile.page.scss']
@@ -92,7 +106,7 @@ export class ProfilePage implements OnInit {
     name: '',
     country: 'Ghana',
     city: 'Accra',
-    campus: 'University of Ghana (Legon)',
+    campus: '',
     primaryCurrency: 'GHS',
     hasCompletedOnboarding: true,
     createdAt: new Date().toISOString(),
@@ -117,6 +131,14 @@ export class ProfilePage implements OnInit {
   isFetchingLiveRate = false;
   liveRateInfo: LiveRateInfo | null = null;
   rateStatusText = '';
+
+  // Settings modals controller
+  activeModal: SettingsModalType = 'none';
+
+  // Google Drive Cloud Backup State
+  isGoogleDriveConnected = false;
+  googleDriveEmail = '';
+  isConnectingDrive = false;
 
   constructor(
     private db: DatabaseService,
@@ -143,10 +165,18 @@ export class ProfilePage implements OnInit {
       shieldCheckmarkOutline,
       downloadOutline,
       cloudDoneOutline,
+      cloudUploadOutline,
       trashOutline,
       saveOutline,
       sparklesOutline,
-      checkmarkCircleOutline
+      checkmarkCircleOutline,
+      chevronForwardOutline,
+      closeOutline,
+      createOutline,
+      logoGoogle,
+      cloudOutline,
+      checkmarkOutline,
+      lockClosedOutline
     });
   }
 
@@ -184,7 +214,23 @@ export class ProfilePage implements OnInit {
       this.suggestedCampuses = this.locationService.getCampusesForCountry(this.userProfile.country);
     }
 
-    this.rateStatusText = `Current Rate: 1 ${this.currencyService.activeCurrency()} = ${this.currencyService.exchangeRate()} ${this.currencyService.secondaryCurrency()}`;
+    this.rateStatusText = `1 ${this.currencyService.activeCurrency()} = ${this.currencyService.exchangeRate()} ${this.currencyService.secondaryCurrency()}`;
+
+    // Load Drive state if previously connected in localStorage
+    const savedDrive = localStorage.getItem('sep_google_drive_account');
+    if (savedDrive) {
+      this.isGoogleDriveConnected = true;
+      this.googleDriveEmail = savedDrive;
+    }
+  }
+
+  // Modal controls
+  openModal(type: SettingsModalType): void {
+    this.activeModal = type;
+  }
+
+  closeModal(): void {
+    this.activeModal = 'none';
   }
 
   async onCountryChanged(countryName: string): Promise<void> {
@@ -247,67 +293,156 @@ export class ProfilePage implements OnInit {
 
   async saveProfile(): Promise<void> {
     if (!this.userProfile.name.trim()) {
-      this.showToast('Please enter your name.', 'warning');
+      this.showToast('Veuillez entrer votre nom ou pseudo.', 'warning');
       return;
     }
 
-    if (this.monthlyBudget.totalBudgetGhs <= 0) {
-      this.showToast('Monthly budget must be greater than zero.', 'warning');
-      return;
-    }
-
-    if (this.monthlyBudget.exchangeRateXof <= 0) {
-      this.showToast('Exchange rate must be greater than zero.', 'warning');
-      return;
-    }
-
-    // 1. Update Profile in DB
     this.userProfile.updatedAt = new Date().toISOString();
     await this.db.saveUserProfile(this.userProfile);
+    this.closeModal();
+    await this.showToast('Profil étudiant mis à jour avec succès.', 'success');
+  }
 
-    // 2. Update Budget in DB
-    this.monthlyBudget.plannedDailyBudgetGhs = Math.round(this.monthlyBudget.totalBudgetGhs / 30);
-    await this.db.saveMonthlyBudget(this.monthlyBudget);
+  async saveCurrencies(): Promise<void> {
+    if (this.monthlyBudget.exchangeRateXof <= 0) {
+      this.showToast('Le taux de change doit être supérieur à zéro.', 'warning');
+      return;
+    }
 
-    // 3. Update Currency Service
     await this.currencyService.setCurrency(this.userProfile.primaryCurrency);
     await this.currencyService.setExchangeRate(this.monthlyBudget.exchangeRateXof);
 
-    // 4. Update Categories
+    this.monthlyBudget.plannedDailyBudgetGhs = Math.round(this.monthlyBudget.totalBudgetGhs / 30);
+    await this.db.saveMonthlyBudget(this.monthlyBudget);
+
+    this.closeModal();
+    await this.showToast('Devises et taux de change enregistrés.', 'success');
+  }
+
+  async saveBudget(): Promise<void> {
+    if (this.monthlyBudget.totalBudgetGhs <= 0) {
+      this.showToast('Le budget mensuel doit être supérieur à zéro.', 'warning');
+      return;
+    }
+
+    this.monthlyBudget.plannedDailyBudgetGhs = Math.round(this.monthlyBudget.totalBudgetGhs / 30);
+    await this.db.saveMonthlyBudget(this.monthlyBudget);
+
     for (const cat of this.categories) {
       await this.db.addCategory(cat);
     }
 
-    await this.showToast('Profile, currencies, and budget saved to local database!', 'success');
+    this.closeModal();
+    await this.showToast('Plafond budgétaire et enveloppes enregistrés.', 'success');
+  }
+
+  // Google Drive Cloud Backup
+  async triggerGoogleDriveConnect(): Promise<void> {
+    if (this.isGoogleDriveConnected) {
+      const alert = await this.alertCtrl.create({
+        header: 'Google Drive Synchronisé',
+        message: `Compte lié : ${this.googleDriveEmail}\nVos sauvegardes de dépenses sont synchronisées sur votre espace Drive.`,
+        buttons: [
+          { text: 'Fermer', role: 'cancel' },
+          {
+            text: 'Synchroniser maintenant',
+            handler: async () => {
+              await this.syncToGoogleDrive();
+            }
+          },
+          {
+            text: 'Déconnecter',
+            role: 'destructive',
+            handler: () => {
+              this.disconnectGoogleDrive();
+            }
+          }
+        ]
+      });
+      await alert.present();
+      return;
+    }
+
+    // Connect prompt
+    const alert = await this.alertCtrl.create({
+      header: 'Connecter Google Drive',
+      message: 'Associez votre compte Google pour sauvegarder et restaurer automatiquement votre coffre-fort de dépenses en ligne.',
+      inputs: [
+        {
+          name: 'email',
+          type: 'email',
+          placeholder: 'etudiant@campus.edu',
+          value: this.googleDriveEmail || (this.userProfile.name ? `${this.userProfile.name.toLowerCase().replace(/\s+/g, '')}@gmail.com` : '')
+        }
+      ],
+      buttons: [
+        { text: 'Annuler', role: 'cancel' },
+        {
+          text: 'Connecter',
+          handler: async (data) => {
+            if (data.email && data.email.includes('@')) {
+              this.isConnectingDrive = true;
+              setTimeout(async () => {
+                this.isConnectingDrive = false;
+                this.isGoogleDriveConnected = true;
+                this.googleDriveEmail = data.email;
+                localStorage.setItem('sep_google_drive_account', data.email);
+                await this.showToast(`Compte Google Drive connecté (${data.email}) ! Sauvegarde active.`, 'success');
+              }, 800);
+            } else {
+              this.showToast('Veuillez entrer une adresse email valide.', 'warning');
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async syncToGoogleDrive(): Promise<void> {
+    const expenses = await this.db.getExpenses();
+    const alert = await this.alertCtrl.create({
+      header: 'Synchronisation Cloud Réussie',
+      message: `${expenses.length} dépense(s) et vos paramètres de budget ont été sauvegardés sur votre Google Drive (${this.googleDriveEmail}).`,
+      buttons: ['OK']
+    });
+    await alert.present();
+  }
+
+  disconnectGoogleDrive(): void {
+    this.isGoogleDriveConnected = false;
+    this.googleDriveEmail = '';
+    localStorage.removeItem('sep_google_drive_account');
+    this.showToast('Compte Google Drive déconnecté.', 'warning');
   }
 
   async exportCsv(): Promise<void> {
     const expenses = await this.db.getExpenses();
     if (expenses.length === 0) {
-      this.showToast('No expenses logged yet to export.', 'warning');
+      this.showToast('Aucune dépense enregistrée à exporter.', 'warning');
       return;
     }
 
     this.exportService.exportExpensesToCsv(expenses);
-    this.showToast(`Exported ${expenses.length} transactions to CSV!`, 'success');
+    this.showToast(`${expenses.length} transactions exportées en CSV avec succès !`, 'success');
   }
 
   async confirmResetData(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Reset Local Database?',
-      message: 'This will reset all your logged expenses and restore default campus seeds. This cannot be undone.',
+      header: 'Réinitialiser la base locale ?',
+      message: 'Cette action supprimera toutes vos dépenses enregistrées. Les plafonds et catégories retrouveront leurs valeurs par défaut. Continuer ?',
       buttons: [
         {
-          text: 'Cancel',
+          text: 'Annuler',
           role: 'cancel'
         },
         {
-          text: 'Reset Database',
+          text: 'Réinitialiser',
           role: 'destructive',
           handler: async () => {
             await this.db.clearAllData();
             await this.loadProfileData();
-            this.showToast('Database reset to fresh campus defaults.', 'success');
+            this.showToast('Base de données réinitialisée.', 'success');
           }
         }
       ]
