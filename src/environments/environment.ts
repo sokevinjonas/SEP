@@ -1,5 +1,6 @@
 export const environment = {
   production: false,
-  workerUrl: 'http://localhost:8787',
+  apiUrl: 'http://localhost:3000',
+  workerUrl: 'http://localhost:3000',
   appSecretToken: 'sep_secret_bearer_token_2026'
 };

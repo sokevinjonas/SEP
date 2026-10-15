@@ -7,7 +7,7 @@ export const onboardingGuard: CanActivateFn = async (route, state) => {
   const router = inject(Router);
 
   const profile = await profileFacade.load();
-  const isAuthRoute = state.url.includes('/onboarding') || state.url.includes('/register');
+  const isAuthRoute = state.url.includes('/onboarding') || state.url.includes('/register') || state.url.includes('/login');
 
   if (!profile.hasCompletedOnboarding) {
     if (!isAuthRoute) {

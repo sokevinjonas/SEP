@@ -225,6 +225,12 @@
       height: 34px;
       margin: 0;
 
+      &.login-btn {
+        --background: var(--sep-action, #017E84);
+        --color: #FFFFFF;
+        box-shadow: 0 2px 8px rgba(1, 126, 132, 0.25);
+      }
+
       &.cloud-btn {
         --color: var(--sep-action, #017E84);
         --border-color: var(--sep-action, #017E84);

@@ -14,6 +14,11 @@ export const routes: Routes = [
     canActivate: [onboardingGuard]
   },
   {
+    path: 'login',
+    loadComponent: () => import('./features/login/login.page').then((m) => m.LoginPage),
+    canActivate: [onboardingGuard]
+  },
+  {
     path: 'tabs',
     loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
     canActivate: [onboardingGuard],

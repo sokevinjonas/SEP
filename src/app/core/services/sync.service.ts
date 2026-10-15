@@ -50,8 +50,138 @@ export class SyncService {
     };
   }
 
+  private readonly AUTH_TOKEN_KEY = 'sep_auth_token';
+  private readonly USER_EMAIL_KEY = 'sep_user_email';
+
+  getAuthToken(): string | null {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(this.AUTH_TOKEN_KEY);
+    }
+    return null;
+  }
+
+  setAuthToken(token: string): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(this.AUTH_TOKEN_KEY, token);
+    }
+  }
+
+  getUserEmail(): string | null {
+    if (typeof localStorage !== 'undefined') {
+      return localStorage.getItem(this.USER_EMAIL_KEY);
+    }
+    return null;
+  }
+
+  setUserEmail(email: string): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.setItem(this.USER_EMAIL_KEY, email);
+    }
+  }
+
+  logout(): void {
+    if (typeof localStorage !== 'undefined') {
+      localStorage.removeItem(this.AUTH_TOKEN_KEY);
+      localStorage.removeItem(this.USER_EMAIL_KEY);
+    }
+  }
+
+  private getBaseUrl(): string {
+    const env = environment as any;
+    return env.apiUrl !== undefined ? env.apiUrl : (env.workerUrl || '');
+  }
+
+  private getAuthHeader(): string {
+    const token = this.getAuthToken();
+    if (token) {
+      return `Bearer ${token}`;
+    }
+    return `Bearer ${environment.appSecretToken}`;
+  }
+
   /**
-   * Flushes all pending mutations and captures in FIFO order (Story 3.6).
+   * Request a 6-digit OTP code sent by email.
+   */
+  async sendOtp(email: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      return { success: false, error: 'Connexion Internet requise pour envoyer le code.' };
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(`${this.getBaseUrl()}/api/auth/send-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      const data = await response.json();
+      if (!response.ok) {
+        return { success: false, error: data.error || `Erreur serveur (${response.status})` };
+      }
+
+      this.setUserEmail(email);
+      return { success: true, message: data.message };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Impossible de contacter le serveur.' };
+    }
+  }
+
+  /**
+   * Verify the 6-digit OTP code and retrieve user token + cloud backup if any.
+   */
+  async verifyOtp(email: string, code: string): Promise<{
+    success: boolean;
+    token?: string;
+    user?: any;
+    hasBackup?: boolean;
+    backupData?: any;
+    error?: string;
+  }> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      return { success: false, error: 'Connexion Internet requise pour vérifier le code.' };
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+      const response = await fetch(`${this.getBaseUrl()}/api/auth/verify-otp`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, code }),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      const data = await response.json();
+      if (!response.ok) {
+        return { success: false, error: data.error || 'Code incorrect ou expiré.' };
+      }
+
+      if (data.token) {
+        this.setAuthToken(data.token);
+        this.setUserEmail(email);
+      }
+
+      return {
+        success: true,
+        token: data.token,
+        user: data.user,
+        hasBackup: data.hasBackup,
+        backupData: data.backupData
+      };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Erreur lors de la vérification du code.' };
+    }
+  }
+
+  /**
+   * Flushes all pending mutations and captures in FIFO order.
    */
   async flushPendingSync(): Promise<number> {
     if (this.isSyncing || (typeof navigator !== 'undefined' && !navigator.onLine)) {
@@ -80,10 +210,10 @@ export class SyncService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 6000);
 
-      const response = await fetch(`${environment.workerUrl}/api/sync`, {
+      const response = await fetch(`${this.getBaseUrl()}/api/sync`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${environment.appSecretToken}`,
+          'Authorization': this.getAuthHeader(),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({ items: payloadItems }),
@@ -112,11 +242,11 @@ export class SyncService {
   }
 
   /**
-   * Pushes full IndexedDB state (profile, budget, categories, expenses, purchases) to Cloudflare D1.
+   * Pushes full IndexedDB state (profile, budget, categories, expenses, purchases) to Backend.
    */
   async backupToCloud(): Promise<{ success: boolean; stats?: any; error?: string }> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, error: 'You are offline. An active Internet connection is required for Cloud backup.' };
+      return { success: false, error: 'Connexion Internet requise pour la sauvegarde Cloud.' };
     }
 
     try {
@@ -125,10 +255,10 @@ export class SyncService {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-      const response = await fetch(`${environment.workerUrl}/api/backup`, {
+      const response = await fetch(`${this.getBaseUrl()}/api/backup`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${environment.appSecretToken}`,
+          'Authorization': this.getAuthHeader(),
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(fullData),
@@ -137,40 +267,40 @@ export class SyncService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        return { success: false, error: `Server error (${response.status}) during Cloud backup.` };
+        return { success: false, error: `Erreur serveur (${response.status}) pendant la sauvegarde.` };
       }
 
       const result = await response.json();
       this.lastSyncedAt = new Date().toISOString();
       return { success: true, stats: result.stats };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Unable to reach Cloudflare Worker server.' };
+      return { success: false, error: err.message || 'Impossible de joindre le serveur de sauvegarde.' };
     }
   }
 
   /**
-   * Fetches full state from Cloudflare D1 and restores IndexedDB.
+   * Fetches full state from Backend and restores IndexedDB.
    */
   async restoreFromCloud(): Promise<{ success: boolean; stats?: { expenses: number; purchases: number; categories: number }; error?: string }> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, error: 'You are offline. An active Internet connection is required to restore from Cloud.' };
+      return { success: false, error: 'Connexion Internet requise pour restaurer depuis le Cloud.' };
     }
 
     try {
       const controller = new AbortController();
       const timeoutId = setTimeout(() => controller.abort(), 8000);
 
-      const response = await fetch(`${environment.workerUrl}/api/restore`, {
+      const response = await fetch(`${this.getBaseUrl()}/api/restore`, {
         method: 'GET',
         headers: {
-          'Authorization': `Bearer ${environment.appSecretToken}`
+          'Authorization': this.getAuthHeader()
         },
         signal: controller.signal
       });
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        return { success: false, error: `Server error (${response.status}) during Cloud restore.` };
+        return { success: false, error: `Erreur serveur (${response.status}) pendant la restauration.` };
       }
 
       const data = await response.json();
@@ -179,7 +309,8 @@ export class SyncService {
 
       return { success: true, stats };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Unable to reach Cloudflare Worker server.' };
+      return { success: false, error: err.message || 'Impossible de joindre le serveur.' };
     }
   }
 }
+

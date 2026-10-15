@@ -1,5 +1,6 @@
 export const environment = {
   production: true,
-  workerUrl: 'https://sep-backend.kgslab.workers.dev',
+  apiUrl: '',
+  workerUrl: '',
   appSecretToken: 'sep_secret_bearer_token_2026'
 };

@@ -1,0 +1,171 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="login-toolbar">
+    <ion-button slot="start" fill="clear" class="back-nav-btn" (click)="goBack()" aria-label="Retour">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+    <ion-title class="login-title">
+      {{ step === 'email' ? 'Connexion Étudiant' : 'Code de Vérification' }}
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="login-content ion-padding">
+  <div class="login-container">
+
+    <!-- Logo / Brand Header -->
+    <div class="login-brand-header">
+      <div class="brand-icon-wrapper">
+        <ion-icon [name]="step === 'email' ? 'mail-outline' : 'key-outline'" class="brand-hero-icon"></ion-icon>
+      </div>
+      <h1 class="brand-title">Student Savings</h1>
+      <p class="brand-subtitle">
+        {{ step === 'email' 
+          ? 'Connectez-vous pour synchroniser votre budget et vos dépenses en toute sécurité.' 
+          : 'Saisissez le code temporaire envoyé à votre adresse email.' }}
+      </p>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- STEP 1: EMAIL ADDRESS                          -->
+    <!-- ============================================== -->
+    <div *ngIf="step === 'email'" class="step-card-wrapper step-fade-in">
+      <ion-card class="form-card ion-no-margin">
+        <ion-card-header>
+          <div class="card-title-row">
+            <ion-icon name="lock-closed-outline" class="title-icon"></ion-icon>
+            <ion-card-title class="card-heading">Authentification sans mot de passe</ion-card-title>
+          </div>
+          <ion-card-subtitle class="card-subheading">
+            Nous vous envoyons un code à usage unique (OTP) valable 10 minutes.
+          </ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content class="ion-no-padding">
+          <ion-list lines="none" class="login-list">
+            <ion-item class="custom-item">
+              <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input
+                type="email"
+                inputmode="email"
+                label="Adresse email étudiante *"
+                labelPlacement="stacked"
+                placeholder="ex: jonas.etudiant@gmail.com"
+                [(ngModel)]="email"
+                (keyup.enter)="sendOtp()"
+                clearInput="true">
+              </ion-input>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Action Button -->
+      <div class="action-wrap">
+        <ion-button
+          expand="block"
+          size="large"
+          class="submit-login-btn"
+          [disabled]="isLoading || !email.trim()"
+          (click)="sendOtp()"
+          id="btn-send-otp">
+          <span *ngIf="!isLoading">Recevoir mon code OTP</span>
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="!isLoading" slot="end" name="arrow-forward-outline"></ion-icon>
+        </ion-button>
+      </div>
+
+      <!-- Links & Alternative Options -->
+      <div class="secondary-actions">
+        <button class="text-link-btn" (click)="goToRegister()">
+          Pas encore de compte ? <strong>Créer mon profil</strong>
+        </button>
+
+        <div class="divider-row">
+          <span class="divider-line"></span>
+          <span class="divider-text">OU RESTAURATION HORS-LIGNE</span>
+          <span class="divider-line"></span>
+        </div>
+
+        <ion-button
+          fill="outline"
+          size="default"
+          class="offline-restore-btn"
+          (click)="loginFileInput.click()"
+          [disabled]="isRestoringFile">
+          <ion-icon slot="start" name="document-text-outline"></ion-icon>
+          <span *ngIf="!isRestoringFile">Restaurer un fichier .json</span>
+          <ion-spinner *ngIf="isRestoringFile" name="dots"></ion-spinner>
+        </ion-button>
+        <input #loginFileInput type="file" accept=".json" (change)="triggerFileRestore($event)" style="display: none;">
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- STEP 2: OTP VERIFICATION CODE                 -->
+    <!-- ============================================== -->
+    <div *ngIf="step === 'otp'" class="step-card-wrapper step-fade-in">
+      <ion-card class="form-card ion-no-margin">
+        <ion-card-header>
+          <div class="card-title-row">
+            <ion-icon name="shield-checkmark-outline" class="title-icon"></ion-icon>
+            <ion-card-title class="card-heading">Code de vérification</ion-card-title>
+          </div>
+          <ion-card-subtitle class="card-subheading">
+            Code envoyé à <strong class="highlight-email">{{ email }}</strong>
+          </ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content class="ion-no-padding">
+          <ion-list lines="none" class="login-list">
+            <ion-item class="custom-item otp-item">
+              <ion-icon name="key-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input
+                type="text"
+                inputmode="numeric"
+                maxlength="6"
+                label="Code OTP à 6 chiffres *"
+                labelPlacement="stacked"
+                placeholder="123456"
+                [(ngModel)]="otpCode"
+                (keyup.enter)="verifyOtp()"
+                class="otp-input-field">
+              </ion-input>
+            </ion-item>
+          </ion-list>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Action Button -->
+      <div class="action-wrap">
+        <ion-button
+          expand="block"
+          size="large"
+          class="submit-login-btn"
+          [disabled]="isLoading || !otpCode.trim() || otpCode.trim().length < 6"
+          (click)="verifyOtp()"
+          id="btn-verify-otp">
+          <span *ngIf="!isLoading">Vérifier &amp; Se connecter</span>
+          <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+          <ion-icon *ngIf="!isLoading" slot="end" name="checkmark-circle-outline"></ion-icon>
+        </ion-button>
+      </div>
+
+      <!-- Resend & Change Email -->
+      <div class="otp-actions-footer">
+        <button
+          class="resend-btn"
+          [disabled]="countdown > 0 || isLoading"
+          (click)="resendOtp()">
+          <ion-icon name="refresh-outline"></ion-icon>
+          <span *ngIf="countdown > 0">Renvoyer le code dans {{ countdown }}s</span>
+          <span *ngIf="countdown === 0">Renvoyer un nouveau code</span>
+        </button>
+
+        <button class="text-link-btn email-change-btn" (click)="step = 'email'">
+          Modifier l'adresse email
+        </button>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

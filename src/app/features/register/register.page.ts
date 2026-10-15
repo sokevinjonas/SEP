@@ -38,7 +38,8 @@ import {
   cashOutline,
   checkmarkCircleOutline,
   cloudDownloadOutline,
-  documentTextOutline
+  documentTextOutline,
+  logInOutline
 } from 'ionicons/icons';
 import { ProfileFacade } from '../profile/facade/profile.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
@@ -137,8 +138,13 @@ export class RegisterPage implements OnInit {
       cashOutline,
       checkmarkCircleOutline,
       cloudDownloadOutline,
-      documentTextOutline
+      documentTextOutline,
+      logInOutline
     });
+  }
+
+  goToLogin(): void {
+    this.router.navigate(['/login']);
   }
 
   async restoreFromCloud(): Promise<void> {
