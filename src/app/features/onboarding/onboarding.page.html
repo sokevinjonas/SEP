@@ -1,67 +1,76 @@
 <ion-content [fullscreen]="true" class="single-onboarding-content">
+  <!-- Dynamic Background Layer with African Student at Market -->
   <div class="onboarding-bg-layer">
-    <div class="bg-overlay"></div>
-    <div class="radial-glow-top"></div>
-    <div class="radial-glow-bottom"></div>
+    <div class="bg-gradient-scrim"></div>
   </div>
 
   <div class="onboarding-hero-wrapper">
-    <!-- Top Brand Pill -->
-    <div class="top-brand-bar">
-      <div class="brand-pill">
-        <ion-icon name="sparkles-outline"></ion-icon>
-        <span>Student Expense Platform</span>
+    <!-- Top Spacing (replaces brand pill, keeps status area clean) -->
+    <div class="top-spacer">
+      <div class="market-vibe-tag">
+        <ion-icon name="time-outline"></ion-icon>
+        <span>48h Anti-Impulse Rule</span>
       </div>
     </div>
 
-    <!-- Center Mascot and Title -->
-    <div class="center-hero-block">
-      <div class="mascot-ring-container">
-        <div class="pulse-aura"></div>
-        <ion-avatar class="hero-avatar">
+    <!-- Floating Concept Chip (The Student's Dilemma) -->
+    <div class="reflection-bubble-anchor">
+      <div class="reflection-bubble">
+        <ion-icon name="help-circle-outline"></ion-icon>
+        <span>"Do I really need this today?"</span>
+      </div>
+    </div>
+
+    <!-- Bottom Glassmorphic Card containing Value Prop & CTA -->
+    <div class="bottom-glass-card">
+      <div class="mascot-badge-row">
+        <ion-avatar class="coach-mini-avatar">
           <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
         </ion-avatar>
+        <div class="coach-meta">
+          <span class="coach-title">M. POGNON</span>
+          <span class="coach-subtitle">Campus Financial Guard</span>
+        </div>
       </div>
 
-      <span class="coach-label">Meet M. Pognon · Campus Financial Guard</span>
       <h1 class="hero-title">
         Master Your <br />
         <span class="gradient-text">Student Allowance</span>
       </h1>
 
       <p class="hero-description">
-        Say goodbye to month-end broke anxiety. Protect your money against spontaneous buys, track multi-currency daily expenses, and build real savings right from your campus.
+        Say goodbye to month-end broke anxiety. Pause spontaneous buys, track multi-currency daily expenses, and keep your budget in check.
       </p>
 
-      <!-- Key Benefits Quick Badges -->
+      <!-- Key Value Badges -->
       <div class="benefits-row">
         <div class="benefit-item">
           <ion-icon name="shield-checkmark-outline"></ion-icon>
-          <span>48h Anti-Impulse</span>
+          <span>Anti-Impulse</span>
         </div>
         <div class="benefit-item">
-          <ion-icon name="globe-outline"></ion-icon>
-          <span>Live Street Rates</span>
+          <ion-icon name="cash-outline"></ion-icon>
+          <span>Live FX Rates</span>
         </div>
         <div class="benefit-item">
           <ion-icon name="flash-outline"></ion-icon>
           <span>100% Offline</span>
         </div>
       </div>
-    </div>
 
-    <!-- Bottom Action Dock -->
-    <div class="bottom-action-container">
-      <ion-button
-        expand="block"
-        size="large"
-        class="get-started-btn"
-        (click)="startRegistration()"
-        id="btn-get-started">
-        <span>Get Started</span>
-        <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
-      </ion-button>
-      <p class="terms-note">Zero trackers · Offline-first local database</p>
+      <!-- Action Button -->
+      <div class="bottom-action-container">
+        <ion-button
+          expand="block"
+          size="large"
+          class="get-started-btn"
+          (click)="startRegistration()"
+          id="btn-get-started">
+          <span>Get Started</span>
+          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+        </ion-button>
+        <p class="terms-note">Zero trackers · Free · Offline-first local database</p>
+      </div>
     </div>
   </div>
 </ion-content>
