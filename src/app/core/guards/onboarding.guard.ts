@@ -16,9 +16,9 @@ export const onboardingGuard: CanActivateFn = async (route, state) => {
     return true;
   }
 
-  // If already completed onboarding and trying to access /onboarding or /register, redirect to /home
+  // If already completed onboarding and trying to access /onboarding or /register, redirect to /tabs/home
   if (isAuthRoute) {
-    return router.createUrlTree(['/home']);
+    return router.createUrlTree(['/tabs/home']);
   }
 
   return true;

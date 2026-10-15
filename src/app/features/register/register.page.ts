@@ -293,7 +293,7 @@ export class RegisterPage implements OnInit {
     await this.showToast(`Welcome, ${profile.name}! Your campus vault is ready.`, 'success');
 
     // 4. Navigate to main dashboard
-    await this.router.navigate(['/home'], { replaceUrl: true });
+    await this.router.navigate(['/tabs/home'], { replaceUrl: true });
   }
 
   private async showToast(message: string, color: 'success' | 'warning' | 'danger'): Promise<void> {

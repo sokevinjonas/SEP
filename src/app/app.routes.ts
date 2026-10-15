@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { onboardingGuard } from './core/guards/onboarding.guard';
 
-// Application Routes with Onboarding & Register Guards
+// Application Routes conforming to Official Ionic Tabs Guide (https://ionicframework.com/docs/api/tabs)
 export const routes: Routes = [
   {
     path: 'onboarding',
@@ -14,7 +14,8 @@ export const routes: Routes = [
     canActivate: [onboardingGuard]
   },
   {
-    path: '',
+    path: 'tabs',
+    loadComponent: () => import('./features/tabs/tabs.page').then((m) => m.TabsPage),
     canActivate: [onboardingGuard],
     children: [
       {
@@ -37,7 +38,27 @@ export const routes: Routes = [
     ]
   },
   {
+    path: 'home',
+    redirectTo: 'tabs/home',
+    pathMatch: 'full',
+  },
+  {
+    path: 'capture',
+    redirectTo: 'tabs/capture',
+    pathMatch: 'full',
+  },
+  {
+    path: 'budget',
+    redirectTo: 'tabs/budget',
+    pathMatch: 'full',
+  },
+  {
+    path: '',
+    redirectTo: 'tabs/home',
+    pathMatch: 'full',
+  },
+  {
     path: '**',
-    redirectTo: 'home',
+    redirectTo: 'tabs/home',
   }
 ];
