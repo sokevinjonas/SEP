@@ -128,25 +128,61 @@
       </ion-list>
     </div>
 
-    <!-- 4. Section: Sauvegardes & Cloud (Google Drive + Export CSV) -->
+    <!-- 4. Section: Sauvegardes & Restauration (Anti-Perte) -->
     <div class="settings-section">
-      <div class="section-title-label">SAUVEGARDE &amp; CLOUD</div>
+      <div class="section-title-label">SAUVEGARDE &amp; SÉCURITÉ DES DONNÉES</div>
       <ion-list [inset]="true" lines="full" class="settings-group-list">
 
-        <!-- Connect with Google Drive Item -->
-        <ion-item [button]="true" [detail]="true" (click)="triggerGoogleDriveConnect()" class="settings-list-item drive-item">
+        <!-- Cloud Backup (D1) -->
+        <ion-item [button]="true" [detail]="true" (click)="backupToCloud()" class="settings-list-item">
           <div slot="start" class="item-icon-box drive-bg">
             <ion-icon name="cloud-upload-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Connecter Google Drive</h3>
-            <p class="item-desc" *ngIf="!isGoogleDriveConnected">Sauvegardez vos dépenses sur votre compte Google</p>
-            <p class="item-desc drive-synced" *ngIf="isGoogleDriveConnected">{{ googleDriveEmail }} (Synchronisé)</p>
+            <h3 class="item-title">Sauvegarder sur le Cloud</h3>
+            <p class="item-desc">Miroir complet sécurisé sur Cloudflare D1</p>
           </ion-label>
-          <ion-badge [color]="isGoogleDriveConnected ? 'success' : 'medium'" slot="end" class="drive-status-badge">
-            {{ isGoogleDriveConnected ? 'Connecté' : 'Non lié' }}
+          <ion-badge color="success" slot="end" class="drive-status-badge">
+            <ion-icon name="checkmark-outline"></ion-icon> Sync D1
           </ion-badge>
         </ion-item>
+
+        <!-- Cloud Restore (D1) -->
+        <ion-item [button]="true" [detail]="true" (click)="restoreFromCloud()" class="settings-list-item">
+          <div slot="start" class="item-icon-box teal-bg">
+            <ion-icon name="cloud-download-outline"></ion-icon>
+          </div>
+          <ion-label>
+            <h3 class="item-title">Restaurer depuis le Cloud</h3>
+            <p class="item-desc">Récupérer toutes vos données si vous réinstallez l'app</p>
+          </ion-label>
+          <ion-note slot="end" class="item-value-note">Restaurer</ion-note>
+        </ion-item>
+
+        <!-- JSON Vault Export -->
+        <ion-item [button]="true" [detail]="true" (click)="exportJsonBackup()" class="settings-list-item">
+          <div slot="start" class="item-icon-box gold-bg">
+            <ion-icon name="lock-closed-outline"></ion-icon>
+          </div>
+          <ion-label>
+            <h3 class="item-title">Exporter Coffre-Fort (.json)</h3>
+            <p class="item-desc">Fichier complet à garder sur Google Drive ou WhatsApp</p>
+          </ion-label>
+          <ion-note slot="end" class="item-value-note">JSON</ion-note>
+        </ion-item>
+
+        <!-- JSON Vault Import -->
+        <ion-item [button]="true" [detail]="true" (click)="jsonFileInput.click()" class="settings-list-item">
+          <div slot="start" class="item-icon-box purple-bg">
+            <ion-icon name="document-text-outline"></ion-icon>
+          </div>
+          <ion-label>
+            <h3 class="item-title">Restaurer un fichier (.json)</h3>
+            <p class="item-desc">Importer un fichier de sauvegarde local</p>
+          </ion-label>
+          <ion-note slot="end" class="item-value-note">Importer</ion-note>
+        </ion-item>
+        <input #jsonFileInput type="file" accept=".json" (change)="triggerFileRestore($event)" style="display: none;">
 
         <!-- Export CSV Item -->
         <ion-item [button]="true" [detail]="true" (click)="exportCsv()" class="settings-list-item">
@@ -154,10 +190,10 @@
             <ion-icon name="download-outline"></ion-icon>
           </div>
           <ion-label>
-            <h3 class="item-title">Exporter mes données (CSV)</h3>
-            <p class="item-desc">Télécharger le relevé complet des transactions</p>
+            <h3 class="item-title">Exporter mes dépenses (CSV)</h3>
+            <p class="item-desc">Télécharger le relevé pour Excel ou Tableur</p>
           </ion-label>
-          <ion-note slot="end" class="item-value-note">CSV</ion-note>
+          <ion-note slot="end" class="item-value-note">Excel</ion-note>
         </ion-item>
 
       </ion-list>

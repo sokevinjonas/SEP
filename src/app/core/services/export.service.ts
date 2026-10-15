@@ -60,4 +60,46 @@ export class ExportService {
 
     return true;
   }
+
+  exportBackupJson(data: any): boolean {
+    const jsonContent = JSON.stringify(data, null, 2);
+    const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
+
+    const now = new Date();
+    const dateStr = now.toISOString().slice(0, 10);
+    const filename = `SEP_Vault_Backup_${dateStr}.json`;
+
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(blob);
+    link.setAttribute('href', url);
+    link.setAttribute('download', filename);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    return true;
+  }
+
+  async readBackupFile(file: File): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const content = event.target?.result as string;
+          const parsed = JSON.parse(content);
+          if (!parsed || (typeof parsed !== 'object')) {
+            reject(new Error('Fichier JSON invalide.'));
+            return;
+          }
+          resolve(parsed);
+        } catch (err) {
+          reject(new Error('Impossible de lire le fichier JSON de sauvegarde.'));
+        }
+      };
+      reader.onerror = () => reject(new Error('Erreur de lecture du fichier.'));
+      reader.readAsText(file);
+    });
+  }
 }

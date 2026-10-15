@@ -62,3 +62,13 @@ export interface UserProfile {
   updatedAt: string;
 }
 
+export interface SepBackupData {
+  version: number;
+  exportedAt: string;
+  userProfile?: UserProfile | null;
+  monthlyBudget?: MonthlyBudget | null;
+  categories?: Category[];
+  expenses?: Expense[];
+  purchases?: Purchase[];
+}
+

@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
-import { Expense, Category, MonthlyBudget, Purchase, SyncItem, UserProfile } from '../models/financial.models';
+import { Expense, Category, MonthlyBudget, Purchase, SyncItem, UserProfile, SepBackupData } from '../models/financial.models';
 
 export interface SepDbSchema extends DBSchema {
   expenses: {
@@ -142,5 +142,87 @@ export class IdbService {
     await db.clear('purchases');
     await db.clear('sync_queue');
     await this.ensureDefaults(db);
+  }
+
+  /** Dumps all stores into a single portable backup structure. */
+  async exportAllData(): Promise<SepBackupData> {
+    const db = await this.db;
+    const [expenses, purchases, categories, monthlyBudgets, userProfile] = await Promise.all([
+      db.getAll('expenses'),
+      db.getAll('purchases'),
+      db.getAll('categories'),
+      db.getAll('monthly_budgets'),
+      db.get('user_profile', 'current_user')
+    ]);
+
+    const activeBudget = monthlyBudgets.find(b => b.id === currentMonthKey()) || monthlyBudgets[0] || null;
+
+    return {
+      version: 1,
+      exportedAt: new Date().toISOString(),
+      userProfile: userProfile || null,
+      monthlyBudget: activeBudget,
+      categories: categories || [],
+      expenses: expenses || [],
+      purchases: purchases || []
+    };
+  }
+
+  /** Restores all stores from a backup structure. */
+  async restoreAllData(data: SepBackupData): Promise<{ expenses: number; purchases: number; categories: number }> {
+    const db = await this.db;
+
+    // 1. Restore Profile
+    if (data.userProfile) {
+      await db.put('user_profile', {
+        ...data.userProfile,
+        id: 'current_user'
+      });
+    }
+
+    // 2. Restore Monthly Budget
+    if (data.monthlyBudget) {
+      await db.put('monthly_budgets', data.monthlyBudget);
+    }
+
+    // 3. Restore Categories
+    if (Array.isArray(data.categories) && data.categories.length > 0) {
+      await db.clear('categories');
+      const txCat = db.transaction('categories', 'readwrite');
+      for (const cat of data.categories) {
+        await txCat.store.put(cat);
+      }
+      await txCat.done;
+    }
+
+    // 4. Restore Expenses
+    let expCount = 0;
+    if (Array.isArray(data.expenses)) {
+      await db.clear('expenses');
+      const txExp = db.transaction('expenses', 'readwrite');
+      for (const exp of data.expenses) {
+        await txExp.store.put(exp);
+        expCount++;
+      }
+      await txExp.done;
+    }
+
+    // 5. Restore Purchases
+    let purCount = 0;
+    if (Array.isArray(data.purchases)) {
+      await db.clear('purchases');
+      const txPur = db.transaction('purchases', 'readwrite');
+      for (const pur of data.purchases) {
+        await txPur.store.put(pur);
+        purCount++;
+      }
+      await txPur.done;
+    }
+
+    return {
+      expenses: expCount,
+      purchases: purCount,
+      categories: data.categories?.length || 0
+    };
   }
 }

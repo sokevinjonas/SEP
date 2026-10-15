@@ -1,4 +1,8 @@
+import { Injectable, inject } from '@angular/core';
 import { environment } from '../../../environments/environment';
+import { IdbService } from '../db/idb.service';
+import { SyncQueueRepository } from '../db/sync-queue.repository';
+import { SyncItem } from '../models/financial.models';
 
 export interface SyncStatus {
   isOnline: boolean;
@@ -12,6 +16,7 @@ export interface SyncStatus {
 })
 export class SyncService {
   private readonly syncQueueRepo = inject(SyncQueueRepository);
+  private readonly idbService = inject(IdbService);
   private isSyncing = false;
   private lastSyncedAt?: string;
 
@@ -29,7 +34,7 @@ export class SyncService {
 
   async getSyncStatus(): Promise<SyncStatus> {
     const queue = await this.syncQueueRepo.getAll();
-    const pendingItems = queue.filter(item => item.status === 'pending');
+    const pendingItems = queue.filter((item: SyncItem) => item.status === 'pending');
     return {
       isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
       pendingCount: pendingItems.length,
@@ -51,13 +56,13 @@ export class SyncService {
 
     try {
       const queue = await this.syncQueueRepo.getAll();
-      const pendingItems = queue.filter(item => item.status === 'pending');
+      const pendingItems = queue.filter((item: SyncItem) => item.status === 'pending');
       if (pendingItems.length === 0) {
         return 0;
       }
 
       // Group items for batch sync
-      const payloadItems = pendingItems.map(item => ({
+      const payloadItems = pendingItems.map((item: SyncItem) => ({
         id: item.id,
         type: item.entity,
         action: item.action,
@@ -97,5 +102,77 @@ export class SyncService {
     }
 
     return syncedCount;
+  }
+
+  /**
+   * Pushes full IndexedDB state (profile, budget, categories, expenses, purchases) to Cloudflare D1.
+   */
+  async backupToCloud(): Promise<{ success: boolean; stats?: any; error?: string }> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      return { success: false, error: 'Vous êtes hors-ligne. Connexion Internet requise pour la sauvegarde Cloud.' };
+    }
+
+    try {
+      const fullData = await this.idbService.exportAllData();
+
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const response = await fetch(`${environment.workerUrl}/api/backup`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${environment.appSecretToken}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(fullData),
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        return { success: false, error: `Erreur serveur (${response.status}) lors de la sauvegarde.` };
+      }
+
+      const result = await response.json();
+      this.lastSyncedAt = new Date().toISOString();
+      return { success: true, stats: result.stats };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Impossible de joindre le serveur Cloudflare.' };
+    }
+  }
+
+  /**
+   * Fetches full state from Cloudflare D1 and restores IndexedDB.
+   */
+  async restoreFromCloud(): Promise<{ success: boolean; stats?: { expenses: number; purchases: number; categories: number }; error?: string }> {
+    if (typeof navigator !== 'undefined' && !navigator.onLine) {
+      return { success: false, error: 'Vous êtes hors-ligne. Connexion requise pour restaurer depuis le Cloud.' };
+    }
+
+    try {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 8000);
+
+      const response = await fetch(`${environment.workerUrl}/api/restore`, {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${environment.appSecretToken}`
+        },
+        signal: controller.signal
+      });
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        return { success: false, error: `Erreur serveur (${response.status}) lors de la restauration.` };
+      }
+
+      const data = await response.json();
+      const stats = await this.idbService.restoreAllData(data);
+      this.lastSyncedAt = new Date().toISOString();
+
+      return { success: true, stats };
+    } catch (err: any) {
+      return { success: false, error: err.message || 'Impossible de joindre le serveur Cloudflare.' };
+    }
   }
 }

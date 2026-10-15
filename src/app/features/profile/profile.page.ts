@@ -59,7 +59,9 @@ import {
   logoGoogle,
   cloudOutline,
   checkmarkOutline,
-  lockClosedOutline
+  lockClosedOutline,
+  cloudDownloadOutline,
+  documentTextOutline
 } from 'ionicons/icons';
 import { ProfileFacade } from './facade/profile.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
@@ -69,9 +71,10 @@ import { IdbService } from '../../core/db/idb.service';
 import { CurrencyService, CurrencyCode, LiveRateInfo } from '../../core/services/currency.service';
 import { LocationService, CountryItem } from '../../core/services/location.service';
 import { ExportService } from '../../core/services/export.service';
+import { SyncService } from '../../core/services/sync.service';
 import { Category, MonthlyBudget, UserProfile } from '../../core/models/financial.models';
 
-export type SettingsModalType = 'none' | 'profile' | 'currencies' | 'budget' | 'drive';
+export type SettingsModalType = 'none' | 'profile' | 'currencies' | 'budget';
 
 @Component({
   selector: 'app-profile',
@@ -139,10 +142,8 @@ export class ProfilePage implements OnInit {
   // Settings modals controller
   activeModal: SettingsModalType = 'none';
 
-  // Google Drive Cloud Backup State
-  isGoogleDriveConnected = false;
-  googleDriveEmail = '';
-  isConnectingDrive = false;
+  // Backup State
+  isCloudSyncing = false;
 
   constructor(
     private profileFacade: ProfileFacade,
@@ -153,6 +154,7 @@ export class ProfilePage implements OnInit {
     public currencyService: CurrencyService,
     private locationService: LocationService,
     private exportService: ExportService,
+    private syncService: SyncService,
     private alertCtrl: AlertController,
     private toastCtrl: ToastController
   ) {
@@ -174,6 +176,8 @@ export class ProfilePage implements OnInit {
       downloadOutline,
       cloudDoneOutline,
       cloudUploadOutline,
+      cloudDownloadOutline,
+      documentTextOutline,
       trashOutline,
       saveOutline,
       sparklesOutline,
@@ -226,13 +230,6 @@ export class ProfilePage implements OnInit {
     }
 
     this.rateStatusText = `1 ${this.currencyService.activeCurrency()} = ${this.currencyService.exchangeRate()} ${this.currencyService.secondaryCurrency()}`;
-
-    // Load Drive state if previously connected in localStorage
-    const savedDrive = localStorage.getItem('sep_google_drive_account');
-    if (savedDrive) {
-      this.isGoogleDriveConnected = true;
-      this.googleDriveEmail = savedDrive;
-    }
   }
 
   // Modal controls
@@ -347,85 +344,99 @@ export class ProfilePage implements OnInit {
     await this.showToast('Plafond budgétaire et enveloppes enregistrés.', 'success');
   }
 
-  // Google Drive Cloud Backup
-  async triggerGoogleDriveConnect(): Promise<void> {
-    if (this.isGoogleDriveConnected) {
+  // Cloudflare D1 & JSON Vault Backup
+  async backupToCloud(): Promise<void> {
+    this.isCloudSyncing = true;
+    const result = await this.syncService.backupToCloud();
+    this.isCloudSyncing = false;
+
+    if (result.success) {
+      await this.showToast('Données sauvegardées sur le Cloud avec succès !', 'success');
       const alert = await this.alertCtrl.create({
-        header: 'Google Drive Synchronisé',
-        message: `Compte lié : ${this.googleDriveEmail}\nVos sauvegardes de dépenses sont synchronisées sur votre espace Drive.`,
-        buttons: [
-          { text: 'Fermer', role: 'cancel' },
-          {
-            text: 'Synchroniser maintenant',
-            handler: async () => {
-              await this.syncToGoogleDrive();
-            }
-          },
-          {
-            text: 'Déconnecter',
-            role: 'destructive',
-            handler: () => {
-              this.disconnectGoogleDrive();
-            }
-          }
-        ]
+        header: 'Sauvegarde Cloud Réussie',
+        message: `Vos ${result.stats?.expenses || 0} dépense(s), ${result.stats?.purchases || 0} achat(s) et vos réglages sont en sécurité sur Cloudflare D1.`,
+        buttons: ['Parfait']
       });
       await alert.present();
-      return;
+    } else {
+      await this.showToast(result.error || 'Erreur lors de la sauvegarde.', 'danger');
     }
+  }
 
-    // Connect prompt
-    const alert = await this.alertCtrl.create({
-      header: 'Connecter Google Drive',
-      message: 'Associez votre compte Google pour sauvegarder et restaurer automatiquement votre coffre-fort de dépenses en ligne.',
-      inputs: [
-        {
-          name: 'email',
-          type: 'email',
-          placeholder: 'etudiant@campus.edu',
-          value: this.googleDriveEmail || (this.userProfile.name ? `${this.userProfile.name.toLowerCase().replace(/\s+/g, '')}@gmail.com` : '')
-        }
-      ],
+  async restoreFromCloud(): Promise<void> {
+    const confirmAlert = await this.alertCtrl.create({
+      header: 'Restaurer depuis le Cloud ?',
+      message: 'Cette action va charger toutes vos données depuis Cloudflare D1 et actualiser votre téléphone. Continuer ?',
       buttons: [
         { text: 'Annuler', role: 'cancel' },
         {
-          text: 'Connecter',
-          handler: async (data) => {
-            if (data.email && data.email.includes('@')) {
-              this.isConnectingDrive = true;
-              setTimeout(async () => {
-                this.isConnectingDrive = false;
-                this.isGoogleDriveConnected = true;
-                this.googleDriveEmail = data.email;
-                localStorage.setItem('sep_google_drive_account', data.email);
-                await this.showToast(`Compte Google Drive connecté (${data.email}) ! Sauvegarde active.`, 'success');
-              }, 800);
+          text: 'Restaurer',
+          role: 'destructive',
+          handler: async () => {
+            this.isCloudSyncing = true;
+            const res = await this.syncService.restoreFromCloud();
+            this.isCloudSyncing = false;
+
+            if (res.success) {
+              await Promise.all([
+                this.expensesFacade.load(),
+                this.purchasesFacade.load(),
+                this.budgetFacade.load(),
+                this.profileFacade.load()
+              ]);
+              await this.loadProfileData();
+              await this.showToast(`Restauration terminée : ${res.stats?.expenses || 0} dépenses récupérées.`, 'success');
             } else {
-              this.showToast('Veuillez entrer une adresse email valide.', 'warning');
+              await this.showToast(res.error || 'Erreur lors de la restauration.', 'danger');
             }
           }
         }
       ]
     });
-    await alert.present();
+    await confirmAlert.present();
   }
 
-  async syncToGoogleDrive(): Promise<void> {
-    await this.expensesFacade.load();
-    const expenses = this.expensesFacade.expenses();
-    const alert = await this.alertCtrl.create({
-      header: 'Synchronisation Cloud Réussie',
-      message: `${expenses.length} dépense(s) et vos paramètres de budget ont été sauvegardés sur votre Google Drive (${this.googleDriveEmail}).`,
-      buttons: ['OK']
-    });
-    await alert.present();
+  async exportJsonBackup(): Promise<void> {
+    const fullData = await this.idbService.exportAllData();
+    this.exportService.exportBackupJson(fullData);
+    await this.showToast('Coffre-fort JSON téléchargé ! Conservez ce fichier en lieu sûr.', 'success');
   }
 
-  disconnectGoogleDrive(): void {
-    this.isGoogleDriveConnected = false;
-    this.googleDriveEmail = '';
-    localStorage.removeItem('sep_google_drive_account');
-    this.showToast('Compte Google Drive déconnecté.', 'warning');
+  async triggerFileRestore(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    try {
+      const backupData = await this.exportService.readBackupFile(file);
+      const confirmAlert = await this.alertCtrl.create({
+        header: 'Restaurer ce fichier ?',
+        message: `Fichier : ${file.name}\nDépenses détectées : ${backupData.expenses?.length || 0}\nAchats détectés : ${backupData.purchases?.length || 0}\n\nVoulez-vous remplacer vos données actuelles par cette sauvegarde ?`,
+        buttons: [
+          { text: 'Annuler', role: 'cancel' },
+          {
+            text: 'Restaurer maintenant',
+            role: 'destructive',
+            handler: async () => {
+              const stats = await this.idbService.restoreAllData(backupData);
+              await Promise.all([
+                this.expensesFacade.load(),
+                this.purchasesFacade.load(),
+                this.budgetFacade.load(),
+                this.profileFacade.load()
+              ]);
+              await this.loadProfileData();
+              await this.showToast(`Restauration réussie ! ${stats.expenses} dépenses restaurées.`, 'success');
+            }
+          }
+        ]
+      });
+      await confirmAlert.present();
+    } catch (err: any) {
+      await this.showToast(err.message || 'Fichier de sauvegarde invalide.', 'danger');
+    } finally {
+      input.value = '';
+    }
   }
 
   async exportCsv(): Promise<void> {

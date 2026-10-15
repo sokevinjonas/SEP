@@ -36,12 +36,20 @@ import {
   shieldCheckmarkOutline,
   refreshOutline,
   cashOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  cloudDownloadOutline,
+  documentTextOutline
 } from 'ionicons/icons';
 import { ProfileFacade } from '../profile/facade/profile.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
+import { ExpensesFacade } from '../expenses/facade/expenses.facade';
+import { PurchasesFacade } from '../purchases/facade/purchases.facade';
 import { CurrencyService, CurrencyCode, LiveRateInfo } from '../../core/services/currency.service';
 import { LocationService, CountryItem } from '../../core/services/location.service';
+import { SyncService } from '../../core/services/sync.service';
+import { IdbService } from '../../core/db/idb.service';
+import { ExportService } from '../../core/services/export.service';
+import { AlertController } from '@ionic/angular';
 import { UserProfile, MonthlyBudget } from '../../core/models/financial.models';
 
 @Component({
@@ -100,11 +108,19 @@ export class RegisterPage implements OnInit {
   liveRateInfo: LiveRateInfo | null = null;
   rateStatusText = '';
 
+  isRestoring = false;
+
   constructor(
     private profileFacade: ProfileFacade,
     private budgetFacade: BudgetFacade,
+    private expensesFacade: ExpensesFacade,
+    private purchasesFacade: PurchasesFacade,
     private currencyService: CurrencyService,
     private locationService: LocationService,
+    private syncService: SyncService,
+    private idbService: IdbService,
+    private exportService: ExportService,
+    private alertCtrl: AlertController,
     private router: Router,
     private toastCtrl: ToastController
   ) {
@@ -119,8 +135,80 @@ export class RegisterPage implements OnInit {
       shieldCheckmarkOutline,
       refreshOutline,
       cashOutline,
-      checkmarkCircleOutline
+      checkmarkCircleOutline,
+      cloudDownloadOutline,
+      documentTextOutline
     });
+  }
+
+  async restoreFromCloud(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Restaurer depuis le Cloud ?',
+      message: 'Voulez-vous récupérer vos dépenses, achats et réglages enregistrés sur Cloudflare D1 ?',
+      buttons: [
+        { text: 'Annuler', role: 'cancel' },
+        {
+          text: 'Restaurer',
+          handler: async () => {
+            this.isRestoring = true;
+            const res = await this.syncService.restoreFromCloud();
+            this.isRestoring = false;
+
+            if (res.success) {
+              await Promise.all([
+                this.profileFacade.load(),
+                this.budgetFacade.load(),
+                this.expensesFacade.load(),
+                this.purchasesFacade.load()
+              ]);
+              await this.showToast(`Données restaurées ! (${res.stats?.expenses || 0} dépenses)`, 'success');
+              this.router.navigate(['/tabs/home'], { replaceUrl: true });
+            } else {
+              await this.showToast(res.error || 'Impossible de restaurer depuis le Cloud.', 'danger');
+            }
+          }
+        }
+      ]
+    });
+    await alert.present();
+  }
+
+  async triggerFileRestore(event: Event): Promise<void> {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const file = input.files[0];
+    try {
+      const backupData = await this.exportService.readBackupFile(file);
+      const alert = await this.alertCtrl.create({
+        header: 'Restaurer la sauvegarde ?',
+        message: `Fichier : ${file.name}\n${backupData.expenses?.length || 0} dépenses détectées.\nConfirmer la restauration ?`,
+        buttons: [
+          { text: 'Annuler', role: 'cancel' },
+          {
+            text: 'Restaurer',
+            handler: async () => {
+              this.isRestoring = true;
+              const stats = await this.idbService.restoreAllData(backupData);
+              await Promise.all([
+                this.profileFacade.load(),
+                this.budgetFacade.load(),
+                this.expensesFacade.load(),
+                this.purchasesFacade.load()
+              ]);
+              this.isRestoring = false;
+              await this.showToast(`Données restaurées ! (${stats.expenses} dépenses)`, 'success');
+              this.router.navigate(['/tabs/home'], { replaceUrl: true });
+            }
+          }
+        ]
+      });
+      await alert.present();
+    } catch (err: any) {
+      await this.showToast(err.message || 'Fichier invalide.', 'danger');
+    } finally {
+      input.value = '';
+    }
   }
 
   async ngOnInit(): Promise<void> {

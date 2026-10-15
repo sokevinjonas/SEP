@@ -60,6 +60,26 @@
         </p>
       </div>
 
+      <!-- Quick Restore Option for Reinstallations -->
+      <div class="restore-banner-card">
+        <div class="restore-info">
+          <span class="restore-chip">DÉJÀ ÉTUDIANT SEP ?</span>
+          <p class="restore-desc">Récupérez vos données en 1 tap après une réinstallation :</p>
+        </div>
+        <div class="restore-buttons-group">
+          <ion-button fill="outline" size="small" class="restore-action-btn cloud-btn" (click)="restoreFromCloud()" [disabled]="isRestoring">
+            <ion-icon slot="start" name="cloud-download-outline"></ion-icon>
+            <span *ngIf="!isRestoring">Cloudflare D1</span>
+            <ion-spinner *ngIf="isRestoring" name="dots"></ion-spinner>
+          </ion-button>
+          <ion-button fill="outline" size="small" class="restore-action-btn file-btn" (click)="regFileInput.click()" [disabled]="isRestoring">
+            <ion-icon slot="start" name="document-text-outline"></ion-icon>
+            <span>Fichier .json</span>
+          </ion-button>
+          <input #regFileInput type="file" accept=".json" (change)="triggerFileRestore($event)" style="display: none;">
+        </div>
+      </div>
+
       <!-- Student Identity & Campus Card (Official ion-card) -->
       <ion-card class="form-card ion-no-margin">
         <ion-card-header>

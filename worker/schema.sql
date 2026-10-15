@@ -65,3 +65,21 @@ CREATE TABLE IF NOT EXISTS token_usage (
   estimatedCostUsd REAL NOT NULL DEFAULT 0.0,
   updatedAt TEXT NOT NULL
 );
+
+CREATE TABLE IF NOT EXISTS user_profiles (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  country TEXT,
+  city TEXT,
+  campus TEXT,
+  primaryCurrency TEXT NOT NULL DEFAULT 'GHS',
+  updatedAt TEXT NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS monthly_budgets (
+  id TEXT PRIMARY KEY,
+  monthYear TEXT NOT NULL,
+  totalBudgetGhs REAL NOT NULL,
+  plannedDailyBudgetGhs REAL NOT NULL,
+  exchangeRateXof REAL NOT NULL DEFAULT 42.0
+);

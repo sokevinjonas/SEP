@@ -81,6 +81,137 @@ export default {
         return jsonResponse({ success: true, synced: syncedCount });
       }
 
+      // 1b. POST /api/backup (Full Cloud Backup)
+      if (url.pathname === '/api/backup' && request.method === 'POST') {
+        const body: any = await request.json();
+        let expCount = 0;
+        let purCount = 0;
+
+        // Upsert Profile
+        if (body.profile) {
+          const p = body.profile;
+          await env.DB.prepare(`
+            INSERT INTO user_profiles (id, name, country, city, campus, primaryCurrency, updatedAt)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              name = excluded.name,
+              country = excluded.country,
+              city = excluded.city,
+              campus = excluded.campus,
+              primaryCurrency = excluded.primaryCurrency,
+              updatedAt = excluded.updatedAt
+          `).bind(
+            p.id || 'current_user', p.name || 'Jonas', p.country || 'Ghana',
+            p.city || 'Accra', p.campus || '', p.primaryCurrency || 'GHS',
+            p.updatedAt || new Date().toISOString()
+          ).run();
+        }
+
+        // Upsert Monthly Budget
+        if (body.monthlyBudget) {
+          const b = body.monthlyBudget;
+          await env.DB.prepare(`
+            INSERT INTO monthly_budgets (id, monthYear, totalBudgetGhs, plannedDailyBudgetGhs, exchangeRateXof)
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(id) DO UPDATE SET
+              monthYear = excluded.monthYear,
+              totalBudgetGhs = excluded.totalBudgetGhs,
+              plannedDailyBudgetGhs = excluded.plannedDailyBudgetGhs,
+              exchangeRateXof = excluded.exchangeRateXof
+          `).bind(
+            b.id || 'current', b.monthYear || 'current',
+            b.totalBudgetGhs || 600, b.plannedDailyBudgetGhs || 20,
+            b.exchangeRateXof || 42
+          ).run();
+        }
+
+        // Upsert Categories
+        if (Array.isArray(body.categories)) {
+          for (const cat of body.categories) {
+            await env.DB.prepare(`
+              INSERT INTO categories (id, name, allocatedGhs, spentGhs, icon, color)
+              VALUES (?, ?, ?, 0, ?, ?)
+              ON CONFLICT(id) DO UPDATE SET
+                name = excluded.name,
+                allocatedGhs = excluded.allocatedGhs,
+                icon = excluded.icon,
+                color = excluded.color
+            `).bind(
+              cat.id, cat.name, cat.monthlyAllocationGhs || 0,
+              cat.icon || 'folder-outline', cat.color || '#714B67'
+            ).run();
+          }
+        }
+
+        // Upsert Expenses
+        if (Array.isArray(body.expenses)) {
+          for (const exp of body.expenses) {
+            await env.DB.prepare(`
+              INSERT INTO expenses (id, amount, currency, categoryId, categoryName, merchant, note, date, source, transactionRef, createdAt)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+              ON CONFLICT(id) DO UPDATE SET
+                amount = excluded.amount,
+                currency = excluded.currency,
+                categoryId = excluded.categoryId,
+                categoryName = excluded.categoryName,
+                merchant = excluded.merchant,
+                note = excluded.note,
+                date = excluded.date,
+                transactionRef = excluded.transactionRef
+            `).bind(
+              exp.id, exp.amount, exp.currency || 'GHS', exp.categoryId,
+              exp.categoryName, exp.merchant || '', exp.note || '', exp.date,
+              exp.source || 'manual', exp.transactionRef || null, exp.createdAt || new Date().toISOString()
+            ).run();
+            expCount++;
+          }
+        }
+
+        // Upsert Purchases
+        if (Array.isArray(body.purchases)) {
+          for (const pur of body.purchases) {
+            await env.DB.prepare(`
+              INSERT INTO purchases (id, itemName, amountGhs, categoryId, status, createdAt, coolingOffExpiresAt, reminderSent)
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+              ON CONFLICT(id) DO UPDATE SET
+                itemName = excluded.itemName,
+                amountGhs = excluded.amountGhs,
+                categoryId = excluded.categoryId,
+                status = excluded.status
+            `).bind(
+              pur.id, pur.itemName, pur.amountGhs, pur.categoryId,
+              pur.status, pur.createdAt, pur.coolingOffExpiresAt || pur.expiresAt || new Date().toISOString(), 0
+            ).run();
+            purCount++;
+          }
+        }
+
+        return jsonResponse({
+          success: true,
+          backedUpAt: new Date().toISOString(),
+          stats: { expenses: expCount, purchases: purCount, categories: body.categories?.length || 0 }
+        });
+      }
+
+      // 1c. GET /api/restore (Full Cloud Restore)
+      if (url.pathname === '/api/restore' && request.method === 'GET') {
+        const expenses = await env.DB.prepare(`SELECT * FROM expenses ORDER BY date DESC`).all();
+        const purchases = await env.DB.prepare(`SELECT * FROM purchases ORDER BY createdAt DESC`).all();
+        const categories = await env.DB.prepare(`SELECT * FROM categories`).all();
+        const profile = await env.DB.prepare(`SELECT * FROM user_profiles WHERE id = 'current_user'`).first();
+        const budget = await env.DB.prepare(`SELECT * FROM monthly_budgets ORDER BY id DESC LIMIT 1`).first();
+
+        return jsonResponse({
+          success: true,
+          restoredAt: new Date().toISOString(),
+          profile: profile || null,
+          monthlyBudget: budget || null,
+          categories: categories.results || [],
+          expenses: expenses.results || [],
+          purchases: purchases.results || []
+        });
+      }
+
       // 2. POST /api/captures (Story 3.2 & Story 3.3)
       if (url.pathname === '/api/captures' && request.method === 'POST') {
         const contentType = request.headers.get('content-type') || '';
