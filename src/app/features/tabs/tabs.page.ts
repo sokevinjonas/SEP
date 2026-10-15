@@ -1,5 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { Router, NavigationEnd } from '@angular/router';
 import {
   IonTabs,
   IonTabBar,
@@ -14,6 +15,7 @@ import { homeOutline, cameraOutline, walletOutline, personOutline } from 'ionico
 import { ActionBarComponent } from '../../shared/components/action-bar/action-bar.component';
 import { QuickLogModalComponent } from '../../shared/components/quick-log-modal/quick-log-modal.component';
 import { HesitationModalComponent } from '../../shared/components/hesitation-modal/hesitation-modal.component';
+import { DatabaseService } from '../../core/db/database.service';
 
 @Component({
   selector: 'app-tabs',
@@ -30,12 +32,43 @@ import { HesitationModalComponent } from '../../shared/components/hesitation-mod
   templateUrl: './tabs.page.html',
   styleUrls: ['./tabs.page.scss']
 })
-export class TabsPage {
+export class TabsPage implements OnInit {
+  currentTab = 'home';
+
   constructor(
     private modalCtrl: ModalController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private router: Router,
+    private db: DatabaseService
   ) {
     addIcons({ homeOutline, cameraOutline, walletOutline, personOutline });
+  }
+
+  ngOnInit(): void {
+    this.updateTabFromUrl(this.router.url);
+    this.router.events.subscribe(event => {
+      if (event instanceof NavigationEnd) {
+        this.updateTabFromUrl(event.urlAfterRedirects || event.url);
+      }
+    });
+  }
+
+  onTabChange(event: { tab: string }): void {
+    if (event && event.tab) {
+      this.currentTab = event.tab;
+    }
+  }
+
+  private updateTabFromUrl(url: string): void {
+    if (url.includes('/tabs/capture')) {
+      this.currentTab = 'capture';
+    } else if (url.includes('/tabs/budget')) {
+      this.currentTab = 'budget';
+    } else if (url.includes('/tabs/profile')) {
+      this.currentTab = 'profile';
+    } else {
+      this.currentTab = 'home';
+    }
   }
 
   async handleWantToBuy(): Promise<void> {
@@ -44,6 +77,10 @@ export class TabsPage {
       cssClass: 'hesitation-modal-sheet'
     });
     await modal.present();
+    const result = await modal.onDidDismiss();
+    if (result.data?.saved) {
+      this.db.dataChanged$.next();
+    }
   }
 
   async handleQuickLog(): Promise<void> {
@@ -54,5 +91,9 @@ export class TabsPage {
       cssClass: 'quick-log-sheet'
     });
     await modal.present();
+    const result = await modal.onDidDismiss();
+    if (result.data?.saved) {
+      this.db.dataChanged$.next();
+    }
   }
 }

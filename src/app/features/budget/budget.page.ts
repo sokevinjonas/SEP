@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   IonHeader,
   IonToolbar,
@@ -90,7 +92,8 @@ export interface CategoryEnvelopeView {
   templateUrl: './budget.page.html',
   styleUrls: ['./budget.page.scss']
 })
-export class BudgetPage implements OnInit {
+export class BudgetPage implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   envelopes: CategoryEnvelopeView[] = [];
 
   allPurchases: Purchase[] = [];
@@ -137,6 +140,14 @@ export class BudgetPage implements OnInit {
 
   async ngOnInit(): Promise<void> {
     await this.loadBudgetData();
+    this.db.dataChanged$.pipe(takeUntil(this.destroy$)).subscribe(async () => {
+      await this.loadBudgetData();
+    });
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async ionViewWillEnter(): Promise<void> {
@@ -207,29 +218,29 @@ export class BudgetPage implements OnInit {
     const remainingMs = new Date(expiresAt).getTime() - Date.now();
     if (remainingMs <= 0) return 'Prêt à décider';
     const hours = Math.ceil(remainingMs / (1000 * 60 * 60));
-    return `${hours}h restantes`;
+    return `${hours}h left`;
   }
 
-  // Story 2.4 & 2.5: Abandonner l'achat envisagé -> Victoire de discipline
+  // Story 2.4 & 2.5: Abandon considered purchase -> Victory
   async abandonPurchase(pur: Purchase): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Renoncer à cet achat ?',
-      message: `En renonçant à « ${pur.title} », vous protégez ${pur.amountGhs} GHS qui viendront grossir votre Total Épargné !`,
+      header: 'Resist this purchase?',
+      message: `By letting go of "${pur.title}", you save ${pur.amountGhs} GHS which will be added to your Avoided Total!`,
       buttons: [
-        { text: 'Garder en réflexion', role: 'cancel' },
+        { text: 'Keep thinking', role: 'cancel' },
         {
-          text: 'Victoire ! J\'abandonne',
+          text: 'Victory! I resist',
           handler: async () => {
             pur.status = 'abandoned';
             pur.resolvedAt = new Date().toISOString();
             await this.db.updatePurchase(pur);
             await this.loadBudgetData();
 
-            // Set flag for celebratory confetti on home tab
+            // Set flag for celebratory trophy animation on home tab
             sessionStorage.setItem('sep_celebrate_avoided', 'true');
 
             const toast = await this.toastCtrl.create({
-              message: `Victoire financière ! +${pur.amountGhs} GHS ajoutés à votre Total Épargné.`,
+              message: `Financial victory! +${pur.amountGhs} GHS added to your Avoided Total.`,
               duration: 3000,
               color: 'secondary',
               position: 'top'
@@ -242,15 +253,15 @@ export class BudgetPage implements OnInit {
     await alert.present();
   }
 
-  // Story 2.5: Acheter finalement
+  // Story 2.5: Buy anyway
   async buyPurchase(pur: Purchase): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Valider cet achat ?',
-      message: `Voulez-vous enregistrer définitivement la dépense de ${pur.amountGhs} GHS pour « ${pur.title} » ?`,
+      header: 'Confirm this purchase?',
+      message: `Do you want to permanently log an expense of ${pur.amountGhs} GHS for "${pur.title}"?`,
       buttons: [
-        { text: 'Annuler', role: 'cancel' },
+        { text: 'Cancel', role: 'cancel' },
         {
-          text: 'Oui, enregistrer l\'achat',
+          text: 'Yes, log expense',
           handler: async () => {
             const now = new Date();
 
@@ -265,9 +276,9 @@ export class BudgetPage implements OnInit {
               amount: pur.amountGhs,
               currency: 'GHS',
               categoryId: 'cat-other',
-              categoryName: 'Achats Évalués',
+              categoryName: 'Considered Purchases',
               merchant: pur.title,
-              note: 'Validé après période de réflexion',
+              note: 'Confirmed after cooling-off period',
               date: now.toISOString(),
               source: 'manual',
               createdAt: now.toISOString()
@@ -277,7 +288,7 @@ export class BudgetPage implements OnInit {
             await this.loadBudgetData();
 
             const toast = await this.toastCtrl.create({
-              message: `Achat de ${pur.amountGhs} GHS enregistré dans vos dépenses.`,
+              message: `Expense of ${pur.amountGhs} GHS recorded in your ledger.`,
               duration: 2500,
               color: 'dark',
               position: 'top'

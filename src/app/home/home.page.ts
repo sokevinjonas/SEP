@@ -1,6 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
+import { Subject } from 'rxjs';
+import { takeUntil } from 'rxjs/operators';
 import {
   IonHeader,
   IonToolbar,
@@ -79,7 +81,8 @@ import { PognonChatModalComponent } from '../shared/components/pognon-chat-modal
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage implements OnInit {
+export class HomePage implements OnInit, OnDestroy {
+  private destroy$ = new Subject<void>();
   userProfile: UserProfile | null = null;
 
   consumption: BudgetConsumption = {
@@ -138,6 +141,14 @@ export class HomePage implements OnInit {
 
   async ngOnInit() {
     await this.loadDashboardData();
+    this.db.dataChanged$.pipe(takeUntil(this.destroy$)).subscribe(async () => {
+      await this.loadDashboardData();
+    });
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 
   async ionViewWillEnter() {

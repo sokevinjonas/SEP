@@ -1,10 +1,10 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="capture-toolbar">
-    <ion-title class="capture-title">Reçus &amp; MoMo Capture</ion-title>
+    <ion-title class="capture-title">Receipts &amp; MoMo Capture</ion-title>
     <ion-buttons slot="end">
       <ion-badge [color]="isOnline ? 'success' : 'medium'" class="network-badge">
         <ion-icon [name]="isOnline ? 'cloud-done-outline' : 'shield-checkmark-outline'"></ion-icon>
-        <span>{{ isOnline ? 'En ligne' : '100% Hors-ligne' }}</span>
+        <span>{{ isOnline ? 'Online' : '100% Offline' }}</span>
       </ion-badge>
     </ion-buttons>
   </ion-toolbar>
@@ -16,7 +16,7 @@
     <!-- Subtitle -->
     <div class="header-intro">
       <p class="intro-text">
-        Scannez vos tickets de cafétéria et captures Mobile Money (MTN, Telecel). Vos justificatifs sont chiffrés et stockés localement même sans réseau.
+        Scan your campus cafeteria receipts and Mobile Money screenshots (MTN, Telecel). Encrypted and stored locally even without network.
       </p>
     </div>
 
@@ -42,9 +42,9 @@
         <div class="dropzone-icon-wrap">
           <ion-icon name="cloud-upload-outline"></ion-icon>
         </div>
-        <h3 class="dropzone-title">Importer un Reçu ou Capture MoMo</h3>
-        <p class="dropzone-desc">Touchez pour choisir depuis votre galerie Android ou vos fichiers</p>
-        <span class="dropzone-types">PNG, JPG, Screenshots MTN MoMo, Tickets caisse</span>
+        <h3 class="dropzone-title">Import Receipt or MoMo Screenshot</h3>
+        <p class="dropzone-desc">Tap to choose from your Android gallery or files</p>
+        <span class="dropzone-types">PNG, JPG, MTN MoMo screenshots, paper receipts</span>
       </div>
     </div>
 
@@ -58,13 +58,13 @@
         (click)="triggerFileInput(cameraInput)"
         id="btn-take-photo">
         <ion-icon slot="start" name="camera-outline"></ion-icon>
-        <span>Prendre une photo (Caméra)</span>
+        <span>Take a Photo (Camera)</span>
       </ion-button>
     </div>
 
     <!-- 3. Sample Presets for Easy Browser Demo -->
     <div class="presets-section">
-      <span class="presets-title">Exemples de démonstration instantanés :</span>
+      <span class="presets-title">Instant demo examples:</span>
       <div class="presets-row">
         <ion-chip
           *ngFor="let preset of samplePresets"
@@ -80,8 +80,8 @@
     <div class="scanning-indicator-box" *ngIf="isScanning">
       <ion-spinner name="crescent" color="primary"></ion-spinner>
       <div class="scanning-texts">
-        <h4 class="scan-title">Extraction OCR Vision en cours...</h4>
-        <p class="scan-sub">Lecture intelligente du montant, marchand et référence</p>
+        <h4 class="scan-title">Vision OCR extraction in progress...</h4>
+        <p class="scan-sub">Intelligently reading amount, merchant and transaction reference</p>
       </div>
     </div>
 
@@ -90,10 +90,10 @@
       <div class="queue-header-row">
         <h3 class="queue-title">
           <ion-icon name="time-outline"></ion-icon>
-          File d'attente locale ({{ queuedCaptures.length }})
+          Local Pending Queue ({{ queuedCaptures.length }})
         </h3>
         <ion-button fill="clear" size="small" color="danger" (click)="clearQueue()">
-          Vider
+          Clear
         </ion-button>
       </div>
 
@@ -119,7 +119,7 @@
             <ion-badge
               [color]="cap.status === 'synced' ? 'success' : (cap.status === 'ready' ? 'secondary' : (cap.status === 'extracting' ? 'warning' : 'medium'))"
               class="queue-badge">
-              {{ cap.status === 'synced' ? 'Validé' : (cap.status === 'ready' ? 'Prêt à valider' : (cap.status === 'extracting' ? 'Analyse...' : 'En attente')) }}
+              {{ cap.status === 'synced' ? 'Validated' : (cap.status === 'ready' ? 'Ready to validate' : (cap.status === 'extracting' ? 'Scanning...' : 'Queued')) }}
             </ion-badge>
             <ion-button
               fill="clear"
@@ -137,7 +137,7 @@
     <div class="privacy-note-card">
       <ion-icon name="shield-checkmark-outline"></ion-icon>
       <p>
-        Vos reçus sont traités localement. Aucune information financière personnelle n'est divulguée à des tiers.
+        Your receipts are processed locally. No personal financial data is shared with third parties.
       </p>
     </div>
 
@@ -150,7 +150,7 @@
     <ng-template>
       <ion-header class="ion-no-border">
         <ion-toolbar class="modal-toolbar">
-          <ion-title>Vérification du Reçu (OCR)</ion-title>
+          <ion-title>Receipt Verification (OCR)</ion-title>
           <ion-buttons slot="end">
             <ion-button (click)="closePreview()" fill="clear" color="medium">
               <ion-icon name="close-outline"></ion-icon>
@@ -168,11 +168,11 @@
               <ion-icon name="warning-outline"></ion-icon>
             </div>
             <div class="alert-body">
-              <h4 class="alert-title">Référence déjà enregistrée !</h4>
+              <h4 class="alert-title">Reference already registered!</h4>
               <p class="alert-desc">
-                La référence <strong>« {{ activeExtraction.transactionReference }} »</strong> a déjà été enregistrée le {{ existingDuplicateExpense?.date | date:'dd MMM yyyy à HH:mm' }} pour un montant de {{ existingDuplicateExpense?.amount }} GHS.
+                Reference <strong>"{{ activeExtraction.transactionReference }}"</strong> was already logged on {{ existingDuplicateExpense?.date | date:'dd MMM yyyy at HH:mm' }} for an amount of {{ existingDuplicateExpense?.amount }} GHS.
               </p>
-              <span class="alert-prompt">Vous seul décidez s'il s'agit d'un doublon ou d'un paiement légitime.</span>
+              <span class="alert-prompt">You alone decide whether this is a duplicate or a legitimate payment.</span>
             </div>
           </div>
 
@@ -181,19 +181,19 @@
             <img [src]="activeExtraction.imageDataUrl" alt="Receipt Preview" />
             <span class="source-tag">
               <ion-icon [name]="activeExtraction.source === 'ocr_momo' ? 'flash-outline' : 'document-text-outline'"></ion-icon>
-              {{ activeExtraction.source === 'ocr_momo' ? 'Mobile Money Screenshot' : 'Ticket Papier' }}
+              {{ activeExtraction.source === 'ocr_momo' ? 'Mobile Money Screenshot' : 'Paper Receipt' }}
             </span>
           </div>
 
           <!-- Form Fields with Uncertainty Highlighting (Story 3.4) -->
           <ion-list lines="none" class="preview-fields-list">
 
-            <!-- Montant -->
+            <!-- Amount -->
             <ion-item class="preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.amount">
               <ion-label position="stacked">
-                Montant extrait
+                Extracted Amount
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.amount" class="uncertain-badge">
-                  Incertain ?
+                  Unsure?
                 </ion-badge>
               </ion-label>
               <div class="field-row">
@@ -207,24 +207,24 @@
               </div>
             </ion-item>
 
-            <!-- Marchand / Établissement (With Uncertainty badge if doubtful) -->
+            <!-- Merchant / Store -->
             <ion-item class="preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.merchant">
               <ion-label position="stacked">
-                Marchand / Magasin
+                Merchant / Store
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.merchant" class="uncertain-badge">
-                  Nom manuscrit incertain
+                  Handwritten merchant uncertain
                 </ion-badge>
               </ion-label>
               <ion-input
                 [(ngModel)]="activeExtraction.merchant"
-                placeholder="ex: Mama Ama Chop"
+                placeholder="e.g. Mama Ama Chop"
                 class="field-input">
               </ion-input>
             </ion-item>
 
-            <!-- Catégorie -->
+            <!-- Category -->
             <ion-item class="preview-field-item select-item">
-              <ion-label position="stacked">Catégorie budgétaire</ion-label>
+              <ion-label position="stacked">Budget Category</ion-label>
               <ion-select
                 [(ngModel)]="activeExtraction.categoryId"
                 interface="action-sheet">
@@ -234,18 +234,18 @@
               </ion-select>
             </ion-item>
 
-            <!-- Référence Transaction -->
+            <!-- Transaction Reference -->
             <ion-item class="preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.reference">
               <ion-label position="stacked">
-                Référence de transaction
+                Transaction Reference
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.reference" class="uncertain-badge">
-                  À vérifier
+                  To verify
                 </ion-badge>
               </ion-label>
               <ion-input
                 [(ngModel)]="activeExtraction.transactionReference"
                 (ionChange)="checkDuplicate(activeExtraction.transactionReference)"
-                placeholder="ex: MTN-84920492"
+                placeholder="e.g. MTN-84920492"
                 class="field-input">
               </ion-input>
             </ion-item>
@@ -261,7 +261,7 @@
               (click)="validateAndSaveExpense()"
               id="btn-confirm-ocr-expense">
               <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
-              <span>Valider la dépense ({{ activeExtraction.amount }} {{ activeExtraction.currency }})</span>
+              <span>Validate Expense ({{ activeExtraction.amount }} {{ activeExtraction.currency }})</span>
             </ion-button>
 
             <ion-button
@@ -270,7 +270,7 @@
               color="medium"
               class="btn-draft-cancel"
               (click)="closePreview()">
-              <span>Garder comme brouillon dans la file</span>
+              <span>Keep as draft in queue</span>
             </ion-button>
           </div>
 

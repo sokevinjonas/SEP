@@ -132,12 +132,12 @@ export class HesitationModalComponent implements OnInit {
 
   proceedToHesitation(): void {
     if (!this.itemTitle.trim()) {
-      this.showToast('Veuillez entrer le nom de l\'article ou de l\'envie.', 'warning');
+      this.showToast('Please enter the item name or desire.', 'warning');
       return;
     }
 
     if (this.amountNumber <= 0) {
-      this.showToast('Veuillez entrer un montant supérieur à 0.', 'warning');
+      this.showToast('Please enter an amount greater than 0.', 'warning');
       return;
     }
 
@@ -152,9 +152,9 @@ export class HesitationModalComponent implements OnInit {
     const mealCount = Math.max(1, Math.round(this.amountNumber / 15));
     if (this.computedCostDays >= 7) {
       const weeks = Math.round(this.computedCostDays / 7);
-      this.concreteReframing = `Cela représente environ ${weeks} semaine(s) complète(s) de repas (${mealCount} repas campus).`;
+      this.concreteReframing = `That represents about ${weeks} full week(s) of food (${mealCount} campus meals).`;
     } else {
-      this.concreteReframing = `Cela équivaut à ${mealCount} repas à la cafétéria du campus.`;
+      this.concreteReframing = `That equals ${mealCount} meals at the campus cafeteria.`;
     }
 
     this.step = 'hesitation';
@@ -168,7 +168,7 @@ export class HesitationModalComponent implements OnInit {
     this.modalCtrl.dismiss({ action: 'dismissed' });
   }
 
-  // Option 1: "Je réfléchis" (Sauvegarde 48h sans dépenser) - Story 2.3
+  // Option 1: "I'll think about it" (48h pause without spending) - Story 2.3
   async chooseToThink(): Promise<void> {
     const now = new Date();
     const expiresAt = new Date(now.getTime() + 48 * 3600 * 1000).toISOString();
@@ -187,17 +187,17 @@ export class HesitationModalComponent implements OnInit {
     await this.db.addPurchase(purchase);
 
     const toast = await this.toastCtrl.create({
-      message: `Bravo ! ${purchase.amountGhs} GHS protégés. Cet achat est placé en pause réflexion 48h.`,
+      message: `Well done! ${purchase.amountGhs} GHS protected. Placed in 48h cooling-off pause.`,
       duration: 3200,
       color: 'secondary',
       position: 'top'
     });
     await toast.present();
 
-    this.modalCtrl.dismiss({ action: 'delayed', purchase });
+    this.modalCtrl.dismiss({ action: 'delayed', purchase, saved: true });
   }
 
-  // Option 2: "Oui, j'achète quand même" (Story 2.3)
+  // Option 2: "Yes, I'll buy it anyway" (Story 2.3)
   async chooseToBuy(): Promise<void> {
     const now = new Date();
 
@@ -209,7 +209,7 @@ export class HesitationModalComponent implements OnInit {
       categoryId: this.selectedCategory ? this.selectedCategory.id : 'cat-other',
       categoryName: this.selectedCategory ? this.selectedCategory.name : 'Other',
       merchant: this.itemTitle.trim(),
-      note: 'Achat validé après pause réflexion',
+      note: 'Bought after hesitation review',
       date: now.toISOString(),
       source: 'manual',
       createdAt: now.toISOString()
@@ -231,14 +231,14 @@ export class HesitationModalComponent implements OnInit {
     await this.db.addPurchase(purchase);
 
     const toast = await this.toastCtrl.create({
-      message: `Dépense de ${expense.amount} GHS enregistrée. Aucun jugement, restons vigilants pour le reste du mois !`,
+      message: `Expense of ${expense.amount} GHS recorded. No judgment, stay on track for the month!`,
       duration: 2500,
       color: 'dark',
       position: 'top'
     });
     await toast.present();
 
-    this.modalCtrl.dismiss({ action: 'bought', expense, purchase });
+    this.modalCtrl.dismiss({ action: 'bought', expense, purchase, saved: true });
   }
 
   private async showToast(message: string, color: 'success' | 'warning' | 'danger'): Promise<void> {

@@ -1,6 +1,6 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="budget-toolbar">
-    <ion-title class="page-title">Enveloppes &amp; Achats Évalués</ion-title>
+    <ion-title class="page-title">Envelopes &amp; Considered Purchases</ion-title>
   </ion-toolbar>
 </ion-header>
 
@@ -10,13 +10,13 @@
     <!-- 1. Category Envelopes Section (Official ion-list & ion-item) -->
     <ion-list class="budget-list ion-no-padding" [inset]="true">
       <ion-list-header>
-        <ion-label class="section-title">Enveloppes Budgétaires</ion-label>
-        <ion-note class="section-action">Total : {{ totalSpentGhs.toFixed(0) }} / {{ totalBudgetAllocatedGhs }} GHS</ion-note>
+        <ion-label class="section-title">Budget Envelopes</ion-label>
+        <ion-note class="section-action">Total: {{ totalSpentGhs.toFixed(0) }} / {{ totalBudgetAllocatedGhs }} GHS</ion-note>
       </ion-list-header>
 
       <ion-item *ngIf="envelopes.length === 0" lines="none" class="empty-item">
         <ion-label class="ion-text-center">
-          <p>Aucune enveloppe configurée pour ce mois.</p>
+          <p>No envelopes configured for this month.</p>
         </ion-label>
       </ion-item>
 
@@ -29,15 +29,15 @@
               </ion-avatar>
               <div class="env-text-group">
                 <h4 class="env-name">{{ env.category.name }}</h4>
-                <p class="env-sub">{{ env.spentGhs.toFixed(2) }} GHS sur {{ env.allocatedGhs }} GHS</p>
+                <p class="env-sub">{{ env.spentGhs.toFixed(2) }} GHS of {{ env.allocatedGhs }} GHS</p>
               </div>
             </div>
 
             <ion-badge [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')" class="env-badge">
               {{ env.percentage }}%
-              <span *ngIf="env.status === 'safe'"> (Sûr)</span>
-              <span *ngIf="env.status === 'warning'"> (Alerte)</span>
-              <span *ngIf="env.status === 'danger'"> (Critique)</span>
+              <span *ngIf="env.status === 'safe'"> (Safe)</span>
+              <span *ngIf="env.status === 'warning'"> (Alert)</span>
+              <span *ngIf="env.status === 'danger'"> (Critical)</span>
             </ion-badge>
           </div>
 
@@ -58,13 +58,13 @@
         </ion-avatar>
         <div class="coach-info">
           <div class="coach-title-row">
-            <h4 class="coach-title">Discuter avec M. Pognon</h4>
+            <h4 class="coach-title">Talk to M. Pognon</h4>
             <ion-badge color="warning" class="coach-badge">
               <ion-icon name="sparkles-outline"></ion-icon>
-              <span>Coach IA</span>
+              <span>AI Coach</span>
             </ion-badge>
           </div>
-          <p class="coach-desc">Une hésitation ou un dilemme financier ? Demandez conseil à votre coach impitoyable.</p>
+          <p class="coach-desc">Hesitating on an expense or facing a dilemma? Ask your relentless coach for advice.</p>
         </div>
         <ion-button fill="clear" color="primary" class="coach-action-btn">
           <ion-icon slot="icon-only" name="chatbubbles-outline"></ion-icon>
@@ -76,28 +76,28 @@
     <div class="section-wrapper">
       <div class="section-header-row">
         <div>
-          <h3 class="section-title">Achats Évalués (Anti-Pulsion)</h3>
-          <p class="section-sub-desc">Gérez vos réflexions de 48h et célébrez vos victoires</p>
+          <h3 class="section-title">Considered Purchases (Anti-Impulse)</h3>
+          <p class="section-sub-desc">Manage your 48h cooling-off and celebrate your savings</p>
         </div>
         <ion-badge color="secondary" class="avoided-total-badge" *ngIf="totalAvoidedGhs > 0">
           <ion-icon name="trophy-outline"></ion-icon>
-          +{{ totalAvoidedGhs.toFixed(0) }} GHS Épargnés
+          +{{ totalAvoidedGhs.toFixed(0) }} GHS Saved
         </ion-badge>
       </div>
 
       <!-- Segment Filters (Story 2.5) -->
       <ion-segment [(ngModel)]="selectedFilter" class="purchase-segment">
         <ion-segment-button value="all">
-          <ion-label>Tous ({{ allPurchases.length }})</ion-label>
+          <ion-label>All ({{ allPurchases.length }})</ion-label>
         </ion-segment-button>
         <ion-segment-button value="pending">
-          <ion-label>En réflexion ({{ pendingCount }})</ion-label>
+          <ion-label>Thinking ({{ pendingCount }})</ion-label>
         </ion-segment-button>
         <ion-segment-button value="abandoned">
-          <ion-label>Épargnés ({{ abandonedCount }})</ion-label>
+          <ion-label>Saved ({{ abandonedCount }})</ion-label>
         </ion-segment-button>
         <ion-segment-button value="bought">
-          <ion-label>Achetés ({{ boughtCount }})</ion-label>
+          <ion-label>Bought ({{ boughtCount }})</ion-label>
         </ion-segment-button>
       </ion-segment>
 
@@ -105,10 +105,10 @@
       <ion-card *ngIf="filteredPurchases.length === 0" class="empty-purchase-card ion-no-margin">
         <ion-card-content class="empty-content">
           <ion-icon name="shield-checkmark-outline" class="empty-icon"></ion-icon>
-          <p *ngIf="selectedFilter === 'pending'">Aucun achat en réflexion actuellement. Votre discipline est intacte !</p>
-          <p *ngIf="selectedFilter === 'abandoned'">Aucun achat abandonné pour le moment. Résistez à une pulsion pour alimenter vos victoires !</p>
-          <p *ngIf="selectedFilter === 'bought'">Aucun achat impulsif validé.</p>
-          <p *ngIf="selectedFilter === 'all'">Aucun achat évalué pour le moment. Utilisez « I want to buy » dès que vous avez une envie !</p>
+          <p *ngIf="selectedFilter === 'pending'">No pending purchases currently. Your financial discipline is intact!</p>
+          <p *ngIf="selectedFilter === 'abandoned'">No abandoned purchases yet. Resist an impulse to earn your victories!</p>
+          <p *ngIf="selectedFilter === 'bought'">No impulse purchases completed.</p>
+          <p *ngIf="selectedFilter === 'all'">No evaluated purchases yet. Tap "I want to buy" whenever an urge strikes!</p>
         </ion-card-content>
       </ion-card>
 
@@ -130,12 +130,12 @@
 
               <ion-badge *ngIf="pur.status === 'abandoned'" color="secondary" class="pur-status-badge">
                 <ion-icon name="shield-checkmark-outline"></ion-icon>
-                Victoire Épargnée
+                Saved Victory
               </ion-badge>
 
               <ion-badge *ngIf="pur.status === 'bought'" color="medium" class="pur-status-badge">
                 <ion-icon name="cart-outline"></ion-icon>
-                Acheté
+                Bought
               </ion-badge>
             </div>
           </ion-card-header>
@@ -147,7 +147,7 @@
                 <span class="pur-equiv">≈ {{ currencyService.toXof(pur.amountGhs).toLocaleString() }} XOF</span>
               </div>
               <ion-note class="pur-reframing">
-                {{ pur.reframingText || (pur.costInBudgetDays + ' jours de budget campus') }}
+                {{ pur.reframingText || (pur.costInBudgetDays + ' campus budget days') }}
               </ion-note>
             </div>
 
@@ -159,7 +159,7 @@
                 (click)="abandonPurchase(pur)"
                 id="btn-abandon-{{ pur.id }}">
                 <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
-                <span>Renoncer (+{{ pur.amountGhs.toFixed(0) }} GHS épargnés)</span>
+                <span>Resist (+{{ pur.amountGhs.toFixed(0) }} GHS saved)</span>
               </ion-button>
 
               <ion-button
@@ -170,7 +170,7 @@
                 (click)="buyPurchase(pur)"
                 id="btn-buy-{{ pur.id }}">
                 <ion-icon slot="start" name="cart-outline"></ion-icon>
-                <span>Acheter quand même</span>
+                <span>Buy anyway</span>
               </ion-button>
             </div>
           </ion-card-content>

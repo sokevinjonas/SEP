@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { openDB, DBSchema, IDBPDatabase } from 'idb';
+import { Subject } from 'rxjs';
 import { Expense, Category, MonthlyBudget, Purchase, SyncItem, UserProfile } from '../models/financial.models';
 
 export interface SepDbSchema extends DBSchema {
@@ -37,6 +38,7 @@ export interface SepDbSchema extends DBSchema {
 })
 export class DatabaseService {
   private dbPromise: Promise<IDBPDatabase<SepDbSchema>>;
+  public readonly dataChanged$ = new Subject<void>();
 
   constructor() {
     this.dbPromise = this.initDb();
@@ -174,6 +176,7 @@ export class DatabaseService {
       createdAt: new Date().toISOString()
     });
     await tx.done;
+    this.dataChanged$.next();
   }
 
   async deleteExpense(id: string): Promise<void> {
@@ -189,6 +192,7 @@ export class DatabaseService {
       createdAt: new Date().toISOString()
     });
     await tx.done;
+    this.dataChanged$.next();
   }
 
   // Category Methods
@@ -200,6 +204,7 @@ export class DatabaseService {
   async addCategory(category: Category): Promise<void> {
     const db = await this.dbPromise;
     await db.put('categories', category);
+    this.dataChanged$.next();
   }
 
   // Budget Methods
@@ -223,6 +228,7 @@ export class DatabaseService {
   async saveMonthlyBudget(budget: MonthlyBudget): Promise<void> {
     const db = await this.dbPromise;
     await db.put('monthly_budgets', budget);
+    this.dataChanged$.next();
   }
 
   // Purchase Methods (Anti-Pulsion & Wishlist)
@@ -248,6 +254,7 @@ export class DatabaseService {
       createdAt: new Date().toISOString()
     });
     await tx.done;
+    this.dataChanged$.next();
   }
 
   async updatePurchase(purchase: Purchase): Promise<void> {
@@ -263,6 +270,7 @@ export class DatabaseService {
       createdAt: new Date().toISOString()
     });
     await tx.done;
+    this.dataChanged$.next();
   }
 
   async getAvoidedTotal(): Promise<number> {
@@ -311,6 +319,7 @@ export class DatabaseService {
     const db = await this.dbPromise;
     profile.updatedAt = new Date().toISOString();
     await db.put('user_profile', profile);
+    this.dataChanged$.next();
   }
 
   async clearAllData(): Promise<void> {
@@ -319,5 +328,6 @@ export class DatabaseService {
     await db.clear('purchases');
     await db.clear('sync_queue');
     await this.seedDefaultsIfEmpty(db);
+    this.dataChanged$.next();
   }
 }
