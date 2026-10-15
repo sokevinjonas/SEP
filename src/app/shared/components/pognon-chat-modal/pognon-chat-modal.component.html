@@ -14,8 +14,11 @@
     </div>
 
     <ion-buttons slot="end">
-      <ion-button (click)="dismiss()" fill="clear" color="medium" id="btn-close-chat">
-        <ion-icon name="close-outline"></ion-icon>
+      <ion-button (click)="clearChat()" fill="clear" color="medium" title="Clear chat history" *ngIf="messages.length > 1">
+        <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+      </ion-button>
+      <ion-button (click)="dismiss()" fill="clear" color="medium" id="btn-close-chat" aria-label="Close">
+        <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
   </ion-toolbar>

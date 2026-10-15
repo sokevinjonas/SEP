@@ -342,6 +342,58 @@ async function checkCategoryThreshold(env: Env, resend: ResendService, categoryI
   }
 }
 
+// Helper: Get dynamically configured monthly budget from D1 (or fallback)
+async function getDynamicBudgetCeiling(env: Env): Promise<{ totalBudgetGhs: number; plannedDailyBudgetGhs: number }> {
+  try {
+    const currentMonthKey = new Date().toISOString().substring(0, 7);
+    const row = await env.DB.prepare(`
+      SELECT totalBudgetGhs, plannedDailyBudgetGhs FROM monthly_budgets
+      WHERE monthYear = ? OR id = ? OR id = 'current'
+      ORDER BY totalBudgetGhs DESC
+      LIMIT 1
+    `).bind(currentMonthKey, currentMonthKey).first<{ totalBudgetGhs: number; plannedDailyBudgetGhs: number }>();
+
+    if (row && row.totalBudgetGhs > 0) {
+      return {
+        totalBudgetGhs: row.totalBudgetGhs,
+        plannedDailyBudgetGhs: row.plannedDailyBudgetGhs || Math.round(row.totalBudgetGhs / 30)
+      };
+    }
+
+    const fallbackRow = await env.DB.prepare(`
+      SELECT totalBudgetGhs, plannedDailyBudgetGhs FROM monthly_budgets
+      ORDER BY totalBudgetGhs DESC
+      LIMIT 1
+    `).first<{ totalBudgetGhs: number; plannedDailyBudgetGhs: number }>();
+
+    if (fallbackRow && fallbackRow.totalBudgetGhs > 0) {
+      return {
+        totalBudgetGhs: fallbackRow.totalBudgetGhs,
+        plannedDailyBudgetGhs: fallbackRow.plannedDailyBudgetGhs || Math.round(fallbackRow.totalBudgetGhs / 30)
+      };
+    }
+  } catch (err) {
+    console.warn('[getDynamicBudgetCeiling] Could not read monthly_budgets table, falling back to 600', err);
+  }
+
+  return { totalBudgetGhs: 600.0, plannedDailyBudgetGhs: 20.0 };
+}
+
+// Helper: Get student name from user_profiles D1 table (or fallback)
+async function getStudentName(env: Env): Promise<string> {
+  try {
+    const row = await env.DB.prepare(`
+      SELECT name FROM user_profiles LIMIT 1
+    `).first<{ name: string }>();
+    if (row?.name && row.name.trim()) {
+      return row.name.trim();
+    }
+  } catch (err) {
+    console.warn('[getStudentName] Could not read user_profiles, defaulting to Jonas', err);
+  }
+  return 'Jonas';
+}
+
 // Helper: Build aggregated financial summary for LLM prompt (AD-7)
 async function buildFinancialSummary(env: Env): Promise<string> {
   const currentMonthKey = new Date().toISOString().substring(0, 7);
@@ -351,7 +403,8 @@ async function buildFinancialSummary(env: Env): Promise<string> {
   `).bind(currentMonthKey).first<{ total: number }>();
 
   const totalSpent = totalSpentRow?.total || 0;
-  const plannedBudget = 600.0; // Standard monthly ceiling
+  const budgetInfo = await getDynamicBudgetCeiling(env);
+  const plannedBudget = budgetInfo.totalBudgetGhs;
   const balance = Math.max(0, plannedBudget - totalSpent);
 
   const now = new Date();
@@ -365,15 +418,18 @@ async function buildFinancialSummary(env: Env): Promise<string> {
 
   const pendingText = pendingPurchases.results?.length
     ? pendingPurchases.results.map(p => `${p.itemName} (${p.amountGhs} GHS)`).join(', ')
-    : 'Aucun';
+    : 'None';
+
+  const studentName = await getStudentName(env);
 
   return `
-- Budget mensuel alloué : ${plannedBudget} GHS
-- Dépensé ce mois-ci : ${totalSpent.toFixed(2)} GHS
-- Solde disponible : ${balance.toFixed(2)} GHS
-- Jours restants : ${daysLeft} jours
-- Allocation quotidienne respiratoire : ${dailyAllowance.toFixed(2)} GHS/jour
-- Derniers achats en réflexion 48h : ${pendingText}
+- Student Name : ${studentName}
+- Monthly Allocated Budget Ceiling : ${plannedBudget} GHS
+- Spent this month : ${totalSpent.toFixed(2)} GHS
+- Available Breathing Balance : ${balance.toFixed(2)} GHS
+- Days remaining in month : ${daysLeft} days
+- Daily breathing allowance : ${dailyAllowance.toFixed(2)} GHS/day
+- Last items in 48h cooling-off wishlist : ${pendingText}
   `.trim();
 }
 
@@ -385,7 +441,8 @@ async function handleMorningRecapCron(env: Env, resend: ResendService): Promise<
   `).bind(currentMonthKey).first<{ total: number }>();
 
   const totalSpent = totalSpentRow?.total || 0;
-  const balance = Math.max(0, 600 - totalSpent);
+  const budgetInfo = await getDynamicBudgetCeiling(env);
+  const balance = Math.max(0, budgetInfo.totalBudgetGhs - totalSpent);
   const now = new Date();
   const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
   const daysLeft = Math.max(1, daysInMonth - now.getDate());

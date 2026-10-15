@@ -125,24 +125,32 @@
         </ion-label>
       </ion-item>
 
-      <ion-item *ngFor="let exp of recentExpenses()" lines="full" class="log-item">
-        <ion-avatar slot="start" class="log-avatar">
-          <ion-icon
-            [name]="getCategoryIcon(exp.categoryId === 'cat-food' ? 'restaurant-outline' : exp.categoryId === 'cat-transport' ? 'bus-outline' : 'book-outline')"></ion-icon>
-        </ion-avatar>
+      <ion-item-sliding *ngFor="let exp of recentExpenses()" #slidingItem class="log-sliding-item">
+        <ion-item lines="none" class="log-item">
+          <ion-avatar slot="start" class="log-avatar">
+            <ion-icon
+              [name]="getCategoryIcon(exp.categoryId === 'cat-food' ? 'restaurant-outline' : exp.categoryId === 'cat-transport' ? 'bus-outline' : 'book-outline')"></ion-icon>
+          </ion-avatar>
 
-        <ion-label>
-          <h3 class="log-title">{{ exp.merchant || exp.categoryName }}</h3>
-          <p class="log-meta">{{ exp.categoryName }} · {{ exp.date | date:'dd MMM, HH:mm' }}</p>
-        </ion-label>
+          <ion-label>
+            <h3 class="log-title">{{ exp.merchant || exp.categoryName }}</h3>
+            <p class="log-meta">{{ exp.categoryName }} · {{ exp.date | date:'dd MMM, HH:mm' }}</p>
+          </ion-label>
 
-        <ion-note slot="end" class="log-end-note">
-          <span class="log-price">-{{ exp.amount.toFixed(2) }} {{ exp.currency }}</span>
-          <span class="log-equiv" *ngIf="exp.currency === 'GHS'">
-            {{ currencyService.formatEquiv(exp.amount) }}
-          </span>
-        </ion-note>
-      </ion-item>
+          <ion-note slot="end" class="log-end-note">
+            <span class="log-price">-{{ exp.amount.toFixed(2) }} {{ exp.currency }}</span>
+            <span class="log-equiv" *ngIf="exp.currency === 'GHS'">
+              {{ currencyService.formatEquiv(exp.amount) }}
+            </span>
+          </ion-note>
+        </ion-item>
+
+        <ion-item-options side="end">
+          <ion-item-option color="danger" class="delete-option-btn" (click)="confirmDeleteExpense(exp, slidingItem)" aria-label="Delete expense">
+            <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+          </ion-item-option>
+        </ion-item-options>
+      </ion-item-sliding>
     </ion-list>
 
   </div>

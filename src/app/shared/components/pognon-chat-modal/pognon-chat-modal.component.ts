@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -26,7 +26,8 @@ import {
   shieldCheckmarkOutline,
   flameOutline,
   cloudOfflineOutline,
-  chatbubblesOutline
+  chatbubblesOutline,
+  trashOutline
 } from 'ionicons/icons';
 import { ProfileFacade } from '../../../features/profile/facade/profile.facade';
 import { BudgetFacade } from '../../../features/budget/facade/budget.facade';
@@ -43,6 +44,8 @@ export interface ChatMessage {
   text: string;
   time: string;
 }
+
+const CHAT_STORAGE_KEY = 'student_savings_pognon_chat_history';
 
 @Component({
   selector: 'app-pognon-chat-modal',
@@ -67,6 +70,8 @@ export interface ChatMessage {
   styleUrls: ['./pognon-chat-modal.component.scss']
 })
 export class PognonChatModalComponent implements OnInit {
+  @ViewChild(IonContent, { static: false }) content?: IonContent;
+
   isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
   userInput = '';
   isTyping = false;
@@ -100,13 +105,14 @@ export class PognonChatModalComponent implements OnInit {
       shieldCheckmarkOutline,
       flameOutline,
       cloudOfflineOutline,
-      chatbubblesOutline
+      chatbubblesOutline,
+      trashOutline
     });
   }
 
   async ngOnInit(): Promise<void> {
     await this.loadFinancialContext();
-    this.initWelcomeMessage();
+    this.restoreOrInitMessages();
   }
 
   private async loadFinancialContext(): Promise<void> {
@@ -124,6 +130,23 @@ export class PognonChatModalComponent implements OnInit {
     this.pendingPurchases = [...this.purchasesFacade.pendingPurchases()];
   }
 
+  private restoreOrInitMessages(): void {
+    const saved = localStorage.getItem(CHAT_STORAGE_KEY);
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          this.messages = parsed;
+          setTimeout(() => this.scrollToBottom(), 200);
+          return;
+        }
+      } catch {
+        // Fallback to init
+      }
+    }
+    this.initWelcomeMessage();
+  }
+
   private initWelcomeMessage(): void {
     const studentName = this.userProfile?.name ? this.userProfile.name : 'friend';
     const balance = this.consumption ? this.consumption.balanceGhs.toFixed(2) : '600.00';
@@ -137,6 +160,22 @@ export class PognonChatModalComponent implements OnInit {
         time: this.formatNow()
       }
     ];
+    this.saveChatHistory();
+    setTimeout(() => this.scrollToBottom(), 200);
+  }
+
+  private saveChatHistory(): void {
+    try {
+      const recent = this.messages.slice(-50);
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(recent));
+    } catch (e) {
+      console.warn('[PognonChat] Could not save chat history to storage', e);
+    }
+  }
+
+  clearChat(): void {
+    localStorage.removeItem(CHAT_STORAGE_KEY);
+    this.initWelcomeMessage();
   }
 
   sendSuggestion(suggestion: string): void {
@@ -155,6 +194,8 @@ export class PognonChatModalComponent implements OnInit {
       text,
       time: this.formatNow()
     });
+    this.saveChatHistory();
+    this.scrollToBottom();
 
     this.userInput = '';
     this.isTyping = true;
@@ -185,7 +226,9 @@ export class PognonChatModalComponent implements OnInit {
               text: data.reply,
               time: this.formatNow()
             });
+            this.saveChatHistory();
             this.isTyping = false;
+            this.scrollToBottom();
             return;
           }
         }
@@ -198,6 +241,7 @@ export class PognonChatModalComponent implements OnInit {
     setTimeout(() => {
       this.generatePognonResponse(text);
       this.isTyping = false;
+      this.scrollToBottom();
     }, 600);
   }
 
@@ -226,6 +270,13 @@ export class PognonChatModalComponent implements OnInit {
       text: reply,
       time: this.formatNow()
     });
+    this.saveChatHistory();
+  }
+
+  private scrollToBottom(): void {
+    setTimeout(() => {
+      this.content?.scrollToBottom(250);
+    }, 50);
   }
 
   private formatNow(): string {

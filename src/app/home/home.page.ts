@@ -19,8 +19,13 @@ import {
   IonList,
   IonListHeader,
   IonItem,
+  IonItemSliding,
+  IonItemOptions,
+  IonItemOption,
   IonIcon,
-  ModalController
+  ModalController,
+  AlertController,
+  ToastController
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -37,8 +42,10 @@ import {
   ellipsisHorizontalCircleOutline,
   trophyOutline,
   chatbubblesOutline,
-  sparklesOutline
+  sparklesOutline,
+  trashOutline
 } from 'ionicons/icons';
+import { Expense } from '../core/models/financial.models';
 import { ExpensesFacade } from '../features/expenses/facade/expenses.facade';
 import { PurchasesFacade } from '../features/purchases/facade/purchases.facade';
 import { BudgetFacade } from '../features/budget/facade/budget.facade';
@@ -70,6 +77,9 @@ import { PognonChatModalComponent } from '../shared/components/pognon-chat-modal
     IonList,
     IonListHeader,
     IonItem,
+    IonItemSliding,
+    IonItemOptions,
+    IonItemOption,
     IonIcon,
     CurrencyPillComponent,
     BreathingBadgeComponent
@@ -94,7 +104,9 @@ export class HomePage implements OnInit {
     public readonly profileFacade: ProfileFacade,
     public readonly currencyService: CurrencyService,
     private readonly router: Router,
-    private readonly modalCtrl: ModalController
+    private readonly modalCtrl: ModalController,
+    private readonly alertCtrl: AlertController,
+    private readonly toastCtrl: ToastController
   ) {
     addIcons({
       optionsOutline,
@@ -110,7 +122,8 @@ export class HomePage implements OnInit {
       ellipsisHorizontalCircleOutline,
       trophyOutline,
       chatbubblesOutline,
-      sparklesOutline
+      sparklesOutline,
+      trashOutline
     });
   }
 
@@ -146,6 +159,37 @@ export class HomePage implements OnInit {
       cssClass: 'pognon-chat-modal'
     });
     await modal.present();
+  }
+
+  async confirmDeleteExpense(expense: Expense, slidingItem?: any): Promise<void> {
+    if (slidingItem?.close) {
+      slidingItem.close();
+    }
+    const alert = await this.alertCtrl.create({
+      header: 'Delete Expense?',
+      message: `Do you want to delete "${expense.merchant || expense.categoryName}" (${expense.amount.toFixed(2)} ${expense.currency})?`,
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Delete',
+          role: 'destructive',
+          handler: async () => {
+            await this.expensesFacade.deleteExpense(expense.id);
+            const toast = await this.toastCtrl.create({
+              message: 'Expense removed.',
+              duration: 2000,
+              color: 'dark',
+              position: 'top'
+            });
+            await toast.present();
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 
   getCategoryIcon(iconName: string): string {

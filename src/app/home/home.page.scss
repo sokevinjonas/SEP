@@ -382,12 +382,33 @@
   }
 }
 
+.log-sliding-item {
+  margin-bottom: 8px;
+  border-radius: 14px;
+  overflow: hidden;
+
+  .log-item {
+    margin-bottom: 0;
+  }
+
+  ion-item-options {
+    border-bottom: none;
+  }
+
+  .delete-option-btn {
+    --background: var(--sep-danger, #c0392b);
+    --color: #ffffff;
+    font-size: 20px;
+    padding: 0 16px;
+    border-radius: 0 14px 14px 0;
+  }
+}
+
 .log-item {
   --background: var(--sep-card, #FFFFFF);
   --border-radius: 14px;
   --padding-start: 12px;
   --inner-padding-end: 12px;
-  margin-bottom: 8px;
   border: 1px solid var(--sep-line, #EADFE7);
   box-shadow: 0 1px 4px rgba(113, 75, 103, 0.03);
 }

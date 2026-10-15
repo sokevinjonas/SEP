@@ -29,6 +29,13 @@ export class SyncService {
       window.addEventListener('online', () => {
         this.flushPendingSync();
       });
+
+      // Auto-flush pending mutations on app startup if already online
+      if (typeof navigator !== 'undefined' && navigator.onLine) {
+        setTimeout(() => {
+          this.flushPendingSync();
+        }, 1500);
+      }
     }
   }
 
@@ -109,7 +116,7 @@ export class SyncService {
    */
   async backupToCloud(): Promise<{ success: boolean; stats?: any; error?: string }> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, error: 'Vous êtes hors-ligne. Connexion Internet requise pour la sauvegarde Cloud.' };
+      return { success: false, error: 'You are offline. An active Internet connection is required for Cloud backup.' };
     }
 
     try {
@@ -130,14 +137,14 @@ export class SyncService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        return { success: false, error: `Erreur serveur (${response.status}) lors de la sauvegarde.` };
+        return { success: false, error: `Server error (${response.status}) during Cloud backup.` };
       }
 
       const result = await response.json();
       this.lastSyncedAt = new Date().toISOString();
       return { success: true, stats: result.stats };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Impossible de joindre le serveur Cloudflare.' };
+      return { success: false, error: err.message || 'Unable to reach Cloudflare Worker server.' };
     }
   }
 
@@ -146,7 +153,7 @@ export class SyncService {
    */
   async restoreFromCloud(): Promise<{ success: boolean; stats?: { expenses: number; purchases: number; categories: number }; error?: string }> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, error: 'Vous êtes hors-ligne. Connexion requise pour restaurer depuis le Cloud.' };
+      return { success: false, error: 'You are offline. An active Internet connection is required to restore from Cloud.' };
     }
 
     try {
@@ -163,7 +170,7 @@ export class SyncService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        return { success: false, error: `Erreur serveur (${response.status}) lors de la restauration.` };
+        return { success: false, error: `Server error (${response.status}) during Cloud restore.` };
       }
 
       const data = await response.json();
@@ -172,7 +179,7 @@ export class SyncService {
 
       return { success: true, stats };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Impossible de joindre le serveur Cloudflare.' };
+      return { success: false, error: err.message || 'Unable to reach Cloudflare Worker server.' };
     }
   }
 }
