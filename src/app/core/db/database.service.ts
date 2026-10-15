@@ -155,6 +155,12 @@ export class DatabaseService {
     return all.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
   }
 
+  async checkDuplicateReference(ref: string): Promise<Expense | undefined> {
+    if (!ref || !ref.trim()) return undefined;
+    const all = await this.getExpenses();
+    return all.find(e => e.transactionRef && e.transactionRef.toLowerCase() === ref.trim().toLowerCase());
+  }
+
   async addExpense(expense: Expense): Promise<void> {
     const db = await this.dbPromise;
     const tx = db.transaction(['expenses', 'sync_queue'], 'readwrite');
@@ -268,6 +274,11 @@ export class DatabaseService {
   async getSyncQueue(): Promise<SyncItem[]> {
     const db = await this.dbPromise;
     return db.getAll('sync_queue');
+  }
+
+  async updateSyncItem(item: SyncItem): Promise<void> {
+    const db = await this.dbPromise;
+    await db.put('sync_queue', item);
   }
 
   getCurrentMonthKey(): string {

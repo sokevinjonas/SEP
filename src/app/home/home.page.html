@@ -11,9 +11,6 @@
 
     <ion-buttons slot="end" class="header-buttons">
       <app-currency-pill></app-currency-pill>
-      <ion-button (click)="openSettings()" id="btn-settings" fill="clear" aria-label="Settings">
-        <ion-icon slot="icon-only" name="options-outline"></ion-icon>
-      </ion-button>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
@@ -31,7 +28,8 @@
 
         <div class="balance-hero">
           <span class="balance-amount">
-            {{ currencyService.activeCurrency() === 'GHS' ? consumption.balanceGhs.toFixed(2) : currencyService.toXof(consumption.balanceGhs).toLocaleString() }}
+            {{ currencyService.activeCurrency() === 'GHS' ? consumption.balanceGhs.toFixed(2) :
+            currencyService.toXof(consumption.balanceGhs).toLocaleString() }}
           </span>
           <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
         </div>
@@ -43,9 +41,7 @@
 
       <ion-card-content>
         <!-- Official Ionic Progress Bar -->
-        <ion-progress-bar
-          class="budget-progress-bar"
-          [value]="consumption.consumedPercent / 100"
+        <ion-progress-bar class="budget-progress-bar" [value]="consumption.consumedPercent / 100"
           [color]="consumption.status === 'safe' ? 'secondary' : (consumption.status === 'warning' ? 'warning' : 'danger')">
         </ion-progress-bar>
 
@@ -67,40 +63,50 @@
     </ion-card>
 
     <!-- Avoided Total Reward Card (Official ion-card) -->
-    <ion-card class="avoided-card ion-no-margin">
+    <ion-card class="avoided-card ion-no-margin" [class.celebrating]="isCelebratingAvoided">
       <ion-card-content class="avoided-card-content">
         <div class="avoided-text">
           <ion-badge color="secondary" class="avoided-badge">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
             Total Saved (Anti-Impulse)
+            <span *ngIf="isCelebratingAvoided"> +Victoire !</span>
           </ion-badge>
           <h3 class="avoided-amount">{{ currencyService.formatAmount(avoidedGhs) }}</h3>
           <ion-note class="avoided-note">Impulse purchases avoided this month</ion-note>
         </div>
-        <div class="avoided-icon-wrap">
-          <ion-icon name="trending-up-outline"></ion-icon>
+        <div class="avoided-icon-wrap" [class.celebrating-icon]="isCelebratingAvoided">
+          <ion-icon [name]="isCelebratingAvoided ? 'trophy-outline' : 'trending-up-outline'"></ion-icon>
         </div>
       </ion-card-content>
     </ion-card>
 
     <!-- Coach M. Pognon Card (Official ion-card) -->
-    <ion-card class="coach-card ion-no-margin">
+    <ion-card class="coach-card ion-no-margin" (click)="openPognonChat()" id="btn-home-coach-card"
+      style="cursor: pointer;">
       <ion-card-content class="coach-card-content">
         <ion-avatar class="coach-avatar">
           <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
         </ion-avatar>
         <div class="coach-body">
           <div class="coach-title-row">
-            <h4 class="coach-name">M. Pognon Advice</h4>
-            <ion-badge [color]="consumption.consumedPercent > 70 ? 'warning' : 'secondary'">
-              {{ consumption.consumedPercent > 70 ? '70% Alert' : 'On Track' }}
-            </ion-badge>
+            <h4 class="coach-name">M. Pognon</h4>
+            <div class="coach-tags-wrap">
+              <ion-badge [color]="consumption.consumedPercent > 70 ? 'warning' : 'secondary'">
+                {{ consumption.consumedPercent > 70 ? 'Alerte 70%' : 'Sur les rails' }}
+              </ion-badge>
+              <ion-chip class="coach-chat-pill" color="primary">
+                <ion-icon name="chatbubbles-outline"></ion-icon>
+                <ion-label>Discuter</ion-label>
+              </ion-chip>
+            </div>
           </div>
           <p class="coach-quote" *ngIf="consumption.consumedPercent > 70">
-            "{{ userProfile?.name || 'Student' }}, watch out for food and campus outings! Stick to the cafeteria rather than spontaneous buys to protect your month-end."
+            "{{ userProfile?.name || 'Étudiant' }}, attention à tes sorties et repas campus ! Privilégie la cafétéria
+            pour préserver ta fin de mois."
           </p>
           <p class="coach-quote" *ngIf="consumption.consumedPercent <= 70">
-            "Steady pace, {{ userProfile?.name || 'Student' }}. Your daily burn rate is healthy. Keep resisting impulses to preserve your safety cushion."
+            "Rythme régulier, {{ userProfile?.name || 'Étudiant' }}. Ton taux de consommation est sain. Touche pour me
+            consulter avant toute dépense !"
           </p>
         </div>
       </ion-card-content>
@@ -121,7 +127,8 @@
 
       <ion-item *ngFor="let exp of recentExpenses" lines="full" class="log-item">
         <ion-avatar slot="start" class="log-avatar">
-          <ion-icon [name]="getCategoryIcon(exp.categoryId === 'cat-food' ? 'restaurant-outline' : exp.categoryId === 'cat-transport' ? 'bus-outline' : 'book-outline')"></ion-icon>
+          <ion-icon
+            [name]="getCategoryIcon(exp.categoryId === 'cat-food' ? 'restaurant-outline' : exp.categoryId === 'cat-transport' ? 'bus-outline' : 'book-outline')"></ion-icon>
         </ion-avatar>
 
         <ion-label>

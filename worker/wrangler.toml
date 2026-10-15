@@ -1,0 +1,32 @@
+name = "sep-backend"
+main = "src/index.ts"
+compatibility_date = "2024-04-01"
+
+[vars]
+ENVIRONMENT = "production"
+APP_SECRET_TOKEN = "sep_secret_bearer_token_2026"
+RESEND_FROM_EMAIL = "M. Pognon <coach@kgslab.com>"
+JONAS_EMAIL = "jonas@kgslab.com"
+MONTHLY_AI_BUDGET_USD = "5.00"
+
+# D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "sep-d1"
+database_id = "sep-d1-placeholder-id"
+
+# R2 Object Storage for Receipt Captures
+[[r2_buckets]]
+binding = "CAPTURES_BUCKET"
+bucket_name = "sep-captures"
+
+# Scheduled Cron Triggers:
+# 1. 06:00 UTC (Ghana Morning Digest)
+# 2. 22:00 UTC (Ghana Evening Digest)
+# 3. Every hour (24h Cooling-Off follow-up check)
+[triggers]
+crons = [
+  "0 6 * * *",
+  "0 22 * * *",
+  "0 * * * *"
+]

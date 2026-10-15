@@ -1,0 +1,176 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="hesitation-toolbar">
+    <ion-buttons slot="start">
+      <ion-button *ngIf="step === 'hesitation'" (click)="backToInput()" fill="clear" color="medium">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+
+    <ion-title class="hesitation-title">
+      {{ step === 'input' ? 'Envie d\'achat' : 'Pause Réflexion (Anti-Pulsion)' }}
+    </ion-title>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear" color="medium" id="btn-close-hesitation">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="hesitation-content ion-padding">
+
+  <!-- =========================================================================
+       STEP 1: SAISIE DE L'ACHAT ENVISAGÉ
+       ========================================================================= -->
+  <div *ngIf="step === 'input'" class="input-step-container">
+    <div class="step-intro">
+      <div class="flame-badge">
+        <ion-icon name="flame-outline"></ion-icon>
+      </div>
+      <h2>Tu as repéré un article ?</h2>
+      <p>Prends 5 secondes pour l'évaluer avant de sortir ton argent.</p>
+    </div>
+
+    <!-- Form Inputs -->
+    <div class="input-card">
+      <ion-item lines="none" class="hesitation-input-item">
+        <ion-label position="stacked">Nom de l'article ou de l'envie</ion-label>
+        <ion-input
+          [(ngModel)]="itemTitle"
+          placeholder="ex: Baskets, Écouteurs, Fast-food..."
+          class="title-field"
+          autofocus="true">
+        </ion-input>
+      </ion-item>
+
+      <ion-item lines="none" class="hesitation-input-item amount-item">
+        <ion-label position="stacked">Montant estimé ({{ currencyService.activeCurrency() }})</ion-label>
+        <div class="amount-input-row">
+          <ion-input
+            type="number"
+            [(ngModel)]="amountStr"
+            placeholder="0.00"
+            class="amount-field"
+            min="1">
+          </ion-input>
+          <span class="currency-tag">{{ currencyService.activeCurrency() }}</span>
+        </div>
+        <p class="equiv-note" *ngIf="amountNumber > 0">
+          ≈ {{ amountSecondary.toLocaleString() }} {{ currencyService.secondaryCurrency() }}
+        </p>
+      </ion-item>
+    </div>
+
+    <!-- Category selector -->
+    <div class="categories-section">
+      <span class="categories-label">Catégorie associée :</span>
+      <div class="categories-chips-scroll">
+        <ion-chip
+          *ngFor="let cat of categories"
+          class="category-select-chip"
+          [class.selected]="selectedCategory?.id === cat.id"
+          (click)="selectCategory(cat)">
+          <ion-icon [name]="cat.icon"></ion-icon>
+          <ion-label>{{ cat.name }}</ion-label>
+        </ion-chip>
+      </div>
+    </div>
+
+    <!-- Continue button -->
+    <div class="action-wrap">
+      <ion-button
+        expand="block"
+        size="large"
+        class="proceed-friction-btn"
+        (click)="proceedToHesitation()"
+        id="btn-evaluate-purchase">
+        <span>Confronter mon budget</span>
+        <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+      </ion-button>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       STEP 2: ÉCRAN D'HÉSITATION & CHOC PSYCHOLOGIQUE (Story 2.2)
+       ========================================================================= -->
+  <div *ngIf="step === 'hesitation'" class="hesitation-step-container">
+
+    <div class="hesitation-card">
+      <span class="badge-subtitle">ACHAT ENVISAGÉ</span>
+      <h3 class="hesitation-item-name">{{ itemTitle }}</h3>
+
+      <div class="price-hero">
+        <span class="main-price">{{ amountNumber.toFixed(2) }} {{ currencyService.activeCurrency() }}</span>
+        <span class="secondary-price">≈ {{ amountSecondary.toLocaleString() }} {{ currencyService.secondaryCurrency() }}</span>
+      </div>
+
+      <!-- Shock Number (Story 2.2 / FR5) -->
+      <div class="shock-days-wrap">
+        <div class="shock-number-badge">
+          <span class="shock-value">{{ computedCostDays }}</span>
+          <span class="shock-unit">Jours</span>
+        </div>
+        <div class="shock-meta">
+          <span class="budget-pct-tag">{{ budgetPercent }}% de ton budget mensuel</span>
+          <span class="basis-note">Calculé sur ton allocation journalière planifiée</span>
+        </div>
+      </div>
+
+      <!-- Concrete Reframing Alert (Story 2.2) -->
+      <div class="reframing-alert-card">
+        <div class="alert-icon-box">
+          <ion-icon name="alert-circle-outline"></ion-icon>
+        </div>
+        <div class="alert-text-body">
+          <span class="alert-title">Équivalence concrète campus :</span>
+          <p class="alert-desc">{{ concreteReframing }}</p>
+        </div>
+      </div>
+
+      <!-- Coach M. Pognon Bubble with coin avatar (Story 2.2) -->
+      <div class="coach-speech-bubble">
+        <ion-avatar class="coach-bubble-avatar">
+          <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+        </ion-avatar>
+        <div class="coach-speech-text">
+          <p class="coach-quote-line">
+            « {{ userProfile?.name || 'Étudiant' }}, je ne t'interdis rien. Mais regarde ces chiffres : est-ce une vraie nécessité aujourd'hui, ou tes économies méritent-elles d'être préservées ? »
+          </p>
+          <span class="coach-tag">M. Pognon · Conscience Financière</span>
+        </div>
+      </div>
+
+      <!-- Dual Choice Decision Buttons (No Guilt) (Story 2.3) -->
+      <div class="decision-buttons-stack">
+        <!-- Option 1: Je réfléchis (Période 48h) -->
+        <ion-button
+          expand="block"
+          size="large"
+          class="btn-think"
+          (click)="chooseToThink()"
+          id="btn-think-about-it">
+          <ion-icon slot="start" name="time-outline"></ion-icon>
+          <span>Je réfléchis (Sauvegarder {{ amountNumber.toFixed(0) }} {{ currencyService.activeCurrency() }})</span>
+        </ion-button>
+
+        <!-- Option 2: Oui, j'achète quand même -->
+        <ion-button
+          expand="block"
+          fill="outline"
+          class="btn-buy-anyway"
+          (click)="chooseToBuy()"
+          id="btn-buy-anyway">
+          <ion-icon slot="start" name="checkmark-outline"></ion-icon>
+          <span>Oui, j'achète quand même</span>
+        </ion-button>
+      </div>
+
+      <p class="hesitation-footnote">
+        En choisissant « Je réfléchis », cet achat est mis en pause 48h dans tes réflexions sans dépenser un seul centime.
+      </p>
+    </div>
+
+  </div>
+
+</ion-content>

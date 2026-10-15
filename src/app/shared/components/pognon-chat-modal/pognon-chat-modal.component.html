@@ -1,0 +1,95 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="chat-toolbar">
+    <div class="chat-header-profile" slot="start">
+      <ion-avatar class="coach-header-avatar">
+        <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+      </ion-avatar>
+      <div class="coach-header-info">
+        <h3 class="coach-name">M. Pognon</h3>
+        <p class="coach-status">
+          <span class="status-dot" [class.online]="isOnline"></span>
+          <span>{{ isOnline ? 'En ligne · Coach Impitoyable' : 'Hors-ligne' }}</span>
+        </p>
+      </div>
+    </div>
+
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" fill="clear" color="medium" id="btn-close-chat">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="chat-content ion-padding">
+
+  <!-- Offline Warning Banner (Story 4.1 AC) -->
+  <div class="offline-alert-banner" *ngIf="!isOnline">
+    <ion-icon name="cloud-offline-outline"></ion-icon>
+    <p>Pas de connexion. M. Pognon se repose jusqu'à votre reconnexion.</p>
+  </div>
+
+  <!-- Messages List -->
+  <div class="chat-messages-container">
+    <div
+      *ngFor="let msg of messages"
+      class="message-row"
+      [class.is-user]="msg.sender === 'user'"
+      [class.is-pognon]="msg.sender === 'pognon'">
+
+      <ion-avatar class="msg-avatar" *ngIf="msg.sender === 'pognon'">
+        <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+      </ion-avatar>
+
+      <div class="msg-bubble-wrap">
+        <div class="msg-bubble">
+          <p class="msg-text">{{ msg.text }}</p>
+        </div>
+        <span class="msg-time">{{ msg.time }}</span>
+      </div>
+    </div>
+
+    <!-- Typing indicator -->
+    <div class="message-row is-pognon typing-row" *ngIf="isTyping">
+      <ion-avatar class="msg-avatar">
+        <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+      </ion-avatar>
+      <div class="msg-bubble typing-bubble">
+        <ion-spinner name="dots" color="light"></ion-spinner>
+      </div>
+    </div>
+  </div>
+
+</ion-content>
+
+<ion-footer class="ion-no-border chat-footer">
+  <!-- Quick Suggestion Chips -->
+  <div class="suggestions-scroll" *ngIf="isOnline && messages.length <= 3">
+    <ion-chip
+      *ngFor="let sug of quickSuggestions"
+      class="sug-chip"
+      (click)="sendSuggestion(sug)">
+      <ion-icon name="sparkles-outline"></ion-icon>
+      <ion-label>{{ sug }}</ion-label>
+    </ion-chip>
+  </div>
+
+  <div class="input-bar-wrap">
+    <ion-input
+      [(ngModel)]="userInput"
+      (keyup.enter)="sendMessage()"
+      placeholder="Demander conseil à M. Pognon..."
+      [disabled]="!isOnline"
+      class="chat-input-field"
+      id="input-chat-pognon">
+    </ion-input>
+
+    <ion-button
+      (click)="sendMessage()"
+      [disabled]="!userInput.trim() || isTyping || !isOnline"
+      class="btn-send-chat"
+      id="btn-send-message">
+      <ion-icon slot="icon-only" name="send-outline"></ion-icon>
+    </ion-button>
+  </div>
+</ion-footer>

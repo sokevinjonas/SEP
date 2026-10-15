@@ -13,6 +13,7 @@ import { addIcons } from 'ionicons';
 import { homeOutline, cameraOutline, walletOutline, personOutline } from 'ionicons/icons';
 import { ActionBarComponent } from '../../shared/components/action-bar/action-bar.component';
 import { QuickLogModalComponent } from '../../shared/components/quick-log-modal/quick-log-modal.component';
+import { HesitationModalComponent } from '../../shared/components/hesitation-modal/hesitation-modal.component';
 
 @Component({
   selector: 'app-tabs',
@@ -38,13 +39,11 @@ export class TabsPage {
   }
 
   async handleWantToBuy(): Promise<void> {
-    const toast = await this.toastCtrl.create({
-      message: 'Reflection Pause (Anti-Impulse): Calculating budget days impact...',
-      duration: 2200,
-      color: 'tertiary',
-      position: 'top',
+    const modal = await this.modalCtrl.create({
+      component: HesitationModalComponent,
+      cssClass: 'hesitation-modal-sheet'
     });
-    await toast.present();
+    await modal.present();
   }
 
   async handleQuickLog(): Promise<void> {

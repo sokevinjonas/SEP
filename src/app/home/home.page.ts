@@ -21,7 +21,8 @@ import {
   IonList,
   IonListHeader,
   IonItem,
-  IonIcon
+  IonIcon,
+  ModalController
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -35,7 +36,10 @@ import {
   walletOutline,
   peopleOutline,
   flashOutline,
-  ellipsisHorizontalCircleOutline
+  ellipsisHorizontalCircleOutline,
+  trophyOutline,
+  chatbubblesOutline,
+  sparklesOutline
 } from 'ionicons/icons';
 import { DatabaseService } from '../core/db/database.service';
 import { CurrencyService } from '../core/services/currency.service';
@@ -43,6 +47,7 @@ import { BudgetCalculatorService, BudgetConsumption, BudgetDaysCalculation } fro
 import { Expense, MonthlyBudget, UserProfile } from '../core/models/financial.models';
 import { CurrencyPillComponent } from '../shared/components/currency-pill/currency-pill.component';
 import { BreathingBadgeComponent } from '../shared/components/breathing-badge/breathing-badge.component';
+import { PognonChatModalComponent } from '../shared/components/pognon-chat-modal/pognon-chat-modal.component';
 
 @Component({
   selector: 'app-home',
@@ -100,7 +105,8 @@ export class HomePage implements OnInit {
     private db: DatabaseService,
     public currencyService: CurrencyService,
     private budgetCalculator: BudgetCalculatorService,
-    private router: Router
+    private router: Router,
+    private modalCtrl: ModalController
   ) {
     addIcons({
       optionsOutline,
@@ -113,8 +119,21 @@ export class HomePage implements OnInit {
       walletOutline,
       peopleOutline,
       flashOutline,
-      ellipsisHorizontalCircleOutline
+      ellipsisHorizontalCircleOutline,
+      trophyOutline,
+      chatbubblesOutline,
+      sparklesOutline
     });
+  }
+
+  isCelebratingAvoided = false;
+
+  async openPognonChat(): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: PognonChatModalComponent,
+      cssClass: 'pognon-chat-modal'
+    });
+    await modal.present();
   }
 
   async ngOnInit() {
@@ -123,6 +142,13 @@ export class HomePage implements OnInit {
 
   async ionViewWillEnter() {
     await this.loadDashboardData();
+    if (sessionStorage.getItem('sep_celebrate_avoided') === 'true') {
+      sessionStorage.removeItem('sep_celebrate_avoided');
+      this.isCelebratingAvoided = true;
+      setTimeout(() => {
+        this.isCelebratingAvoided = false;
+      }, 4000);
+    }
   }
 
   async loadDashboardData() {
