@@ -58,7 +58,7 @@ export class AppComponent implements OnInit {
   }
 
   private updateNavigationVisibility(url: string): void {
-    const isExcluded = !url || url.includes('/onboarding');
+    const isExcluded = !url || url.includes('/onboarding') || url.includes('/register');
     this.showNavigation.set(!isExcluded);
   }
 

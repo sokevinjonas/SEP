@@ -8,6 +8,11 @@ export const routes: Routes = [
     canActivate: [onboardingGuard]
   },
   {
+    path: 'register',
+    loadComponent: () => import('./features/register/register.page').then((m) => m.RegisterPage),
+    canActivate: [onboardingGuard]
+  },
+  {
     path: '',
     canActivate: [onboardingGuard],
     children: [

@@ -53,9 +53,10 @@ export interface SyncItem {
 export interface UserProfile {
   id: 'current_user';
   name: string;
+  country?: string;
   city: string;
   campus: string;
-  primaryCurrency: 'GHS' | 'XOF';
+  primaryCurrency: 'GHS' | 'XOF' | string;
   hasCompletedOnboarding: boolean;
   createdAt: string;
   updatedAt: string;

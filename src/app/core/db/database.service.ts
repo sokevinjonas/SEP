@@ -334,8 +334,9 @@ export class DatabaseService {
     const fallback: UserProfile = {
       id: 'current_user',
       name: 'Jonas',
+      country: 'Ghana',
       city: 'Accra',
-      campus: 'Campus Legon',
+      campus: 'University of Ghana (Legon)',
       primaryCurrency: 'GHS',
       hasCompletedOnboarding: false,
       createdAt: new Date().toISOString(),

@@ -1,0 +1,216 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="register-toolbar">
+    <ion-button slot="start" fill="clear" class="back-nav-btn" (click)="goBack()" aria-label="Back">
+      <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
+    </ion-button>
+    <ion-title class="register-title">Student Profile &amp; Campus</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="register-content ion-padding">
+  <div class="register-container">
+
+    <!-- Header Description Card -->
+    <div class="intro-banner">
+      <h2 class="banner-heading">Set Up Your Campus Profile</h2>
+      <p class="banner-sub">
+        Choose your study country and city to automatically sync your local currency and campus budget.
+      </p>
+    </div>
+
+    <!-- Student Identity & Campus Card (Official ion-card) -->
+    <ion-card class="form-card ion-no-margin">
+      <ion-card-header>
+        <div class="card-title-row">
+          <ion-icon name="person-outline" class="title-icon"></ion-icon>
+          <ion-card-title class="card-heading">Identity &amp; Location</ion-card-title>
+        </div>
+        <ion-card-subtitle class="card-subheading">
+          All details remain strictly stored on your phone.
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="ion-no-padding">
+        <ion-list lines="none" class="register-list">
+
+          <!-- Name Input -->
+          <ion-item class="custom-item">
+            <ion-icon name="person-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-input
+              label="Student Name or Nickname *"
+              labelPlacement="stacked"
+              placeholder="e.g. Jonas"
+              [(ngModel)]="userName">
+            </ion-input>
+          </ion-item>
+
+          <!-- Country Selection (from External API) -->
+          <ion-item class="custom-item select-item">
+            <ion-icon name="globe-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-select
+              label="Country of Study *"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [value]="selectedCountry"
+              (ionChange)="onCountryChanged($event.detail.value)"
+              placeholder="Select Country">
+              <ion-select-option *ngFor="let c of countries" [value]="c.name">
+                {{ c.flag }} {{ c.name }} ({{ c.currency }})
+              </ion-select-option>
+            </ion-select>
+            <ion-spinner *ngIf="isLoadingCountries" name="dots" slot="end" class="field-spinner"></ion-spinner>
+          </ion-item>
+
+          <!-- City Selection (dynamically populated based on country) -->
+          <ion-item class="custom-item select-item">
+            <ion-icon name="business-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-select
+              label="City of Study *"
+              labelPlacement="stacked"
+              interface="action-sheet"
+              [value]="selectedCity"
+              (ionChange)="onCityChanged($event.detail.value)"
+              [disabled]="isLoadingCities || cities.length === 0"
+              placeholder="Select City">
+              <ion-select-option *ngFor="let city of cities" [value]="city">
+                {{ city }}
+              </ion-select-option>
+            </ion-select>
+            <ion-spinner *ngIf="isLoadingCities" name="dots" slot="end" class="field-spinner"></ion-spinner>
+          </ion-item>
+
+          <!-- Campus (Editable Text Field + Suggested Quick Chips) -->
+          <div class="campus-section">
+            <ion-item class="custom-item">
+              <ion-icon name="school-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input
+                label="University Campus (Editable) *"
+                labelPlacement="stacked"
+                placeholder="e.g. University of Ghana (Legon)"
+                [(ngModel)]="campus">
+              </ion-input>
+            </ion-item>
+
+            <!-- Quick Suggestion Chips (User can tap to fill or edit freely) -->
+            <div class="campus-chips-wrap" *ngIf="suggestedCampuses.length > 0">
+              <span class="chips-hint">Suggested Campuses in {{ selectedCountry }} (tap to select or edit above) :</span>
+              <div class="chips-scroll">
+                <ion-chip
+                  *ngFor="let camp of suggestedCampuses"
+                  class="campus-chip"
+                  [class.active]="campus === camp"
+                  (click)="selectSuggestedCampus(camp)">
+                  <ion-label>{{ camp }}</ion-label>
+                </ion-chip>
+              </div>
+            </div>
+          </div>
+
+        </ion-list>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Currencies & Monthly Ceiling Card -->
+    <ion-card class="form-card ion-no-margin">
+      <ion-card-header>
+        <div class="card-title-row">
+          <ion-icon name="wallet-outline" class="title-icon"></ion-icon>
+          <ion-card-title class="card-heading">Currencies &amp; Budget Ceiling</ion-card-title>
+        </div>
+        <ion-card-subtitle class="card-subheading">
+          Real-time currency exchange rates and monthly spending ceiling.
+        </ion-card-subtitle>
+      </ion-card-header>
+
+      <ion-card-content class="ion-no-padding">
+        <!-- Live Rate Engine Box -->
+        <div class="live-rate-box">
+          <div class="rate-status-row">
+            <div class="rate-meta">
+              <span class="rate-badge">
+                <ion-icon name="globe-outline"></ion-icon>
+                Live Market Engine
+              </span>
+              <p class="rate-status-text">{{ rateStatusText || 'Live rates active' }}</p>
+            </div>
+
+            <ion-button
+              fill="outline"
+              size="small"
+              class="refresh-rate-btn"
+              [disabled]="isFetchingLiveRate"
+              (click)="fetchLiveRate()">
+              <ion-spinner *ngIf="isFetchingLiveRate" name="crescent" slot="start"></ion-spinner>
+              <ion-icon *ngIf="!isFetchingLiveRate" name="refresh-outline" slot="start"></ion-icon>
+              <span>{{ isFetchingLiveRate ? 'Fetching...' : 'Fetch Live' }}</span>
+            </ion-button>
+          </div>
+
+          <!-- Applied Negotiated / Street Rate -->
+          <ion-item class="custom-item embedded-rate" lines="none">
+            <ion-icon name="cash-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-input
+              type="number"
+              [label]="'Applied Rate (1 ' + primaryCurrency + ' in ' + secondaryCurrency + ')'"
+              labelPlacement="stacked"
+              placeholder="e.g. 42.0"
+              [(ngModel)]="exchangeRate"
+              min="0.01"
+              step="0.1">
+            </ion-input>
+          </ion-item>
+          <p class="rate-hint">
+            You can use the live market API rate or customize to your negotiated street rate.
+          </p>
+        </div>
+
+        <!-- Monthly Budget Ceiling Input -->
+        <div class="budget-ceiling-section">
+          <ion-item class="custom-item" lines="none">
+            <ion-icon name="wallet-outline" slot="start" class="input-icon"></ion-icon>
+            <ion-input
+              type="number"
+              [label]="'Monthly Budget Ceiling (' + primaryCurrency + ') *'"
+              labelPlacement="stacked"
+              placeholder="e.g. 600"
+              [(ngModel)]="monthlyBudget"
+              min="10"
+              step="10">
+            </ion-input>
+          </ion-item>
+
+          <!-- Live Dynamic Allowance Preview -->
+          <div class="allowance-preview-card">
+            <div class="preview-item">
+              <span class="preview-label">Daily Allowance</span>
+              <span class="preview-val">{{ dailyAllowance.toFixed(2) }} {{ primaryCurrency }} / day</span>
+              <span class="preview-sub">≈ {{ dailyAllowanceSecondary.toLocaleString() }} {{ secondaryCurrency }}</span>
+            </div>
+
+            <div class="preview-divider"></div>
+
+            <div class="preview-item">
+              <span class="preview-label">Campus Meals</span>
+              <span class="preview-val">≈ {{ Math.round(monthlyBudget / 15) }} meals</span>
+              <span class="preview-sub">~15 {{ primaryCurrency }} each</span>
+            </div>
+          </div>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- Submission Action Button -->
+    <div class="register-action-wrap">
+      <ion-button
+        expand="block"
+        size="large"
+        class="submit-register-btn"
+        (click)="completeRegistration()"
+        id="btn-complete-register">
+        <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+        <span>Complete Setup &amp; Enter Vault</span>
+      </ion-button>
+    </div>
+
+  </div>
+</ion-content>

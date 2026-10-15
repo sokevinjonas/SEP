@@ -7,17 +7,17 @@ export const onboardingGuard: CanActivateFn = async (route, state) => {
   const router = inject(Router);
 
   const profile = await db.getUserProfile();
-  const isOnboardingRoute = state.url.includes('/onboarding');
+  const isAuthRoute = state.url.includes('/onboarding') || state.url.includes('/register');
 
   if (!profile.hasCompletedOnboarding) {
-    if (!isOnboardingRoute) {
+    if (!isAuthRoute) {
       return router.createUrlTree(['/onboarding']);
     }
     return true;
   }
 
-  // If already completed onboarding and trying to access /onboarding, redirect to /home
-  if (isOnboardingRoute) {
+  // If already completed onboarding and trying to access /onboarding or /register, redirect to /home
+  if (isAuthRoute) {
     return router.createUrlTree(['/home']);
   }
 
