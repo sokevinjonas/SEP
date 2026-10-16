@@ -1,182 +1,225 @@
 <ion-header class="ion-no-border">
   <ion-toolbar class="budget-toolbar">
-    <ion-title class="page-title">Envelopes &amp; Considered Purchases</ion-title>
+    <ion-title class="page-title">Budget Envelopes</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="budget-content ion-padding">
   <div class="page-container has-bottom-bars">
 
-    <!-- 1. Category Envelopes Section (Official ion-list & ion-item) -->
-    <ion-list class="budget-list ion-no-padding" [inset]="true">
-      <ion-list-header>
-        <ion-label class="section-title">Budget Envelopes</ion-label>
-        <ion-note class="section-action">Total: {{ totalSpentGhs().toFixed(0) }} / {{ totalBudgetAllocatedGhs() }} GHS</ion-note>
-      </ion-list-header>
-
-      <ion-item *ngIf="envelopes().length === 0" lines="none" class="empty-item">
-        <ion-label class="ion-text-center">
-          <p>No envelopes configured for this month.</p>
-        </ion-label>
-      </ion-item>
-
-      <ion-card *ngFor="let env of envelopes()" class="envelope-card ion-no-margin">
-        <ion-card-content class="envelope-card-content">
-          <div class="env-top">
-            <div class="env-label-group">
-              <ion-avatar class="env-avatar">
-                <ion-icon [name]="getCategoryIcon(env.category.id)"></ion-icon>
-              </ion-avatar>
-              <div class="env-text-group">
-                <h4 class="env-name">{{ env.category.name }}</h4>
-                <p class="env-sub">{{ env.spentGhs.toFixed(2) }} GHS of {{ env.allocatedGhs }} GHS</p>
-              </div>
-            </div>
-
-            <ion-badge [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')" class="env-badge">
-              {{ env.percentage }}%
-              <span *ngIf="env.status === 'safe'"> (Safe)</span>
-              <span *ngIf="env.status === 'warning'"> (Alert)</span>
-              <span *ngIf="env.status === 'danger'"> (Critical)</span>
-            </ion-badge>
-          </div>
-
-          <ion-progress-bar
-            class="env-progress"
-            [value]="env.percentage / 100"
-            [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')">
-          </ion-progress-bar>
-        </ion-card-content>
-      </ion-card>
-    </ion-list>
-
-    <!-- 2. M. Pognon AI Coach Interactive Banner (Story 4.1) -->
+    <!-- =========================================================================
+         1. M. POGNON AI COACH BANNER
+         ========================================================================= -->
     <ion-card class="pognon-coach-card ion-no-margin" (click)="openPognonChat()" id="btn-talk-to-pognon">
       <ion-card-content class="pognon-coach-card-content">
-        <ion-avatar class="coach-avatar">
-          <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
-        </ion-avatar>
+        <div class="coach-avatar-wrap">
+          <ion-avatar class="coach-avatar">
+            <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
+          </ion-avatar>
+          <div class="coach-sparkle-dot"></div>
+        </div>
+
         <div class="coach-info">
           <div class="coach-title-row">
-            <h4 class="coach-title">Talk to M. Pognon</h4>
-            <ion-badge color="warning" class="coach-badge">
+            <h4 class="coach-title">M. Pognon Financial Coach</h4>
+            <ion-badge
+              [color]="coachAdvice().status === 'safe' ? 'success' : (coachAdvice().status === 'warning' ? 'warning' : 'danger')"
+              class="coach-badge">
               <ion-icon name="sparkles-outline"></ion-icon>
-              <span>AI Coach</span>
+              <span>{{ coachAdvice().badge }}</span>
             </ion-badge>
           </div>
-          <p class="coach-desc">Hesitating on an expense or facing a dilemma? Ask your relentless coach for advice.</p>
+          <p class="coach-quote">"{{ coachAdvice().quote }}"</p>
         </div>
-        <ion-button fill="clear" color="primary" class="coach-action-btn">
-          <ion-icon slot="icon-only" name="chatbubbles-outline"></ion-icon>
-        </ion-button>
+
+        <div class="coach-action-icon">
+          <ion-icon name="chatbubbles-outline"></ion-icon>
+        </div>
       </ion-card-content>
     </ion-card>
 
-    <!-- 3. Considered Purchases Section with Story 2.5 Segmented Control -->
+    <!-- =========================================================================
+         2. ENVELOPE CARDS GRID
+         ========================================================================= -->
     <div class="section-wrapper">
-      <div class="section-header-row">
-        <div>
-          <h3 class="section-title">Considered Purchases (Anti-Impulse)</h3>
-          <p class="section-sub-desc">Manage your 48h cooling-off and celebrate your savings</p>
-        </div>
-        <ion-badge color="secondary" class="avoided-total-badge" *ngIf="totalAvoidedGhs() > 0">
-          <ion-icon name="trophy-outline"></ion-icon>
-          +{{ totalAvoidedGhs().toFixed(0) }} GHS Saved
-        </ion-badge>
-      </div>
-
-      <!-- Segment Filters (Story 2.5) -->
-      <ion-segment [value]="selectedFilter()" (ionChange)="onSegmentChange($event.detail.value)" class="purchase-segment">
-        <ion-segment-button value="all">
-          <ion-label>All ({{ allPurchases().length }})</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="pending">
-          <ion-label>Thinking ({{ pendingCount() }})</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="abandoned">
-          <ion-label>Saved ({{ abandonedCount() }})</ion-label>
-        </ion-segment-button>
-        <ion-segment-button value="bought">
-          <ion-label>Bought ({{ boughtCount() }})</ion-label>
-        </ion-segment-button>
-      </ion-segment>
-
-      <!-- Empty state for filtered purchases -->
-      <ion-card *ngIf="filteredPurchases().length === 0" class="empty-purchase-card ion-no-margin">
+      <!-- Empty state when no envelopes -->
+      <ion-card *ngIf="envelopes().length === 0" class="empty-card ion-no-margin">
         <ion-card-content class="empty-content">
-          <ion-icon name="shield-checkmark-outline" class="empty-icon"></ion-icon>
-          <p *ngIf="selectedFilter() === 'pending'">No pending purchases currently. Your financial discipline is intact!</p>
-          <p *ngIf="selectedFilter() === 'abandoned'">No abandoned purchases yet. Resist an impulse to earn your victories!</p>
-          <p *ngIf="selectedFilter() === 'bought'">No impulse purchases completed.</p>
-          <p *ngIf="selectedFilter() === 'all'">No evaluated purchases yet. Tap "I want to buy" whenever an urge strikes!</p>
+          <ion-icon name="wallet-outline" class="empty-icon"></ion-icon>
+          <p>No envelopes allocated yet.</p>
+          <ion-button size="small" fill="outline" (click)="openBudgetConfigModal()" class="btn-create-envelopes">
+            Configure Envelopes
+          </ion-button>
         </ion-card-content>
       </ion-card>
 
-      <!-- Purchases List (Story 2.5) -->
-      <div class="purchases-list-cards" *ngIf="filteredPurchases().length > 0">
-        <ion-card *ngFor="let pur of filteredPurchases()" class="purchase-card ion-no-margin" [class.is-abandoned]="pur.status === 'abandoned'" [class.is-bought]="pur.status === 'bought'">
-          <ion-card-header>
-            <div class="pur-header-row">
-              <div>
-                <ion-card-title class="pur-title">{{ pur.title }}</ion-card-title>
-                <p class="pur-date-meta">{{ pur.createdAt | date:'dd MMM yyyy, HH:mm' }}</p>
+      <!-- Envelope Cards Grid -->
+      <div class="envelopes-grid" *ngIf="envelopes().length > 0">
+        <ion-card *ngFor="let env of envelopes()" class="envelope-card ion-no-margin"
+          (click)="openEditEnvelopeAllocation(env)">
+          <ion-card-content class="envelope-card-content">
+            <div class="env-top">
+              <div class="env-label-group">
+                <div class="env-icon-box" [style.background-color]="getCategoryColor(env.category.id) + '20'"
+                  [style.color]="getCategoryColor(env.category.id)">
+                  <ion-icon [name]="getCategoryIcon(env.category.id)"></ion-icon>
+                </div>
+                <div class="env-text-group">
+                  <h4 class="env-name">{{ env.category.name }}</h4>
+                  <p class="env-sub">
+                    {{ env.spentGhs.toFixed(2) }} GHS of {{ env.allocatedGhs }} GHS
+                    <span class="env-xof">· ≈ {{ currencyService.toXof(env.spentGhs).toLocaleString() }} XOF</span>
+                  </p>
+                </div>
               </div>
 
-              <!-- Status Badge -->
-              <ion-chip *ngIf="pur.status === 'pending'" color="warning" class="pur-chip">
-                <ion-icon name="time-outline"></ion-icon>
-                <ion-label>{{ getHoursRemaining(pur.expiresAt) }}</ion-label>
-              </ion-chip>
-
-              <ion-badge *ngIf="pur.status === 'abandoned'" color="secondary" class="pur-status-badge">
-                <ion-icon name="shield-checkmark-outline"></ion-icon>
-                Saved Victory
-              </ion-badge>
-
-              <ion-badge *ngIf="pur.status === 'bought'" color="medium" class="pur-status-badge">
-                <ion-icon name="cart-outline"></ion-icon>
-                Bought
-              </ion-badge>
-            </div>
-          </ion-card-header>
-
-          <ion-card-content>
-            <div class="pur-meta-row">
-              <div class="pur-amounts">
-                <span class="pur-cost">{{ pur.amountGhs.toFixed(2) }} GHS</span>
-                <span class="pur-equiv">≈ {{ currencyService.toXof(pur.amountGhs).toLocaleString() }} XOF</span>
+              <div class="env-badge-group">
+                <ion-badge
+                  [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')"
+                  class="env-badge">
+                  {{ env.percentage }}%
+                </ion-badge>
+                <span class="env-diff-text"
+                  [ngClass]="(env.allocatedGhs - env.spentGhs) >= 0 ? 'text-positive' : 'text-negative'">
+                  {{ (env.allocatedGhs - env.spentGhs) >= 0 ? '+' + (env.allocatedGhs - env.spentGhs).toFixed(0) + '
+                  GHS' : (env.spentGhs - env.allocatedGhs).toFixed(0) + ' GHS' }}
+                </span>
               </div>
-              <ion-note class="pur-reframing">
-                {{ pur.reframingText || (pur.costInBudgetDays + ' campus budget days') }}
-              </ion-note>
             </div>
 
-            <!-- Action buttons for PENDING purchases (Story 2.5) -->
-            <div class="pending-actions-row" *ngIf="pur.status === 'pending'">
-              <ion-button
-                size="small"
-                class="btn-abandon-pur"
-                (click)="abandonPurchase(pur)"
-                id="btn-abandon-{{ pur.id }}">
-                <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
-                Resist &amp; Save (+{{ pur.amountGhs }} GHS)
-              </ion-button>
-              <ion-button
-                size="small"
-                fill="outline"
-                color="medium"
-                class="btn-buy-pur"
-                (click)="buyPurchase(pur)"
-                id="btn-buy-{{ pur.id }}">
-                <ion-icon slot="start" name="cart-outline"></ion-icon>
-                Buy Anyway
-              </ion-button>
-            </div>
+            <ion-progress-bar class="env-progress" [value]="env.percentage / 100"
+              [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')">
+            </ion-progress-bar>
           </ion-card-content>
         </ion-card>
-      </div>
 
+        <!-- Manage Envelopes Button -->
+        <ion-button expand="block" fill="outline" class="btn-manage-envelopes" (click)="openBudgetConfigModal()">
+          <ion-icon slot="start" name="options-outline"></ion-icon>
+          <span>Adjust Budget &amp; Envelopes</span>
+        </ion-button>
+      </div>
     </div>
 
   </div>
+
+  <!-- =========================================================================
+       MODAL: ADJUST BUDGET & ENVELOPES
+       ========================================================================= -->
+  <ion-modal [isOpen]="isConfigModalOpen()" (didDismiss)="closeBudgetConfigModal()" class="budget-modal-sheet">
+    <ng-template>
+      <ion-header class="ion-no-border modal-header">
+        <ion-toolbar class="modal-toolbar">
+          <ion-title>Adjust Budget &amp; Envelopes</ion-title>
+          <ion-buttons slot="end">
+            <ion-button (click)="closeBudgetConfigModal()" fill="clear" color="medium">
+              <ion-icon name="close-outline"></ion-icon>
+            </ion-button>
+          </ion-buttons>
+        </ion-toolbar>
+      </ion-header>
+
+      <ion-content class="modal-content ion-padding">
+        <!-- Strategy Switcher -->
+        <div class="modal-section-title">BUDGET STRATEGY</div>
+        <div class="strategy-toggle-cards">
+          <div class="strategy-card" [class.selected]="editBudgetMode === 'fixed'" (click)="editBudgetMode = 'fixed'">
+            <div class="strategy-icon-box">
+              <ion-icon name="wallet-outline"></ion-icon>
+            </div>
+            <div class="strategy-details">
+              <h4>Fixed Budget Ceiling</h4>
+              <p>Define a monthly allowance target and divide into envelopes.</p>
+            </div>
+            <div class="strategy-radio">
+              <ion-icon [name]="editBudgetMode === 'fixed' ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+            </div>
+          </div>
+
+          <div class="strategy-card" [class.selected]="editBudgetMode === 'discovery'"
+            (click)="editBudgetMode = 'discovery'">
+            <div class="strategy-icon-box discovery-box">
+              <ion-icon name="sparkles-outline"></ion-icon>
+            </div>
+            <div class="strategy-details">
+              <h4>Discovery Mode (AI Learning)</h4>
+              <p>Explore without pressure. AI suggests your budget at cycle end.</p>
+            </div>
+            <div class="strategy-radio">
+              <ion-icon [name]="editBudgetMode === 'discovery' ? 'checkmark-circle' : 'ellipse-outline'"></ion-icon>
+            </div>
+          </div>
+        </div>
+
+        <!-- If Fixed: Monthly Allowance Ceiling -->
+        <div *ngIf="editBudgetMode === 'fixed'" class="ceiling-input-block">
+          <div class="modal-section-title">TOTAL MONTHLY CEILING</div>
+          <ion-item class="modal-input-item" lines="none">
+            <ion-icon name="cash-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input type="number" inputmode="decimal" label="Monthly Allowance (GHS) *" labelPlacement="stacked"
+              [(ngModel)]="editTotalBudgetGhs" placeholder="e.g. 600">
+            </ion-input>
+          </ion-item>
+        </div>
+
+        <!-- Cycle Reset Day (1 to 28) -->
+        <div class="cycle-input-block">
+          <div class="modal-section-title">ALLOWANCE ARRIVAL / CYCLE RESET DAY</div>
+          <p class="cycle-tip-desc">The day of each month your allowance arrives and budget renews:</p>
+          <div class="cycle-chips-row">
+            <button class="cycle-chip-btn" [class.active]="editCycleStartDay === 1" (click)="selectCyclePreset(1)">
+              1st of month
+            </button>
+            <button class="cycle-chip-btn" [class.active]="editCycleStartDay === 15" (click)="selectCyclePreset(15)">
+              15th of month
+            </button>
+            <button class="cycle-chip-btn" [class.active]="editCycleStartDay === 25" (click)="selectCyclePreset(25)">
+              25th of month
+            </button>
+          </div>
+
+          <ion-item class="modal-input-item custom-cycle-item" lines="none">
+            <ion-icon name="calendar-outline" slot="start" class="field-icon"></ion-icon>
+            <ion-input type="number" inputmode="numeric" min="1" max="28" label="Custom Day (1–28)"
+              labelPlacement="stacked" [(ngModel)]="editCycleStartDay" placeholder="e.g. 1">
+            </ion-input>
+          </ion-item>
+        </div>
+
+        <!-- Category Envelope Allocations -->
+        <div class="envelopes-config-block" *ngIf="editBudgetMode === 'fixed'">
+          <div class="envelopes-config-header">
+            <div class="modal-section-title">CATEGORY ENVELOPES (GHS)</div>
+            <span class="envelopes-sum" [class.over-budget]="computedTotalEnvelopes > editTotalBudgetGhs">
+              Total: {{ computedTotalEnvelopes }} / {{ editTotalBudgetGhs }} GHS
+            </span>
+          </div>
+
+          <div class="config-categories-list">
+            <div *ngFor="let cat of editCategories" class="config-cat-row">
+              <div class="config-cat-label">
+                <div class="cat-icon-dot" [style.background-color]="getCategoryColor(cat.id)"></div>
+                <span>{{ cat.name }}</span>
+              </div>
+
+              <div class="config-cat-input-wrap">
+                <ion-input type="number" inputmode="numeric" [(ngModel)]="cat.monthlyAllocationGhs" placeholder="0"
+                  class="cat-amount-input">
+                </ion-input>
+                <span class="currency-label">GHS</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-actions-bar">
+          <ion-button expand="block" class="modal-submit-btn" (click)="saveBudgetConfig()">
+            <ion-icon slot="start" name="save-outline"></ion-icon>
+            <span>Save Strategy &amp; Envelopes</span>
+          </ion-button>
+        </div>
+      </ion-content>
+    </ng-template>
+  </ion-modal>
+
 </ion-content>

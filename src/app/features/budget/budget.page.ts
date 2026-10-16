@@ -5,24 +5,18 @@ import {
   IonHeader,
   IonToolbar,
   IonTitle,
+  IonButtons,
+  IonButton,
   IonContent,
-  IonList,
-  IonListHeader,
   IonItem,
-  IonLabel,
-  IonNote,
   IonBadge,
   IonProgressBar,
   IonAvatar,
   IonCard,
-  IonCardHeader,
-  IonCardTitle,
   IonCardContent,
-  IonChip,
   IonIcon,
-  IonButton,
-  IonSegment,
-  IonSegmentButton,
+  IonModal,
+  IonInput,
   ModalController,
   AlertController,
   ToastController
@@ -36,24 +30,26 @@ import {
   peopleOutline,
   flashOutline,
   ellipsisHorizontalCircleOutline,
-  timeOutline,
-  checkmarkCircleOutline,
-  shieldCheckmarkOutline,
-  alertCircleOutline,
-  closeCircleOutline,
-  cartOutline,
-  trophyOutline,
-  chatbubblesOutline
+  chatbubblesOutline,
+  sparklesOutline,
+  optionsOutline,
+  saveOutline,
+  closeOutline,
+  calendarOutline,
+  cashOutline,
+  checkmarkCircle,
+  ellipseOutline
 } from 'ionicons/icons';
+import { PognonChatModalComponent } from '../../shared/components/pognon-chat-modal/pognon-chat-modal.component';
 import { BudgetFacade } from './facade/budget.facade';
 import { ExpensesFacade } from '../expenses/facade/expenses.facade';
-import { PurchasesFacade } from '../purchases/facade/purchases.facade';
+import { ProfileFacade } from '../profile/facade/profile.facade';
 import { CurrencyService } from '../../core/services/currency.service';
 import { BudgetCalculatorService } from '../../core/services/budget-calculator.service';
-import { Purchase, Expense } from '../../core/models/financial.models';
-import { PognonChatModalComponent } from '../../shared/components/pognon-chat-modal/pognon-chat-modal.component';
+import { Category, MonthlyBudget } from '../../core/models/financial.models';
 
 export { CategoryEnvelopeView } from './domain/budget.model';
+import { CategoryEnvelopeView } from './domain/budget.model';
 
 @Component({
   selector: 'app-budget',
@@ -64,24 +60,18 @@ export { CategoryEnvelopeView } from './domain/budget.model';
     IonHeader,
     IonToolbar,
     IonTitle,
+    IonButtons,
+    IonButton,
     IonContent,
-    IonList,
-    IonListHeader,
     IonItem,
-    IonLabel,
-    IonNote,
     IonBadge,
     IonProgressBar,
     IonAvatar,
     IonCard,
-    IonCardHeader,
-    IonCardTitle,
     IonCardContent,
-    IonChip,
     IonIcon,
-    IonButton,
-    IonSegment,
-    IonSegmentButton
+    IonModal,
+    IonInput
   ],
   templateUrl: './budget.page.html',
   styleUrls: ['./budget.page.scss']
@@ -89,27 +79,61 @@ export { CategoryEnvelopeView } from './domain/budget.model';
 export class BudgetPage implements OnInit {
   // Reactive Signals from Facades
   readonly envelopes = this.budgetFacade.envelopes;
+  readonly categories = this.budgetFacade.categories;
   readonly totalSpentGhs = this.expensesFacade.currentMonthTotalSpent;
   readonly totalBudgetAllocatedGhs = this.budgetFacade.totalBudgetAllocatedGhs;
-  readonly allPurchases = this.purchasesFacade.purchases;
-  readonly totalAvoidedGhs = this.purchasesFacade.avoidedTotal;
-  readonly pendingCount = this.purchasesFacade.pendingCount;
-  readonly abandonedCount = this.purchasesFacade.abandonedCount;
-  readonly boughtCount = this.purchasesFacade.boughtCount;
+  readonly totalBudgetCeilingGhs = this.budgetFacade.totalBudgetCeilingGhs;
+  readonly plannedDailyBudgetGhs = this.budgetFacade.plannedDailyBudgetGhs;
+  readonly isDiscoveryMode = this.budgetFacade.isDiscoveryMode;
+  readonly cycleStartDay = this.budgetFacade.cycleStartDay;
+  readonly consumption = this.budgetFacade.consumption;
+  readonly budgetDaysInfo = this.budgetFacade.budgetDaysInfo;
+  readonly userProfile = this.profileFacade.userProfile;
 
-  readonly selectedFilter = signal<'all' | 'pending' | 'abandoned' | 'bought'>('all');
+  // Budget Configuration Modal State
+  readonly isConfigModalOpen = signal(false);
+  editBudgetMode: 'fixed' | 'discovery' = 'fixed';
+  editTotalBudgetGhs: number = 600;
+  editCycleStartDay: number = 1;
+  editCategories: Category[] = [];
 
-  readonly filteredPurchases = computed(() => {
-    const filter = this.selectedFilter();
-    const list = this.allPurchases();
-    if (filter === 'all') return list;
-    return list.filter(p => p.status === filter);
+  // Dynamic coaching advice quote based on current financial health
+  readonly coachAdvice = computed(() => {
+    const isDisc = this.isDiscoveryMode();
+    if (isDisc) {
+      return {
+        badge: 'Discovery Observation',
+        quote: 'Log every single campus expense! I am analyzing your real spending velocity to propose your ideal monthly budget.',
+        status: 'safe' as const
+      };
+    }
+
+    const status = this.consumption().status;
+    if (status === 'safe') {
+      return {
+        badge: 'Runway Protected',
+        quote: 'Disciplined student! Your envelopes are healthy. Keep resisting impulse spending and your fund will thrive!',
+        status: 'safe' as const
+      };
+    } else if (status === 'warning') {
+      return {
+        badge: 'Envelopes Running Warm',
+        quote: 'Some envelopes have exceeded 70%. Prioritize campus dining over outside restaurants this week!',
+        status: 'warning' as const
+      };
+    } else {
+      return {
+        badge: 'Ceiling Alert',
+        quote: `Monthly allowance nearly exhausted! Freeze discretionary purchases until day ${this.cycleStartDay() || 1}.`,
+        status: 'danger' as const
+      };
+    }
   });
 
   constructor(
     public readonly budgetFacade: BudgetFacade,
     public readonly expensesFacade: ExpensesFacade,
-    public readonly purchasesFacade: PurchasesFacade,
+    public readonly profileFacade: ProfileFacade,
     public readonly currencyService: CurrencyService,
     public readonly budgetCalculator: BudgetCalculatorService,
     private readonly modalCtrl: ModalController,
@@ -124,14 +148,15 @@ export class BudgetPage implements OnInit {
       peopleOutline,
       flashOutline,
       ellipsisHorizontalCircleOutline,
-      timeOutline,
-      checkmarkCircleOutline,
-      shieldCheckmarkOutline,
-      alertCircleOutline,
-      closeCircleOutline,
-      cartOutline,
-      trophyOutline,
-      chatbubblesOutline
+      chatbubblesOutline,
+      sparklesOutline,
+      optionsOutline,
+      saveOutline,
+      closeOutline,
+      calendarOutline,
+      cashOutline,
+      checkmarkCircle,
+      ellipseOutline
     });
   }
 
@@ -147,15 +172,9 @@ export class BudgetPage implements OnInit {
     await Promise.all([
       this.budgetFacade.load(),
       this.expensesFacade.load(),
-      this.purchasesFacade.load(),
+      this.profileFacade.load(),
       this.currencyService.initFromDb()
     ]);
-  }
-
-  onSegmentChange(value: any): void {
-    if (value) {
-      this.selectedFilter.set(value);
-    }
   }
 
   async openPognonChat(): Promise<void> {
@@ -166,36 +185,37 @@ export class BudgetPage implements OnInit {
     await modal.present();
   }
 
-  getHoursRemaining(expiresAt?: string): string {
-    if (!expiresAt) return '48h';
-    const remainingMs = new Date(expiresAt).getTime() - Date.now();
-    if (remainingMs <= 0) return 'Ready to decide';
-    const hours = Math.ceil(remainingMs / (1000 * 60 * 60));
-    return `${hours}h left`;
-  }
-
-  // Story 2.4 & 2.5: Abandon considered purchase -> Victory
-  async abandonPurchase(pur: Purchase): Promise<void> {
+  // Quick edit of single envelope allocation by tapping card
+  async openEditEnvelopeAllocation(env: CategoryEnvelopeView): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Resist this purchase?',
-      message: `By letting go of "${pur.title}", you save ${pur.amountGhs} GHS which will be added to your Avoided Total!`,
-      buttons: [
-        { text: 'Keep thinking', role: 'cancel' },
+      header: `Adjust ${env.category.name}`,
+      subHeader: `Current allocation: ${env.allocatedGhs} GHS`,
+      inputs: [
         {
-          text: 'Victory! I resist',
-          handler: async () => {
-            await this.purchasesFacade.abandonPurchase(pur);
-
-            // Flag for celebratory trophy animation on home tab
-            sessionStorage.setItem('sep_celebrate_avoided', 'true');
-
-            const toast = await this.toastCtrl.create({
-              message: `Financial victory! +${pur.amountGhs} GHS added to your Avoided Total.`,
-              duration: 3000,
-              color: 'secondary',
-              position: 'top'
+          name: 'allocation',
+          type: 'number',
+          placeholder: 'Monthly allocation in GHS',
+          value: env.allocatedGhs,
+          min: 0,
+          max: 50000
+        }
+      ],
+      buttons: [
+        { text: 'Cancel', role: 'cancel' },
+        {
+          text: 'Save Envelope',
+          handler: async (data) => {
+            const val = parseFloat(data.allocation);
+            if (isNaN(val) || val < 0) {
+              await this.showToast('Please enter a valid amount.', 'warning');
+              return false;
+            }
+            await this.budgetFacade.addCategory({
+              ...env.category,
+              monthlyAllocationGhs: val
             });
-            await toast.present();
+            await this.showToast(`${env.category.name} envelope updated to ${val} GHS.`, 'success');
+            return true;
           }
         }
       ]
@@ -203,43 +223,117 @@ export class BudgetPage implements OnInit {
     await alert.present();
   }
 
-  // Story 2.5: Buy anyway
-  async buyPurchase(pur: Purchase): Promise<void> {
+  // Open Full Budget & Envelopes Configuration Modal
+  openBudgetConfigModal(): void {
+    const isDisc = this.isDiscoveryMode();
+    const current = this.budgetFacade.monthlyBudget();
+
+    this.editBudgetMode = isDisc ? 'discovery' : 'fixed';
+    this.editTotalBudgetGhs = current?.totalBudgetGhs || 600;
+    this.editCycleStartDay = current?.cycleStartDay || 1;
+    this.editCategories = this.categories().map(c => ({ ...c }));
+
+    this.isConfigModalOpen.set(true);
+  }
+
+  closeBudgetConfigModal(): void {
+    this.isConfigModalOpen.set(false);
+  }
+
+  selectCyclePreset(day: number): void {
+    this.editCycleStartDay = Math.min(28, Math.max(1, day));
+  }
+
+  get computedTotalEnvelopes(): number {
+    return this.editCategories.reduce((sum, c) => sum + (Number(c.monthlyAllocationGhs) || 0), 0);
+  }
+
+  async saveBudgetConfig(): Promise<void> {
+    const isDisc = this.editBudgetMode === 'discovery';
+    const ceiling = isDisc ? 0 : Math.max(10, Number(this.editTotalBudgetGhs) || 0);
+    const cycleDay = Math.min(28, Math.max(1, Number(this.editCycleStartDay) || 1));
+
+    const current = this.budgetFacade.monthlyBudget();
+    const updatedBudget: MonthlyBudget = {
+      id: current?.id || 'current',
+      monthYear: current?.monthYear || new Date().toISOString().substring(0, 7),
+      totalBudgetGhs: ceiling,
+      plannedDailyBudgetGhs: isDisc ? 0 : Math.round(ceiling / 30),
+      exchangeRateXof: current?.exchangeRateXof || 42.0,
+      isDiscoveryMode: isDisc,
+      cycleStartDay: cycleDay
+    };
+
+    await this.budgetFacade.saveMonthlyBudget(updatedBudget);
+
+    // Save updated category envelope allocations
+    for (const cat of this.editCategories) {
+      await this.budgetFacade.addCategory({
+        ...cat,
+        monthlyAllocationGhs: Number(cat.monthlyAllocationGhs) || 0
+      });
+    }
+
+    // Synchronize with user profile
+    const profile = this.userProfile();
+    if (profile) {
+      await this.profileFacade.saveUserProfile({
+        ...profile,
+        budgetMode: this.editBudgetMode,
+        cycleStartDay: cycleDay,
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    this.closeBudgetConfigModal();
+    await this.showToast('Budget strategy and envelopes updated successfully!', 'success');
+  }
+
+  // AI Proposal Modal
+  async openAiBudgetProposal(): Promise<void> {
+    const totalSpent = this.consumption().totalSpentGhs;
+    const daysElapsed = this.consumption().cycleDaysElapsed || 1;
+    const daysTotal = this.consumption().cycleDaysTotal || 30;
+    const cycleDay = this.consumption().cycleStartDay || 1;
+
+    let suggestedBudget = 600;
+    if (totalSpent > 0 && daysElapsed > 0) {
+      const projected = (totalSpent / daysElapsed) * daysTotal;
+      suggestedBudget = Math.max(100, Math.round(projected / 50) * 50);
+    }
+
     const alert = await this.alertCtrl.create({
-      header: 'Confirm this purchase?',
-      message: `Do you want to permanently log an expense of ${pur.amountGhs} GHS for "${pur.title}"?`,
+      header: 'M. Pognon AI Proposal',
+      subHeader: `Observation: ${totalSpent.toFixed(2)} GHS over ${daysElapsed} day(s)`,
+      message: `Based on your real campus spending velocity, M. Pognon recommends a monthly allowance target of ${suggestedBudget} GHS (~${this.currencyService.toXof(suggestedBudget).toLocaleString()} XOF).\n\nWould you like to adopt this as your target monthly budget ceiling now?`,
       buttons: [
-        { text: 'Cancel', role: 'cancel' },
+        { text: 'Keep Observing', role: 'cancel' },
         {
-          text: 'Yes, log expense',
+          text: `Adopt ${suggestedBudget} GHS Ceiling`,
           handler: async () => {
-            const now = new Date();
-
-            // 1. Mark purchase as bought in state + IDB
-            await this.purchasesFacade.buyPurchase(pur);
-
-            // 2. Create actual expense in state + IDB
-            const expense: Expense = {
-              id: `exp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-              amount: pur.amountGhs,
-              currency: 'GHS',
-              categoryId: 'cat-other',
-              categoryName: 'Considered Purchases',
-              merchant: pur.title,
-              note: 'Confirmed after cooling-off period',
-              date: now.toISOString(),
-              source: 'manual',
-              createdAt: now.toISOString()
+            const currentBudget = this.budgetFacade.monthlyBudget();
+            const updatedBudget: MonthlyBudget = {
+              id: currentBudget?.id || 'current',
+              monthYear: currentBudget?.monthYear || new Date().toISOString().substring(0, 7),
+              totalBudgetGhs: suggestedBudget,
+              exchangeRateXof: currentBudget?.exchangeRateXof || 42.0,
+              plannedDailyBudgetGhs: Math.round(suggestedBudget / 30),
+              isDiscoveryMode: false,
+              cycleStartDay: cycleDay
             };
-            await this.expensesFacade.addExpense(expense);
+            await this.budgetFacade.saveMonthlyBudget(updatedBudget);
 
-            const toast = await this.toastCtrl.create({
-              message: `Expense of ${pur.amountGhs} GHS recorded in your ledger.`,
-              duration: 2500,
-              color: 'dark',
-              position: 'top'
-            });
-            await toast.present();
+            const profile = this.userProfile();
+            if (profile) {
+              await this.profileFacade.saveUserProfile({
+                ...profile,
+                budgetMode: 'fixed',
+                cycleStartDay: cycleDay,
+                updatedAt: new Date().toISOString()
+              });
+            }
+
+            await this.showToast(`Target budget of ${suggestedBudget} GHS adopted!`, 'success');
           }
         }
       ]
@@ -256,5 +350,26 @@ export class BudgetPage implements OnInit {
       case 'cat-utilities': return 'flash-outline';
       default: return 'ellipsis-horizontal-circle-outline';
     }
+  }
+
+  getCategoryColor(catId: string): string {
+    switch (catId) {
+      case 'cat-food': return '#E67E22';
+      case 'cat-transport': return '#2980B9';
+      case 'cat-books': return '#27AE60';
+      case 'cat-social': return '#8E44AD';
+      case 'cat-utilities': return '#D35400';
+      default: return '#714B67';
+    }
+  }
+
+  private async showToast(message: string, color: 'success' | 'warning' | 'danger' | 'dark' = 'success'): Promise<void> {
+    const toast = await this.toastCtrl.create({
+      message,
+      duration: 2500,
+      color,
+      position: 'top'
+    });
+    await toast.present();
   }
 }
