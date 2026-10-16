@@ -160,10 +160,16 @@
 
   .env-badge-group {
     display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 2px;
+    align-items: center;
+    gap: 8px;
     flex-shrink: 0;
+
+    .env-badge-subgroup {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+    }
 
     .env-badge {
       font-size: 11px;
@@ -183,6 +189,16 @@
         color: #C0392B;
       }
     }
+
+    .env-chevron {
+      font-size: 16px;
+      color: #A3929F;
+      transition: transform 0.2s ease;
+    }
+  }
+
+  &:active .env-chevron {
+    transform: translateX(2px);
   }
 
   .env-progress {

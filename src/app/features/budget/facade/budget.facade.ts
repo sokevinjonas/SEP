@@ -2,14 +2,23 @@ import { Injectable, inject, computed } from '@angular/core';
 import { BudgetState } from '../state/budget.state';
 import { BudgetRepository } from '../data-access/budget.repository';
 import { ExpensesFacade } from '../../expenses/facade/expenses.facade';
+import { ProfileFacade } from '../../profile/facade/profile.facade';
 import { BudgetCalculatorService, BudgetConsumption, BudgetDaysCalculation } from '../../../core/services/budget-calculator.service';
-import { Category, MonthlyBudget, CategoryEnvelopeView } from '../domain/budget.model';
+import {
+  Category,
+  MonthlyBudget,
+  CategoryEnvelopeView,
+  CoachAdvice,
+  AiBudgetRecommendation,
+  calculateAiSuggestedBudget
+} from '../domain/budget.model';
 
 @Injectable({ providedIn: 'root' })
 export class BudgetFacade {
   private readonly state = inject(BudgetState);
   private readonly repo = inject(BudgetRepository);
   private readonly expensesFacade = inject(ExpensesFacade);
+  private readonly profileFacade = inject(ProfileFacade);
   private readonly calculator = inject(BudgetCalculatorService);
 
   readonly categories = this.state.categories;
@@ -79,6 +88,41 @@ export class BudgetFacade {
     return this.calculator.calculateBudgetDays(balance, monthExpenses, plannedDaily);
   });
 
+  /**
+   * Dynamic coaching advice quote based on current financial health & mode
+   */
+  readonly coachAdvice = computed<CoachAdvice>(() => {
+    const isDisc = this.isDiscoveryMode();
+    if (isDisc) {
+      return {
+        badge: 'Discovery Observation',
+        quote: 'Log every single campus expense! I am analyzing your real spending velocity to propose your ideal monthly budget.',
+        status: 'safe'
+      };
+    }
+
+    const status = this.consumption().status;
+    if (status === 'safe') {
+      return {
+        badge: 'Runway Protected',
+        quote: 'Disciplined student! Your envelopes are healthy. Keep resisting impulse spending and your fund will thrive!',
+        status: 'safe'
+      };
+    } else if (status === 'warning') {
+      return {
+        badge: 'Envelopes Running Warm',
+        quote: 'Some envelopes have exceeded 70%. Prioritize campus dining over outside restaurants this week!',
+        status: 'warning'
+      };
+    } else {
+      return {
+        badge: 'Ceiling Alert',
+        quote: `Monthly allowance nearly exhausted! Freeze discretionary purchases until day ${this.cycleStartDay() || 1}.`,
+        status: 'danger'
+      };
+    }
+  });
+
   async load(): Promise<void> {
     this.state.setLoading(true);
     this.state.setError(null);
@@ -122,6 +166,120 @@ export class BudgetFacade {
       throw err;
     } finally {
       this.state.setLoading(false);
+    }
+  }
+
+  /**
+   * Helper to retrieve single CategoryEnvelopeView by categoryId
+   */
+  getEnvelopeByCategory(categoryId: string): CategoryEnvelopeView | undefined {
+    return this.envelopes().find(e => e.category.id === categoryId);
+  }
+
+  /**
+   * Updates allocation for a single envelope
+   */
+  async updateCategoryAllocation(categoryId: string, newAllocationGhs: number): Promise<void> {
+    const categories = this.state.categories();
+    const target = categories.find(c => c.id === categoryId);
+    if (!target) return;
+    const updated: Category = {
+      ...target,
+      monthlyAllocationGhs: Math.max(0, newAllocationGhs)
+    };
+    await this.addCategory(updated);
+  }
+
+  /**
+   * Orchestrates complete budget strategy update and profile synchronization
+   */
+  async saveBudgetStrategy(
+    mode: 'fixed' | 'discovery',
+    totalCeilingGhs: number,
+    cycleStartDay: number,
+    categories: Category[]
+  ): Promise<void> {
+    const isDisc = mode === 'discovery';
+    const ceiling = isDisc ? 0 : Math.max(10, Number(totalCeilingGhs) || 0);
+    const cycleDay = Math.min(28, Math.max(1, Number(cycleStartDay) || 1));
+
+    const current = this.state.monthlyBudget();
+    const updatedBudget: MonthlyBudget = {
+      id: current?.id || 'current',
+      monthYear: current?.monthYear || new Date().toISOString().substring(0, 7),
+      totalBudgetGhs: ceiling,
+      plannedDailyBudgetGhs: isDisc ? 0 : Math.round(ceiling / 30),
+      exchangeRateXof: current?.exchangeRateXof || 42.0,
+      isDiscoveryMode: isDisc,
+      cycleStartDay: cycleDay
+    };
+
+    await this.saveMonthlyBudget(updatedBudget);
+
+    // Save updated category envelope allocations
+    for (const cat of categories) {
+      await this.addCategory({
+        ...cat,
+        monthlyAllocationGhs: Number(cat.monthlyAllocationGhs) || 0
+      });
+    }
+
+    // Synchronize with user profile
+    const profile = this.profileFacade.userProfile();
+    if (profile) {
+      await this.profileFacade.saveUserProfile({
+        ...profile,
+        budgetMode: mode,
+        cycleStartDay: cycleDay,
+        updatedAt: new Date().toISOString()
+      });
+    }
+  }
+
+  /**
+   * Calculates AI recommendation data based on actual spending telemetry
+   */
+  getAiBudgetSuggestion(): AiBudgetRecommendation {
+    const totalSpent = this.consumption().totalSpentGhs;
+    const daysElapsed = this.consumption().cycleDaysElapsed || 1;
+    const daysTotal = this.consumption().cycleDaysTotal || 30;
+    const cycleDay = this.consumption().cycleStartDay || 1;
+    const suggested = calculateAiSuggestedBudget(totalSpent, daysElapsed, daysTotal);
+
+    return {
+      suggestedBudget: suggested,
+      totalSpent,
+      daysElapsed,
+      daysTotal,
+      cycleStartDay: cycleDay
+    };
+  }
+
+  /**
+   * Adopts AI proposed ceiling and switches mode to fixed
+   */
+  async adoptAiSuggestedBudget(suggestedBudget: number): Promise<void> {
+    const cycleDay = this.consumption().cycleStartDay || 1;
+    const currentBudget = this.state.monthlyBudget();
+    const updatedBudget: MonthlyBudget = {
+      id: currentBudget?.id || 'current',
+      monthYear: currentBudget?.monthYear || new Date().toISOString().substring(0, 7),
+      totalBudgetGhs: suggestedBudget,
+      exchangeRateXof: currentBudget?.exchangeRateXof || 42.0,
+      plannedDailyBudgetGhs: Math.round(suggestedBudget / 30),
+      isDiscoveryMode: false,
+      cycleStartDay: cycleDay
+    };
+    await this.saveMonthlyBudget(updatedBudget);
+
+    const profile = this.profileFacade.userProfile();
+    if (profile) {
+      await this.profileFacade.saveUserProfile({
+        ...profile,
+        budgetMode: 'fixed',
+        cycleStartDay: cycleDay,
+        updatedAt: new Date().toISOString()
+      });
     }
   }
 }

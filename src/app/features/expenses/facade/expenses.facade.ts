@@ -64,4 +64,11 @@ export class ExpensesFacade {
   async checkDuplicateReference(ref: string): Promise<Expense | undefined> {
     return this.repo.checkDuplicateReference(ref);
   }
+
+  getExpensesByCategory(categoryId: string): Expense[] {
+    return this.expenses()
+      .filter(e => e.categoryId === categoryId)
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }
 }
+

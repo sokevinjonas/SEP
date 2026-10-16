@@ -56,7 +56,7 @@
       <!-- Envelope Cards Grid -->
       <div class="envelopes-grid" *ngIf="envelopes().length > 0">
         <ion-card *ngFor="let env of envelopes()" class="envelope-card ion-no-margin"
-          (click)="openEditEnvelopeAllocation(env)">
+          (click)="goToCategoryDetail(env)">
           <ion-card-content class="envelope-card-content">
             <div class="env-top">
               <div class="env-label-group">
@@ -74,16 +74,18 @@
               </div>
 
               <div class="env-badge-group">
-                <ion-badge
-                  [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')"
-                  class="env-badge">
-                  {{ env.percentage }}%
-                </ion-badge>
-                <span class="env-diff-text"
-                  [ngClass]="(env.allocatedGhs - env.spentGhs) >= 0 ? 'text-positive' : 'text-negative'">
-                  {{ (env.allocatedGhs - env.spentGhs) >= 0 ? '+' + (env.allocatedGhs - env.spentGhs).toFixed(0) + '
-                  GHS' : (env.spentGhs - env.allocatedGhs).toFixed(0) + ' GHS' }}
-                </span>
+                <div class="env-badge-subgroup">
+                  <ion-badge
+                    [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')"
+                    class="env-badge">
+                    {{ env.percentage }}%
+                  </ion-badge>
+                  <span class="env-diff-text"
+                    [ngClass]="(env.allocatedGhs - env.spentGhs) >= 0 ? 'text-positive' : 'text-negative'">
+                    {{ (env.allocatedGhs - env.spentGhs) >= 0 ? '+' + (env.allocatedGhs - env.spentGhs).toFixed(0) + ' GHS' : (env.spentGhs - env.allocatedGhs).toFixed(0) + ' GHS' }}
+                  </span>
+                </div>
+                <ion-icon name="chevron-forward-outline" class="env-chevron"></ion-icon>
               </div>
             </div>
 

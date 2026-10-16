@@ -1,0 +1,182 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="category-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/budget" text="" icon="arrow-back-outline"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="page-title">{{ envelope()?.category?.name || 'Category' }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openEditAllocation()" fill="clear" color="primary">
+        <ion-icon slot="icon-only" name="create-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="category-content ion-padding">
+  <div class="page-container has-bottom-bars">
+
+    <!-- =========================================================================
+         1. HERO ENVELOPE SUMMARY CARD
+         ========================================================================= -->
+    <ion-card *ngIf="envelope() as env" class="envelope-hero-card ion-no-margin">
+      <ion-card-content class="envelope-hero-content">
+        <div class="hero-top-row">
+          <div class="hero-label-wrap">
+            <div
+              class="hero-icon-box"
+              [style.background-color]="getCategoryColor(env.category.id) + '22'"
+              [style.color]="getCategoryColor(env.category.id)">
+              <ion-icon [name]="getCategoryIcon(env.category.id)"></ion-icon>
+            </div>
+            <div class="hero-titles">
+              <h2 class="hero-name">{{ env.category.name }}</h2>
+              <span class="hero-envelope-tag">Monthly Envelope</span>
+            </div>
+          </div>
+
+          <ion-badge
+            [color]="env.status === 'safe' ? 'success' : (env.status === 'warning' ? 'warning' : 'danger')"
+            class="hero-status-badge">
+            {{ env.percentage }}% Spent
+          </ion-badge>
+        </div>
+
+        <div class="hero-numbers-grid">
+          <div class="number-cell">
+            <span class="number-label">SPENT THIS MONTH</span>
+            <div class="number-val-row">
+              <span class="number-val spent-text">{{ env.spentGhs.toFixed(2) }}</span>
+              <span class="currency-unit">GHS</span>
+            </div>
+            <span class="number-equiv">≈ {{ currencyService.toXof(env.spentGhs).toLocaleString() }} XOF</span>
+          </div>
+
+          <div class="number-divider"></div>
+
+          <div class="number-cell">
+            <span class="number-label">MONTHLY ALLOCATION</span>
+            <div class="number-val-row">
+              <span class="number-val">{{ env.allocatedGhs }}</span>
+              <span class="currency-unit">GHS</span>
+            </div>
+            <span class="number-equiv">≈ {{ currencyService.toXof(env.allocatedGhs).toLocaleString() }} XOF</span>
+          </div>
+
+          <div class="number-divider"></div>
+
+          <div class="number-cell">
+            <span class="number-label">REMAINING RUNWAY</span>
+            <div class="number-val-row">
+              <span
+                class="number-val"
+                [class.text-positive]="(env.allocatedGhs - env.spentGhs) >= 0"
+                [class.text-negative]="(env.allocatedGhs - env.spentGhs) < 0">
+                {{ (env.allocatedGhs - env.spentGhs) >= 0 ? '+' : '' }}{{ (env.allocatedGhs - env.spentGhs).toFixed(0) }}
+              </span>
+              <span class="currency-unit">GHS</span>
+            </div>
+            <span class="number-equiv">
+              {{ (env.allocatedGhs - env.spentGhs) >= 0 ? 'Remaining' : 'Exceeded' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="hero-progress-wrap">
+          <ion-progress-bar
+            class="hero-progress"
+            [value]="env.percentage / 100"
+            [color]="env.status === 'safe' ? 'success' : (env.status === 'warning' ? 'warning' : 'danger')">
+          </ion-progress-bar>
+        </div>
+
+        <div class="hero-actions-row">
+          <ion-button
+            fill="outline"
+            size="small"
+            class="hero-adjust-btn"
+            (click)="openEditAllocation()">
+            <ion-icon slot="start" name="create-outline"></ion-icon>
+            <span>Adjust {{ env.category.name }} Allocation</span>
+          </ion-button>
+        </div>
+      </ion-card-content>
+    </ion-card>
+
+    <!-- =========================================================================
+         2. TRANSACTIONS / OPERATIONS SECTION
+         ========================================================================= -->
+    <div class="operations-section">
+      <div class="section-header-row">
+        <h3 class="section-title">
+          <span>OPERATIONS</span>
+          <ion-badge color="medium" class="count-badge">{{ operations().length }}</ion-badge>
+        </h3>
+        <ion-button fill="clear" size="small" class="btn-add-op" (click)="openQuickLog()">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          <span>Log Expense</span>
+        </ion-button>
+      </div>
+
+      <!-- Empty State -->
+      <ion-card *ngIf="operations().length === 0" class="empty-operations-card ion-no-margin">
+        <ion-card-content class="empty-content">
+          <div class="empty-icon-box">
+            <ion-icon name="receipt-outline"></ion-icon>
+          </div>
+          <h4>No operations yet</h4>
+          <p>No expenses logged in this envelope. Add transactions manually or capture receipts anytime.</p>
+          <ion-button size="small" fill="solid" (click)="openQuickLog()" class="btn-log-first">
+            <ion-icon slot="start" name="add-outline"></ion-icon>
+            <span>Log First Expense</span>
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+
+      <!-- Transactions List -->
+      <div class="operations-list" *ngIf="operations().length > 0">
+        <ion-list lines="none" class="ops-ion-list">
+          <ion-item-sliding *ngFor="let exp of operations()" #slidingItem class="op-sliding-item">
+            <ion-item class="op-item">
+              <div class="op-date-box" slot="start">
+                <span class="date-day">{{ exp.date.substring(8, 10) }}</span>
+                <span class="date-month">{{ formatDate(exp.date).substring(0, 3) }}</span>
+              </div>
+
+              <ion-label class="op-label">
+                <h3 class="op-merchant">{{ exp.merchant || exp.categoryName || 'Expense' }}</h3>
+                <p class="op-sub">
+                  <span class="op-date-full">{{ formatDate(exp.date) }}</span>
+                  <span *ngIf="exp.note" class="op-note"> · {{ exp.note }}</span>
+                </p>
+                <div class="op-tags">
+                  <span class="source-tag" [class.source-ocr]="exp.source !== 'manual'" [class.source-manual]="exp.source === 'manual'">
+                    {{ exp.source === 'ocr_receipt' ? 'Receipt Scan' : (exp.source === 'ocr_momo' ? 'Mobile Money' : 'Manual') }}
+                  </span>
+                </div>
+              </ion-label>
+
+              <div slot="end" class="op-amount-box">
+                <span class="op-amount-ghs">-{{ exp.amount.toFixed(2) }} GHS</span>
+                <span class="op-amount-xof">≈ {{ currencyService.toXof(exp.amount).toLocaleString() }} XOF</span>
+              </div>
+            </ion-item>
+
+            <ion-item-options side="end">
+              <ion-item-option color="danger" (click)="confirmDeleteExpense(exp, slidingItem)">
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Floating Add Button -->
+  <ion-fab vertical="bottom" horizontal="end" slot="fixed" class="quick-add-fab">
+    <ion-fab-button (click)="openQuickLog()" color="primary">
+      <ion-icon name="add-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+</ion-content>

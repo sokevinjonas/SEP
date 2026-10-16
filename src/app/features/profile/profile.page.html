@@ -36,11 +36,7 @@
         </p>
       </div>
 
-      <ion-button
-        fill="outline"
-        size="small"
-        class="hero-action-btn"
-        (click)="openModal('profile')">
+      <ion-button fill="outline" size="small" class="hero-action-btn" (click)="openModal('profile')">
         <span>Edit</span>
         <ion-icon slot="end" name="chevron-forward-outline"></ion-icon>
       </ion-button>
@@ -102,7 +98,8 @@
       <ion-list [inset]="true" lines="full" class="settings-group-list">
 
         <!-- Connect / Cloud Account Status -->
-        <ion-item [button]="true" [detail]="true" (click)="openLinkAccountModal()" class="settings-list-item" id="btn-link-account">
+        <ion-item [button]="true" [detail]="true" (click)="openLinkAccountModal()" class="settings-list-item"
+          id="btn-link-account">
           <div slot="start" class="item-icon-box" [ngClass]="isLinked ? 'green-bg' : 'orange-bg'">
             <ion-icon [name]="isLinked ? 'cloud-done-outline' : 'cloud-offline-outline'"></ion-icon>
           </div>
@@ -194,10 +191,7 @@
           <!-- Name -->
           <ion-item class="modal-input-item">
             <ion-icon name="person-outline" slot="start" class="modal-field-icon"></ion-icon>
-            <ion-input
-              label="Student Name or Nickname"
-              labelPlacement="stacked"
-              placeholder="e.g. Jonas"
+            <ion-input label="Student Name or Nickname" labelPlacement="stacked" placeholder="e.g. Jonas"
               [(ngModel)]="userProfile.name">
             </ion-input>
           </ion-item>
@@ -205,12 +199,8 @@
           <!-- Country -->
           <ion-item class="modal-input-item select-field">
             <ion-icon name="globe-outline" slot="start" class="modal-field-icon"></ion-icon>
-            <ion-select
-              label="Study Country"
-              labelPlacement="stacked"
-              interface="action-sheet"
-              [value]="userProfile.country"
-              (ionChange)="onCountryChanged($event.detail.value)">
+            <ion-select label="Study Country" labelPlacement="stacked" interface="action-sheet"
+              [value]="userProfile.country" (ionChange)="onCountryChanged($event.detail.value)">
               <ion-select-option *ngFor="let c of countries" [value]="c.name">
                 {{ c.flag }} {{ c.name }} ({{ c.currency }})
               </ion-select-option>
@@ -221,13 +211,8 @@
           <!-- City -->
           <ion-item class="modal-input-item select-field">
             <ion-icon name="business-outline" slot="start" class="modal-field-icon"></ion-icon>
-            <ion-select
-              label="Study City"
-              labelPlacement="stacked"
-              interface="action-sheet"
-              [value]="userProfile.city"
-              (ionChange)="userProfile.city = $event.detail.value"
-              [disabled]="isLoadingCities || cities.length === 0">
+            <ion-select label="Study City" labelPlacement="stacked" interface="action-sheet" [value]="userProfile.city"
+              (ionChange)="userProfile.city = $event.detail.value" [disabled]="isLoadingCities || cities.length === 0">
               <ion-select-option *ngFor="let city of cities" [value]="city">
                 {{ city }}
               </ion-select-option>
@@ -238,10 +223,7 @@
           <!-- Campus -->
           <ion-item class="modal-input-item">
             <ion-icon name="school-outline" slot="start" class="modal-field-icon"></ion-icon>
-            <ion-input
-              label="University Campus"
-              labelPlacement="stacked"
-              placeholder="e.g. KNUST, Legon, etc."
+            <ion-input label="University Campus" labelPlacement="stacked" placeholder="e.g. KNUST, Legon, etc."
               [(ngModel)]="userProfile.campus">
             </ion-input>
           </ion-item>
@@ -250,11 +232,8 @@
           <div class="campus-chips-block" *ngIf="suggestedCampuses.length > 0">
             <span class="chips-title">Quick campus suggestions:</span>
             <div class="chips-row">
-              <ion-chip
-                *ngFor="let camp of suggestedCampuses"
-                class="campus-chip"
-                [class.active]="userProfile.campus === camp"
-                (click)="selectSuggestedCampus(camp)">
+              <ion-chip *ngFor="let camp of suggestedCampuses" class="campus-chip"
+                [class.active]="userProfile.campus === camp" (click)="selectSuggestedCampus(camp)">
                 <ion-label>{{ camp }}</ion-label>
               </ion-chip>
             </div>
@@ -296,11 +275,7 @@
               <span class="live-fx-badge">Live FX Market</span>
               <p class="live-fx-text">{{ rateStatusText }}</p>
             </div>
-            <ion-button
-              size="small"
-              fill="outline"
-              class="sync-live-btn"
-              [disabled]="isFetchingLiveRate"
+            <ion-button size="small" fill="outline" class="sync-live-btn" [disabled]="isFetchingLiveRate"
               (click)="fetchLiveRate()">
               <ion-spinner *ngIf="isFetchingLiveRate" name="crescent" slot="start"></ion-spinner>
               <ion-icon *ngIf="!isFetchingLiveRate" name="refresh-outline" slot="start"></ion-icon>
@@ -314,9 +289,7 @@
           <!-- Primary Currency -->
           <ion-item class="modal-input-item select-field">
             <ion-icon name="globe-outline" slot="start" class="modal-field-icon"></ion-icon>
-            <ion-select
-              label="Primary Local Currency"
-              labelPlacement="stacked"
+            <ion-select label="Primary Local Currency" labelPlacement="stacked"
               [(ngModel)]="userProfile.primaryCurrency">
               <ion-select-option value="GHS">GHS - Ghanaian Cedi</ion-select-option>
               <ion-select-option value="XOF">XOF - CFA Franc (WAEMU)</ion-select-option>
@@ -329,19 +302,16 @@
           <!-- Street Rate Input -->
           <ion-item class="modal-input-item">
             <ion-icon name="cash-outline" slot="start" class="modal-field-icon"></ion-icon>
-            <ion-input
-              type="number"
+            <ion-input type="number"
               [label]="'Street Negotiated Rate (1 ' + userProfile.primaryCurrency + ' to ' + currencyService.secondaryCurrency() + ')'"
-              labelPlacement="stacked"
-              placeholder="e.g. 42.0"
-              [(ngModel)]="monthlyBudget.exchangeRateXof"
-              min="0.01"
+              labelPlacement="stacked" placeholder="e.g. 42.0" [(ngModel)]="monthlyBudget.exchangeRateXof" min="0.01"
               step="0.1">
             </ion-input>
           </ion-item>
 
           <p class="form-helper-note">
-            Student tip: Adjust this rate to match what you actually receive from your campus money changers, mobile money agents, or local forex bureau.
+            Student tip: Adjust this rate to match what you actually receive from your campus money changers, mobile
+            money agents, or local forex bureau.
           </p>
 
         </ion-list>
@@ -376,9 +346,7 @@
         <!-- Budget Mode Selection -->
         <ion-item class="modal-input-item select-field" lines="none">
           <ion-icon name="sparkles-outline" slot="start" class="modal-field-icon"></ion-icon>
-          <ion-select
-            label="Budget Strategy"
-            labelPlacement="stacked"
+          <ion-select label="Budget Strategy" labelPlacement="stacked"
             [value]="monthlyBudget.isDiscoveryMode ? 'discovery' : 'fixed'"
             (ionChange)="onBudgetModeChange($event.detail.value)">
             <ion-select-option value="fixed">Target Allowance Ceiling</ion-select-option>
@@ -389,14 +357,8 @@
         <!-- Allowance Cycle Reset Day -->
         <ion-item class="modal-input-item" lines="none">
           <ion-icon name="calendar-outline" slot="start" class="modal-field-icon"></ion-icon>
-          <ion-input
-            type="number"
-            label="Allowance Arrival &amp; Reset Day (1 to 28)"
-            labelPlacement="stacked"
-            placeholder="e.g. 1, 15, or 25"
-            [(ngModel)]="userProfile.cycleStartDay"
-            min="1"
-            max="28">
+          <ion-input type="number" label="Allowance Arrival &amp; Reset Day (1 to 28)" labelPlacement="stacked"
+            placeholder="e.g. 1, 15, or 25" [(ngModel)]="userProfile.cycleStartDay" min="1" max="28">
           </ion-input>
         </ion-item>
 
@@ -407,7 +369,9 @@
             Discovery Mode Active
           </ion-badge>
           <p>
-            Track campus expenses freely without spending limits. On day {{ userProfile.cycleStartDay || 1 }} of each month, M. Pognon AI will analyze your spending breakdown and generate a personalized target budget recommendation.
+            Track campus expenses freely without spending limits. On day {{ userProfile.cycleStartDay || 1 }} of each
+            month, M. Pognon AI will analyze your spending breakdown and generate a personalized target budget
+            recommendation.
           </p>
         </div>
 
@@ -415,13 +379,8 @@
         <div *ngIf="!monthlyBudget.isDiscoveryMode">
           <ion-item class="modal-input-item" lines="none">
             <ion-icon name="wallet-outline" slot="start" class="modal-field-icon"></ion-icon>
-            <ion-input
-              type="number"
-              [label]="'Total Monthly Allowance (' + userProfile.primaryCurrency + ')'"
-              labelPlacement="stacked"
-              placeholder="e.g. 600"
-              [(ngModel)]="monthlyBudget.totalBudgetGhs"
-              min="10"
+            <ion-input type="number" [label]="'Total Monthly Allowance (' + userProfile.primaryCurrency + ')'"
+              labelPlacement="stacked" placeholder="e.g. 600" [(ngModel)]="monthlyBudget.totalBudgetGhs" min="10"
               step="10">
             </ion-input>
           </ion-item>
@@ -431,7 +390,8 @@
             <div class="stat-col">
               <span class="stat-title">Daily Allowance</span>
               <span class="stat-num">{{ dailyAllowance.toFixed(2) }} {{ userProfile.primaryCurrency }}</span>
-              <span class="stat-sub">≈ {{ dailyAllowanceSecondary.toLocaleString() }} {{ currencyService.secondaryCurrency() }}</span>
+              <span class="stat-sub">≈ {{ dailyAllowanceSecondary.toLocaleString() }} {{
+                currencyService.secondaryCurrency() }}</span>
             </div>
             <div class="stat-pipe"></div>
             <div class="stat-col">
@@ -448,11 +408,7 @@
               <ion-icon [name]="cat.icon" slot="start" class="env-icon"></ion-icon>
               <ion-label class="env-name">{{ cat.name }}</ion-label>
               <div slot="end" class="env-input-box">
-                <ion-input
-                  type="number"
-                  class="env-val-field"
-                  [(ngModel)]="cat.monthlyAllocationGhs"
-                  min="0">
+                <ion-input type="number" class="env-val-field" [(ngModel)]="cat.monthlyAllocationGhs" min="0">
                 </ion-input>
                 <span class="env-unit">{{ userProfile.primaryCurrency }}</span>
               </div>
@@ -494,29 +450,20 @@
           </div>
           <h3 class="link-heading">Link Local Campus Account</h3>
           <p class="link-desc">
-            Enter your email address. If you are a new student, a welcome email will be sent with your 6-digit confirmation code.
+            Enter your email address. If you are a new student, a welcome email will be sent with your 6-digit
+            confirmation code.
           </p>
 
           <ion-item class="modal-input-item" lines="none">
             <ion-icon name="mail-outline" slot="start" class="field-icon"></ion-icon>
-            <ion-input
-              type="email"
-              inputmode="email"
-              label="Student Email Address *"
-              labelPlacement="stacked"
-              placeholder="e.g. jonas.student@gmail.com"
-              [(ngModel)]="linkEmailInput"
-              (keyup.enter)="sendLinkOtp()">
+            <ion-input type="email" inputmode="email" label="Student Email Address *" labelPlacement="stacked"
+              placeholder="e.g. jonas.student@gmail.com" [(ngModel)]="linkEmailInput" (keyup.enter)="sendLinkOtp()">
             </ion-input>
           </ion-item>
 
           <div class="modal-actions-bar">
-            <ion-button
-              expand="block"
-              class="modal-submit-btn"
-              [disabled]="isLinking || !linkEmailInput.trim()"
-              (click)="sendLinkOtp()"
-              id="btn-submit-link-email">
+            <ion-button expand="block" class="modal-submit-btn" [disabled]="isLinking || !linkEmailInput.trim()"
+              (click)="sendLinkOtp()" id="btn-submit-link-email">
               <span *ngIf="!isLinking">Send 6-Digit Code</span>
               <ion-spinner *ngIf="isLinking" name="crescent"></ion-spinner>
               <ion-icon *ngIf="!isLinking" slot="end" name="arrow-forward-outline"></ion-icon>
@@ -536,25 +483,14 @@
 
           <ion-item class="modal-input-item otp-item" lines="none">
             <ion-icon name="key-outline" slot="start" class="field-icon"></ion-icon>
-            <ion-input
-              type="text"
-              inputmode="numeric"
-              maxlength="6"
-              label="6-Digit OTP Code *"
-              labelPlacement="stacked"
-              placeholder="123456"
-              [(ngModel)]="linkOtpInput"
-              (keyup.enter)="verifyLinkOtp()"
-              class="otp-field-input">
+            <ion-input type="text" inputmode="numeric" maxlength="6" label="6-Digit OTP Code *" labelPlacement="stacked"
+              placeholder="123456" [(ngModel)]="linkOtpInput" (keyup.enter)="verifyLinkOtp()" class="otp-field-input">
             </ion-input>
           </ion-item>
 
           <div class="modal-actions-bar">
-            <ion-button
-              expand="block"
-              class="modal-submit-btn"
-              [disabled]="isLinking || !linkOtpInput.trim() || linkOtpInput.trim().length < 6"
-              (click)="verifyLinkOtp()"
+            <ion-button expand="block" class="modal-submit-btn"
+              [disabled]="isLinking || !linkOtpInput.trim() || linkOtpInput.trim().length < 6" (click)="verifyLinkOtp()"
               id="btn-submit-link-otp">
               <span *ngIf="!isLinking">Verify &amp; Link Account</span>
               <ion-spinner *ngIf="isLinking" name="crescent"></ion-spinner>
@@ -563,10 +499,7 @@
           </div>
 
           <div class="otp-resend-row">
-            <button
-              class="resend-text-btn"
-              [disabled]="linkCountdown > 0 || isLinking"
-              (click)="resendLinkOtp()">
+            <button class="resend-text-btn" [disabled]="linkCountdown > 0 || isLinking" (click)="resendLinkOtp()">
               <ion-icon name="refresh-outline"></ion-icon>
               <span *ngIf="linkCountdown > 0">Resend code in {{ linkCountdown }}s</span>
               <span *ngIf="linkCountdown === 0">Resend new code</span>

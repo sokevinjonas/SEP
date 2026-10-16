@@ -33,7 +33,16 @@ export const routes: Routes = [
       },
       {
         path: 'budget',
-        loadComponent: () => import('./features/budget/budget.page').then((m) => m.BudgetPage),
+        children: [
+          {
+            path: '',
+            loadComponent: () => import('./features/budget/budget.page').then((m) => m.BudgetPage),
+          },
+          {
+            path: 'category/:id',
+            loadComponent: () => import('./features/budget/category-detail/category-detail.page').then((m) => m.CategoryDetailPage),
+          }
+        ]
       },
       {
         path: 'profile',
@@ -45,6 +54,10 @@ export const routes: Routes = [
         pathMatch: 'full',
       },
     ]
+  },
+  {
+    path: 'category-detail/:id',
+    loadComponent: () => import('./features/budget/category-detail/category-detail.page').then((m) => m.CategoryDetailPage),
   },
   {
     path: 'home',

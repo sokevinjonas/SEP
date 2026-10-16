@@ -24,8 +24,7 @@
         <div class="balance-header-row">
           <app-breathing-badge
             [label]="consumption().isDiscoveryMode ? 'Discovery Mode · AI Learning' : 'Breathing Balance'"
-            [status]="consumption().isDiscoveryMode ? 'safe' : 'breathing'"
-            [pulse]="true">
+            [status]="consumption().isDiscoveryMode ? 'safe' : 'breathing'" [pulse]="true">
           </app-breathing-badge>
           <ion-note class="month-label">
             Cycle Resets on Day {{ consumption().cycleStartDay || 1 }}
@@ -88,7 +87,8 @@
 
         <!-- Mode B Progress (Cycle Days Elapsed toward AI Recommendation) -->
         <ng-container *ngIf="consumption().isDiscoveryMode">
-          <ion-progress-bar class="budget-progress-bar discovery-progress-bar" [value]="(consumption().cycleProgressPercent || 0) / 100" color="secondary">
+          <ion-progress-bar class="budget-progress-bar discovery-progress-bar"
+            [value]="(consumption().cycleProgressPercent || 0) / 100" color="secondary">
           </ion-progress-bar>
 
           <div class="progress-label-row">
@@ -142,7 +142,8 @@
               <ion-badge *ngIf="consumption().isDiscoveryMode" color="secondary">
                 Discovery Mode
               </ion-badge>
-              <ion-badge *ngIf="!consumption().isDiscoveryMode" [color]="consumption().consumedPercent > 70 ? 'warning' : 'secondary'">
+              <ion-badge *ngIf="!consumption().isDiscoveryMode"
+                [color]="consumption().consumedPercent > 70 ? 'warning' : 'secondary'">
                 {{ consumption().consumedPercent > 70 ? '70% Alert' : 'On Track' }}
               </ion-badge>
               <ion-chip class="coach-chat-pill" color="primary">
@@ -153,7 +154,9 @@
           </div>
           <!-- Discovery Mode Quote -->
           <p class="coach-quote" *ngIf="consumption().isDiscoveryMode">
-            "Hey {{ userProfile()?.name || 'Student' }}, you're in Discovery Mode! Keep logging your meals and trotro rides freely. On day {{ consumption().cycleStartDay || 1 }}, I will audit your real spending and propose your optimal tailored budget."
+            "Hey {{ userProfile()?.name || 'Student' }}, you're in Discovery Mode! Keep logging your meals and trotro
+            rides freely. On day {{ consumption().cycleStartDay || 1 }}, I will audit your real spending and propose
+            your optimal tailored budget."
           </p>
           <!-- Regular Fixed Ceiling Quotes -->
           <p class="coach-quote" *ngIf="!consumption().isDiscoveryMode && consumption().consumedPercent > 70">
@@ -202,7 +205,8 @@
         </ion-item>
 
         <ion-item-options side="end">
-          <ion-item-option color="danger" class="delete-option-btn" (click)="confirmDeleteExpense(exp, slidingItem)" aria-label="Delete expense">
+          <ion-item-option color="danger" class="delete-option-btn" (click)="confirmDeleteExpense(exp, slidingItem)"
+            aria-label="Delete expense">
             <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
           </ion-item-option>
         </ion-item-options>

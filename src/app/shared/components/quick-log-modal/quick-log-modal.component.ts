@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -59,6 +59,8 @@ import { Category, Expense } from '../../../core/models/financial.models';
   styleUrls: ['./quick-log-modal.component.scss']
 })
 export class QuickLogModalComponent implements OnInit {
+  @Input() preselectedCategoryId?: string;
+
   amountStr = '15';
   merchant = '';
   expenseDate: string = this.getTodayDateString();
@@ -125,7 +127,12 @@ export class QuickLogModalComponent implements OnInit {
     await this.budgetFacade.load();
     this.categories = this.budgetFacade.categories();
     if (this.categories.length > 0) {
-      this.selectedCategory = this.categories[0];
+      if (this.preselectedCategoryId) {
+        const match = this.categories.find(c => c.id === this.preselectedCategoryId);
+        this.selectedCategory = match || this.categories[0];
+      } else {
+        this.selectedCategory = this.categories[0];
+      }
     }
   }
 
