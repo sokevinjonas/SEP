@@ -10,6 +10,7 @@ const config_js_1 = require("./config.js");
 const auth_routes_js_1 = require("./routes/auth.routes.js");
 const sync_routes_js_1 = require("./routes/sync.routes.js");
 const chat_routes_js_1 = require("./routes/chat.routes.js");
+const captures_routes_js_1 = require("./routes/captures.routes.js");
 exports.app = (0, express_1.default)();
 exports.app.use((0, cors_1.default)({
     origin: '*',
@@ -31,6 +32,7 @@ exports.app.get('/api/health', (req, res) => {
 exports.app.use('/api/auth', auth_routes_js_1.authRouter);
 exports.app.use('/api', sync_routes_js_1.syncRouter);
 exports.app.use('/api', chat_routes_js_1.chatRouter);
+exports.app.use('/api', captures_routes_js_1.capturesRouter);
 // Root fallback
 exports.app.get('/', (req, res) => {
     res.send('Student Savings API is running.');

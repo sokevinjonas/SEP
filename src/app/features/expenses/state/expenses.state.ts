@@ -44,4 +44,8 @@ export class ExpensesState {
   remove(id: string): void {
     this._expenses.update(list => list.filter(e => e.id !== id));
   }
+
+  update(expense: Expense): void {
+    this._expenses.update(list => list.map(e => e.id === expense.id ? expense : e));
+  }
 }

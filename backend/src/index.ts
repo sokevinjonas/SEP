@@ -4,6 +4,7 @@ import { config } from './config.js';
 import { authRouter } from './routes/auth.routes.js';
 import { syncRouter } from './routes/sync.routes.js';
 import { chatRouter } from './routes/chat.routes.js';
+import { capturesRouter } from './routes/captures.routes.js';
 
 export const app = express();
 
@@ -30,6 +31,7 @@ app.get('/api/health', (req, res) => {
 app.use('/api/auth', authRouter);
 app.use('/api', syncRouter);
 app.use('/api', chatRouter);
+app.use('/api', capturesRouter);
 
 // Root fallback
 app.get('/', (req, res) => {

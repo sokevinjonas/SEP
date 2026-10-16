@@ -3,8 +3,17 @@
     <div class="sheet-drag-handle"></div>
   </div>
   <ion-toolbar class="sep-modal-toolbar">
-    <ion-title class="sep-modal-title">Expense Details</ion-title>
+    <ion-title class="sep-modal-title">
+      {{ isEditing() ? 'Edit Expense' : 'Expense Details' }}
+    </ion-title>
     <ion-buttons slot="end">
+      <ion-button *ngIf="!isEditing()" (click)="startEditing()" class="edit-toolbar-btn">
+        <ion-icon slot="start" name="create-outline"></ion-icon>
+        <span>Edit</span>
+      </ion-button>
+      <ion-button *ngIf="isEditing()" (click)="cancelEditing()" class="cancel-toolbar-btn">
+        <span>Cancel</span>
+      </ion-button>
       <ion-button (click)="dismiss()" class="sep-modal-close-btn" aria-label="Close">
         <ion-icon name="close-outline"></ion-icon>
       </ion-button>
@@ -13,101 +22,178 @@
 </ion-header>
 
 <ion-content class="expense-detail-content ion-padding">
-  <!-- Hero Receipt Card using shared card styling -->
-  <div class="sep-card-hero receipt-hero">
-    <div class="category-icon-halo" [style.background-color]="categoryColor + '20'" [style.color]="categoryColor">
-      <ion-icon [name]="categoryIcon"></ion-icon>
-    </div>
 
-    <div class="merchant-name">
-      {{ expense.merchant || expense.categoryName }}
-    </div>
-
-    <div class="hero-amount-huge text-negative">
-      -{{ expense.amount.toFixed(2) }} <span class="currency-label">{{ expense.currency }}</span>
-    </div>
-
-    <div class="hero-equiv" *ngIf="expense.currency === 'GHS'">
-      ≈ {{ currencyService.formatEquiv(expense.amount) }}
-    </div>
-    <div class="hero-equiv" *ngIf="expense.currency === 'XOF'">
-      ≈ {{ (expense.amount / 42.0).toFixed(2) }} GHS
-    </div>
-  </div>
-
-  <!-- Detailed Ledger Breakdown using shared sep-card -->
-  <div class="sep-card detail-rows-card">
-    <!-- Category row -->
-    <div class="detail-row">
-      <div class="row-label">
-        <ion-icon name="wallet-outline"></ion-icon>
-        <span>Envelope / Category</span>
+  <!-- =========================================================================
+       VIEW MODE
+       ========================================================================= -->
+  <ng-container *ngIf="!isEditing()">
+    <!-- Hero Receipt Card using shared card styling -->
+    <div class="sep-card-hero receipt-hero">
+      <div class="category-icon-halo" [style.background-color]="categoryColor + '20'" [style.color]="categoryColor">
+        <ion-icon [name]="categoryIcon"></ion-icon>
       </div>
-      <div class="row-value">
-        <span class="category-chip-pill" [style.border-color]="categoryColor" [style.color]="categoryColor">
-          <ion-icon [name]="categoryIcon"></ion-icon>
-          {{ expense.categoryName }}
-        </span>
+
+      <div class="merchant-name">
+        {{ expense.merchant || expense.categoryName }}
+      </div>
+
+      <div class="hero-amount-huge text-negative">
+        -{{ expense.amount.toFixed(2) }} <span class="currency-label">{{ expense.currency }}</span>
+      </div>
+
+      <div class="hero-equiv" *ngIf="expense.currency === 'GHS'">
+        ≈ {{ currencyService.formatEquiv(expense.amount) }}
+      </div>
+      <div class="hero-equiv" *ngIf="expense.currency === 'XOF'">
+        ≈ {{ (expense.amount / 42.0).toFixed(2) }} GHS
       </div>
     </div>
 
-    <!-- Date & Time row -->
-    <div class="detail-row">
-      <div class="row-label">
-        <ion-icon name="calendar-outline"></ion-icon>
-        <span>Date & Time</span>
+    <!-- Detailed Ledger Breakdown using shared sep-card -->
+    <div class="sep-card detail-rows-card">
+      <!-- Category row -->
+      <div class="detail-row">
+        <div class="row-label">
+          <ion-icon name="wallet-outline"></ion-icon>
+          <span>Envelope / Category</span>
+        </div>
+        <div class="row-value">
+          <span class="category-chip-pill" [style.border-color]="categoryColor" [style.color]="categoryColor">
+            <ion-icon [name]="categoryIcon"></ion-icon>
+            {{ expense.categoryName }}
+          </span>
+        </div>
       </div>
-      <div class="row-value">
-        <span class="date-text">{{ expense.date | date:'EEEE, MMM d, y' }}</span>
-        <span class="time-text">{{ expense.date | date:'HH:mm' }}</span>
+
+      <!-- Date & Time row -->
+      <div class="detail-row">
+        <div class="row-label">
+          <ion-icon name="calendar-outline"></ion-icon>
+          <span>Date &amp; Time</span>
+        </div>
+        <div class="row-value">
+          <span class="date-text">{{ expense.date | date:'EEEE, MMM d, y' }}</span>
+          <span class="time-text">{{ expense.date | date:'HH:mm' }}</span>
+        </div>
+      </div>
+
+      <!-- Source / Entry Mode row -->
+      <div class="detail-row">
+        <div class="row-label">
+          <ion-icon [name]="sourceIcon"></ion-icon>
+          <span>Entry Source</span>
+        </div>
+        <div class="row-value">
+          <span class="sep-source-tag" [ngClass]="{
+            'source-ocr': expense.source === 'ocr_receipt',
+            'source-manual': expense.source === 'manual',
+            'source-momo': expense.source === 'ocr_momo'
+          }">
+            {{ sourceLabel }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Transaction Reference (if any) -->
+      <div class="detail-row" *ngIf="expense.transactionRef">
+        <div class="row-label">
+          <ion-icon name="finger-print-outline"></ion-icon>
+          <span>Transaction Ref</span>
+        </div>
+        <div class="row-value">
+          <code class="ref-code">{{ expense.transactionRef }}</code>
+        </div>
+      </div>
+
+      <!-- Note / Memo (if any) -->
+      <div class="detail-row memo-row" *ngIf="expense.note">
+        <div class="row-label">
+          <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+          <span>Note / Memo</span>
+        </div>
+        <div class="row-value memo-box">
+          <p>{{ expense.note }}</p>
+        </div>
       </div>
     </div>
 
-    <!-- Source / Entry Mode row -->
-    <div class="detail-row">
-      <div class="row-label">
-        <ion-icon [name]="sourceIcon"></ion-icon>
-        <span>Entry Source</span>
+    <!-- Actions -->
+    <div class="detail-actions-wrap">
+      <button type="button" class="sep-btn edit-action-btn" (click)="startEditing()">
+        <ion-icon name="create-outline"></ion-icon>
+        <span>Edit Expense</span>
+      </button>
+
+      <button type="button" class="sep-btn-outline delete-btn" (click)="confirmDelete()">
+        <ion-icon name="trash-outline"></ion-icon>
+        <span>Delete Expense</span>
+      </button>
+    </div>
+  </ng-container>
+
+  <!-- =========================================================================
+       EDIT MODE
+       ========================================================================= -->
+  <ng-container *ngIf="isEditing()">
+    <div class="sep-card edit-card">
+      <div class="edit-section-title">UPDATE EXPENSE DETAILS</div>
+
+      <!-- Amount & Currency -->
+      <div class="edit-amount-currency-row">
+        <ion-item class="edit-input-item flex-grow" lines="none">
+          <ion-label position="stacked">Amount *</ion-label>
+          <ion-input type="number" inputmode="decimal" [(ngModel)]="editAmount" placeholder="0.00"></ion-input>
+        </ion-item>
+
+        <ion-item class="edit-input-item currency-item" lines="none">
+          <ion-label position="stacked">Currency</ion-label>
+          <ion-select [(ngModel)]="editCurrency" interface="popover">
+            <ion-select-option value="GHS">GHS</ion-select-option>
+            <ion-select-option value="XOF">XOF</ion-select-option>
+          </ion-select>
+        </ion-item>
       </div>
-      <div class="row-value">
-        <span class="sep-source-tag" [ngClass]="{
-          'source-ocr': expense.source === 'ocr_receipt',
-          'source-manual': expense.source === 'manual',
-          'source-momo': expense.source === 'ocr_momo'
-        }">
-          {{ sourceLabel }}
-        </span>
-      </div>
+
+      <!-- Merchant / Place -->
+      <ion-item class="edit-input-item" lines="none">
+        <ion-label position="stacked">Merchant / Place (e.g. Kiki Chop Bar, Trotro)</ion-label>
+        <ion-input type="text" [(ngModel)]="editMerchant" placeholder="Where did you spend?"></ion-input>
+      </ion-item>
+
+      <!-- Category Envelope -->
+      <ion-item class="edit-input-item" lines="none">
+        <ion-label position="stacked">Budget Envelope</ion-label>
+        <ion-select [(ngModel)]="editCategoryId" interface="action-sheet" placeholder="Select Envelope">
+          <ion-select-option *ngFor="let cat of budgetFacade.categories()" [value]="cat.id">
+            {{ cat.name }} ({{ cat.monthlyAllocationGhs }} GHS)
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Date -->
+      <ion-item class="edit-input-item" lines="none">
+        <ion-label position="stacked">Date</ion-label>
+        <ion-input type="date" [(ngModel)]="editDate"></ion-input>
+      </ion-item>
+
+      <!-- Note / Memo -->
+      <ion-item class="edit-input-item" lines="none">
+        <ion-label position="stacked">Note / Memo</ion-label>
+        <ion-textarea [(ngModel)]="editNote" placeholder="Optional notes... (e.g. lunch with classmates)" rows="2"></ion-textarea>
+      </ion-item>
     </div>
 
-    <!-- Transaction Reference (if any) -->
-    <div class="detail-row" *ngIf="expense.transactionRef">
-      <div class="row-label">
-        <ion-icon name="finger-print-outline"></ion-icon>
-        <span>Transaction Ref</span>
-      </div>
-      <div class="row-value">
-        <code class="ref-code">{{ expense.transactionRef }}</code>
-      </div>
-    </div>
+    <!-- Edit Actions -->
+    <div class="edit-actions-wrap">
+      <ion-button expand="block" class="save-edit-btn" (click)="saveChanges()">
+        <ion-icon slot="start" name="save-outline"></ion-icon>
+        <span>Save Changes</span>
+      </ion-button>
 
-    <!-- Note / Memo (if any) -->
-    <div class="detail-row memo-row" *ngIf="expense.note">
-      <div class="row-label">
-        <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
-        <span>Note / Memo</span>
-      </div>
-      <div class="row-value memo-box">
-        <p>{{ expense.note }}</p>
-      </div>
+      <ion-button expand="block" fill="clear" color="medium" (click)="cancelEditing()">
+        Cancel
+      </ion-button>
     </div>
-  </div>
+  </ng-container>
 
-  <!-- Actions -->
-  <div class="detail-actions-wrap">
-    <button type="button" class="sep-btn-outline delete-btn" (click)="confirmDelete()">
-      <ion-icon name="trash-outline"></ion-icon>
-      <span>Delete Expense</span>
-    </button>
-  </div>
 </ion-content>

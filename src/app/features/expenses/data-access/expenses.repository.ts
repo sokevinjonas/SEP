@@ -48,4 +48,19 @@ export class ExpensesRepository {
     });
     await tx.done;
   }
+
+  async update(expense: Expense): Promise<void> {
+    const db = await this.idb.db;
+    const tx = db.transaction(['expenses', 'sync_queue'], 'readwrite');
+    await tx.objectStore('expenses').put(expense);
+    await tx.objectStore('sync_queue').put({
+      id: `sync-upd-${expense.id}-${Date.now()}`,
+      entity: 'expense',
+      action: 'update',
+      payload: expense,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    });
+    await tx.done;
+  }
 }

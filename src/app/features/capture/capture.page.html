@@ -48,17 +48,26 @@
       </div>
     </div>
 
-    <!-- 2. Camera Button Trigger (Story 3.1) -->
-    <div class="camera-btn-wrap">
+    <!-- 2. Camera Button Trigger or Paste MoMo SMS (Pilier 5) -->
+    <div class="camera-btn-wrap dual-actions-grid">
       <ion-button
-        expand="block"
         fill="outline"
         size="large"
         class="sep-btn-outline camera-action-btn"
         (click)="triggerFileInput(cameraInput)"
         id="btn-take-photo">
         <ion-icon slot="start" name="camera-outline"></ion-icon>
-        <span>Take a Photo (Camera)</span>
+        <span>Take Photo</span>
+      </ion-button>
+
+      <ion-button
+        fill="solid"
+        size="large"
+        class="sep-btn paste-sms-btn"
+        (click)="openPasteSmsModal()"
+        id="btn-paste-sms">
+        <ion-icon slot="start" name="clipboard-outline"></ion-icon>
+        <span>Paste MoMo SMS</span>
       </ion-button>
     </div>
 

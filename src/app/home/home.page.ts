@@ -41,7 +41,10 @@ import {
   compassOutline,
   arrowForwardOutline,
   receiptOutline,
-  chevronForwardOutline
+  chevronForwardOutline,
+  syncOutline,
+  cashOutline,
+  addCircleOutline
 } from 'ionicons/icons';
 import { Expense } from '../core/models/financial.models';
 import { ExpensesFacade } from '../features/expenses/facade/expenses.facade';
@@ -121,7 +124,10 @@ export class HomePage implements OnInit {
       compassOutline,
       arrowForwardOutline,
       receiptOutline,
-      chevronForwardOutline
+      chevronForwardOutline,
+      syncOutline,
+      cashOutline,
+      addCircleOutline
     });
   }
 
@@ -202,6 +208,10 @@ export class HomePage implements OnInit {
     this.router.navigate(['/tabs/expenses']);
   }
 
+  navigateToPurchases(): void {
+    this.router.navigate(['/tabs/purchases']);
+  }
+
   navigateToBudgetSettings(): void {
     this.router.navigate(['/tabs/budget']);
   }
@@ -276,6 +286,134 @@ export class HomePage implements OnInit {
         }
       ]
     });
+    await alert.present();
+  }
+
+  /**
+   * Jonas receives a top-up allowance (e.g. parents MoMo transfer, student job)
+   */
+  async openTopUpModal(): Promise<void> {
+    const alert = await this.alertCtrl.create({
+      header: 'Receive Allowance / Top-up (+)',
+      subHeader: 'MoMo, campus stipend, or family support',
+      message: 'Enter amount received to increase your monthly allowance & breathing balance:',
+      inputs: [
+        {
+          name: 'amount',
+          type: 'number',
+          placeholder: 'e.g. 250 (GHS)',
+          min: 1
+        }
+      ],
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Add to Budget',
+          handler: async (data) => {
+            const amount = parseFloat(data.amount);
+            if (!amount || amount <= 0) {
+              const toast = await this.toastCtrl.create({
+                message: 'Please enter a valid positive amount',
+                duration: 2000,
+                color: 'warning',
+                position: 'top'
+              });
+              await toast.present();
+              return false;
+            }
+
+            await this.budgetFacade.addAllowanceTopUp(amount);
+
+            const toast = await this.toastCtrl.create({
+              message: `💰 Top-up of +${amount.toFixed(2)} GHS added! Your breathing balance has increased.`,
+              duration: 3500,
+              color: 'success',
+              position: 'top'
+            });
+            await toast.present();
+            return true;
+          }
+        }
+      ]
+    });
+
+    await alert.present();
+  }
+
+  /**
+   * Cycle Rollover Review: Celebrates month end, audits surplus/deficit,
+   * and gives Jonas the choice to rollover surplus or lock into savings.
+   */
+  async openCycleRolloverModal(): Promise<void> {
+    const consumption = this.consumption();
+    const balance = consumption.balanceGhs;
+    const isSurplus = balance > 0;
+    const cycleDay = consumption.cycleStartDay || 1;
+    const profile = this.userProfile();
+    const vault = profile?.savingsVaultGhs || 0;
+    const studentName = profile?.name || 'Student';
+
+    const alert = await this.alertCtrl.create({
+      header: `Cycle Day ${cycleDay} · Month Rollover`,
+      subHeader: isSurplus ? `🎉 Congratulations ${studentName}! You finished with a surplus!` : `Month Review`,
+      message: isSurplus
+        ? `You have a remaining surplus of ${balance.toFixed(2)} GHS!\n\nCurrent Savings Vault: ${vault.toFixed(2)} GHS.\n\nWhat would you like to do with this surplus for the next cycle?`
+        : `You used your allowance this cycle. Reset your monthly allowance for the new cycle?`,
+      buttons: isSurplus ? [
+        {
+          text: 'Dismiss',
+          role: 'cancel'
+        },
+        {
+          text: `Rollover (+${balance.toFixed(0)} GHS to next budget)`,
+          handler: async () => {
+            const res = await this.budgetFacade.executeCycleRollover('rollover_to_budget');
+            const toast = await this.toastCtrl.create({
+              message: `New cycle started with ${res.newCeilingGhs.toFixed(0)} GHS ceiling (base + ${res.surplusGhs.toFixed(0)} GHS rollover)!`,
+              duration: 3500,
+              color: 'success',
+              position: 'top'
+            });
+            await toast.present();
+          }
+        },
+        {
+          text: `Lock into Student Vault 🏦`,
+          handler: async () => {
+            const res = await this.budgetFacade.executeCycleRollover('save_to_vault');
+            const toast = await this.toastCtrl.create({
+              message: `🏆 ${res.surplusGhs.toFixed(0)} GHS locked into your Student Savings Vault (Total: ${res.newSavingsVaultGhs.toFixed(0)} GHS)!`,
+              duration: 4000,
+              color: 'success',
+              position: 'top'
+            });
+            await toast.present();
+          }
+        }
+      ] : [
+        {
+          text: 'Cancel',
+          role: 'cancel'
+        },
+        {
+          text: 'Reset Cycle Now',
+          handler: async () => {
+            await this.budgetFacade.executeCycleRollover('save_to_vault');
+            const toast = await this.toastCtrl.create({
+              message: `Fresh cycle initiated! Stay disciplined ${studentName}.`,
+              duration: 3000,
+              color: 'dark',
+              position: 'top'
+            });
+            await toast.present();
+          }
+        }
+      ]
+    });
+
     await alert.present();
   }
 }

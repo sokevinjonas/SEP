@@ -1,0 +1,135 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="sep-header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home" text="" icon="arrow-back-outline" class="sep-back-btn"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="sep-toolbar-title">Considered Purchases</ion-title>
+  </ion-toolbar>
+
+  <!-- Segment Filters -->
+  <div class="segment-wrap">
+    <ion-segment [value]="activeSegment()" (ionChange)="setSegment($any($event).detail.value)" class="sep-segment">
+      <ion-segment-button value="pending">
+        <ion-label>
+          Pending
+          <span class="count-pill">{{ purchasesFacade.pendingCount() }}</span>
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="abandoned">
+        <ion-label>
+          Avoided
+          <span class="count-pill trophy-pill">{{ purchasesFacade.abandonedCount() }}</span>
+        </ion-label>
+      </ion-segment-button>
+      <ion-segment-button value="bought">
+        <ion-label>
+          Bought
+          <span class="count-pill">{{ purchasesFacade.boughtCount() }}</span>
+        </ion-label>
+      </ion-segment-button>
+    </ion-segment>
+  </div>
+</ion-header>
+
+<ion-content class="purchases-content ion-padding" [fullscreen]="true">
+  <div class="sep-page-container has-bottom-bars">
+
+    <!-- Trophy Banner (Always visible in Avoided tab, or celebratory on Abandon) -->
+    <div class="sep-card avoided-hero-banner" [class.celebrating]="isCelebrating()">
+      <div class="banner-content">
+        <div class="banner-badge">
+          <ion-icon name="trophy-outline"></ion-icon>
+          <span>Impulse Resistance Trophy</span>
+        </div>
+        <div class="banner-amount">
+          {{ currencyService.formatAmount(purchasesFacade.avoidedTotal()) }}
+        </div>
+        <p class="banner-sub">
+          Total money kept in your pocket by pausing and abandoning impulse buys.
+        </p>
+      </div>
+    </div>
+
+    <!-- Empty State: Pending -->
+    <div *ngIf="activeSegment() === 'pending' && displayedPurchases.length === 0" class="sep-empty-state">
+      <div class="empty-icon-circle">
+        <ion-icon name="shield-checkmark-outline"></ion-icon>
+      </div>
+      <h4>No Pending Purchases</h4>
+      <p>Clean slate! When tempted to buy something on campus, tap <strong>"I want to buy"</strong> on the Home screen to pause and reflect.</p>
+    </div>
+
+    <!-- Empty State: Avoided -->
+    <div *ngIf="activeSegment() === 'abandoned' && displayedPurchases.length === 0" class="sep-empty-state">
+      <div class="empty-icon-circle">
+        <ion-icon name="trophy-outline"></ion-icon>
+      </div>
+      <h4>Your Trophy Wall is Waiting</h4>
+      <p>Every time you decide not to buy an impulse item, it lands here and boosts your Total Saved.</p>
+    </div>
+
+    <!-- Empty State: Bought -->
+    <div *ngIf="activeSegment() === 'bought' && displayedPurchases.length === 0" class="sep-empty-state">
+      <div class="empty-icon-circle">
+        <ion-icon name="cart-outline"></ion-icon>
+      </div>
+      <h4>No Resolved Purchases</h4>
+      <p>Items you genuinely decided to buy after consideration will appear here.</p>
+    </div>
+
+    <!-- Purchases List -->
+    <div class="purchases-list" *ngIf="displayedPurchases.length > 0">
+      <div *ngFor="let item of displayedPurchases" class="sep-card purchase-card" [class.pending-card]="item.status === 'pending'">
+
+        <div class="card-header-row">
+          <div class="title-block">
+            <h3 class="item-title">{{ item.title }}</h3>
+            <span class="item-time">{{ getTimeElapsed(item.createdAt) }}</span>
+          </div>
+
+          <div class="amount-badge">
+            <span class="amount-val">{{ item.amountGhs }} GHS</span>
+            <span class="amount-equiv">≈ {{ currencyService.toXof(item.amountGhs).toLocaleString() }} XOF</span>
+          </div>
+        </div>
+
+        <!-- Reframing and Days cost -->
+        <div class="cost-reframe-box">
+          <div class="cost-chip">
+            <ion-icon name="time-outline"></ion-icon>
+            <span><strong>{{ item.costInBudgetDays.toFixed(1) }}</strong> Budget Days</span>
+          </div>
+          <p class="reframe-text" *ngIf="item.reframingText">
+            "{{ item.reframingText }}"
+          </p>
+        </div>
+
+        <!-- Status & Actions for Pending Items -->
+        <div class="card-actions-row" *ngIf="item.status === 'pending'">
+          <ion-button fill="solid" class="btn-abandon" (click)="confirmAbandon(item)">
+            <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+            <span>Abandon &amp; Save</span>
+          </ion-button>
+
+          <ion-button fill="outline" class="btn-buy" (click)="confirmBuy(item)">
+            <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
+            <span>Buy It</span>
+          </ion-button>
+        </div>
+
+        <!-- Status Badge for Resolved Items -->
+        <div class="resolved-status-row" *ngIf="item.status !== 'pending'">
+          <span class="sep-badge" [ngClass]="item.status === 'abandoned' ? 'safe' : 'neutral'">
+            <ion-icon [name]="item.status === 'abandoned' ? 'trophy-outline' : 'cart-outline'"></ion-icon>
+            <span>{{ item.status === 'abandoned' ? 'Successfully Avoided' : 'Bought After Reflection' }}</span>
+          </span>
+          <span class="resolved-date" *ngIf="item.resolvedAt">
+            Resolved {{ item.resolvedAt | date:'dd MMM yyyy' }}
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</ion-content>

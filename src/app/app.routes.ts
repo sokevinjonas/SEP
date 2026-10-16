@@ -53,11 +53,20 @@ export const routes: Routes = [
         loadComponent: () => import('./features/expenses/expenses.page').then((m) => m.ExpensesPage),
       },
       {
+        path: 'purchases',
+        loadComponent: () => import('./features/purchases/purchases.page').then((m) => m.PurchasesPage),
+      },
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full',
       },
     ]
+  },
+  {
+    path: 'purchases',
+    redirectTo: 'tabs/purchases',
+    pathMatch: 'full',
   },
   {
     path: 'expenses',

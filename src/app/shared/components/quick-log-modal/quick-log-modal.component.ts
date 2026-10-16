@@ -222,10 +222,28 @@ export class QuickLogModalComponent implements OnInit {
     // Updates repository + updates signal state immediately
     await this.expensesFacade.addExpense(newExpense);
 
+    // M. Pognon Proactive Threshold Alerts (FR14)
+    const cons = this.budgetFacade.consumption();
+    let toastMessage = `Expense of ${amount.toFixed(2)} ${activeCurrency} recorded!`;
+    let toastColor: 'success' | 'warning' | 'danger' = 'success';
+
+    if (!cons.isDiscoveryMode) {
+      if (cons.consumedPercent >= 100) {
+        toastMessage = `⚠️ M. Pognon: Budget ceiling exceeded (${cons.consumedPercent}%)! Freeze non-essential buys.`;
+        toastColor = 'danger';
+      } else if (cons.consumedPercent >= 90) {
+        toastMessage = `🚨 M. Pognon: 90% threshold reached! Only ${cons.balanceGhs.toFixed(0)} GHS remaining.`;
+        toastColor = 'warning';
+      } else if (cons.consumedPercent >= 70) {
+        toastMessage = `🧐 M. Pognon: 70% threshold crossed. Keep meals to campus cafeteria!`;
+        toastColor = 'warning';
+      }
+    }
+
     const toast = await this.toastCtrl.create({
-      message: `Expense of ${amount.toFixed(2)} ${activeCurrency} recorded!`,
-      duration: 2000,
-      color: 'success',
+      message: toastMessage,
+      duration: 3200,
+      color: toastColor,
       position: 'top'
     });
     await toast.present();

@@ -1,5 +1,6 @@
-import { Component, Input, OnInit, inject } from '@angular/core';
+import { Component, Input, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import {
   IonHeader,
   IonToolbar,
@@ -8,6 +9,12 @@ import {
   IonButton,
   IonContent,
   IonIcon,
+  IonItem,
+  IonLabel,
+  IonInput,
+  IonSelect,
+  IonSelectOption,
+  IonTextarea,
   ModalController,
   AlertController,
   ToastController
@@ -32,7 +39,9 @@ import {
   bookOutline,
   peopleOutline,
   flashOutline,
-  ellipsisHorizontalCircleOutline
+  ellipsisHorizontalCircleOutline,
+  saveOutline,
+  checkmarkOutline
 } from 'ionicons/icons';
 import { Expense, Category } from '../../../core/models/financial.models';
 import { CurrencyService } from '../../../core/services/currency.service';
@@ -44,13 +53,20 @@ import { ExpensesFacade } from '../../../features/expenses/facade/expenses.facad
   standalone: true,
   imports: [
     CommonModule,
+    FormsModule,
     IonHeader,
     IonToolbar,
     IonTitle,
     IonButtons,
     IonButton,
     IonContent,
-    IonIcon
+    IonIcon,
+    IonItem,
+    IonLabel,
+    IonInput,
+    IonSelect,
+    IonSelectOption,
+    IonTextarea
   ],
   templateUrl: './expense-detail-modal.component.html',
   styleUrls: ['./expense-detail-modal.component.scss']
@@ -59,11 +75,21 @@ export class ExpenseDetailModalComponent implements OnInit {
   @Input({ required: true }) expense!: Expense;
 
   readonly currencyService = inject(CurrencyService);
-  private readonly budgetFacade = inject(BudgetFacade);
+  readonly budgetFacade = inject(BudgetFacade);
   private readonly expensesFacade = inject(ExpensesFacade);
   private readonly modalCtrl = inject(ModalController);
   private readonly alertCtrl = inject(AlertController);
   private readonly toastCtrl = inject(ToastController);
+
+  readonly isEditing = signal(false);
+
+  // Edit form state
+  editAmount: number = 0;
+  editCurrency: 'GHS' | 'XOF' = 'GHS';
+  editMerchant: string = '';
+  editCategoryId: string = '';
+  editNote: string = '';
+  editDate: string = '';
 
   category?: Category;
 
@@ -87,11 +113,17 @@ export class ExpenseDetailModalComponent implements OnInit {
       bookOutline,
       peopleOutline,
       flashOutline,
-      ellipsisHorizontalCircleOutline
+      ellipsisHorizontalCircleOutline,
+      saveOutline,
+      checkmarkOutline
     });
   }
 
   ngOnInit(): void {
+    this.refreshCategory();
+  }
+
+  refreshCategory(): void {
     if (this.expense?.categoryId) {
       this.category = this.budgetFacade.categories().find(c => c.id === this.expense.categoryId);
     }
@@ -126,6 +158,69 @@ export class ExpenseDetailModalComponent implements OnInit {
       case 'manual':
       default:
         return 'create-outline';
+    }
+  }
+
+  startEditing(): void {
+    this.editAmount = this.expense.amount;
+    this.editCurrency = this.expense.currency;
+    this.editMerchant = this.expense.merchant || '';
+    this.editCategoryId = this.expense.categoryId;
+    this.editNote = this.expense.note || '';
+    this.editDate = this.expense.date ? this.expense.date.substring(0, 10) : new Date().toISOString().substring(0, 10);
+    this.isEditing.set(true);
+  }
+
+  cancelEditing(): void {
+    this.isEditing.set(false);
+  }
+
+  async saveChanges(): Promise<void> {
+    if (!this.editAmount || this.editAmount <= 0) {
+      const toast = await this.toastCtrl.create({
+        message: 'Please enter a valid expense amount greater than 0',
+        duration: 2500,
+        color: 'warning',
+        position: 'top'
+      });
+      await toast.present();
+      return;
+    }
+
+    const selectedCategory = this.budgetFacade.categories().find(c => c.id === this.editCategoryId);
+
+    const updatedExpense: Expense = {
+      ...this.expense,
+      amount: Number(this.editAmount),
+      currency: this.editCurrency,
+      merchant: this.editMerchant.trim() || undefined,
+      categoryId: this.editCategoryId,
+      categoryName: selectedCategory ? selectedCategory.name : (this.expense.categoryName || 'General'),
+      note: this.editNote.trim() || undefined,
+      date: this.editDate ? new Date(this.editDate).toISOString() : this.expense.date
+    };
+
+    try {
+      await this.expensesFacade.updateExpense(updatedExpense);
+      this.expense = updatedExpense;
+      this.refreshCategory();
+      this.isEditing.set(false);
+
+      const toast = await this.toastCtrl.create({
+        message: 'Expense updated successfully! ✓',
+        duration: 2500,
+        color: 'success',
+        position: 'top'
+      });
+      await toast.present();
+    } catch {
+      const toast = await this.toastCtrl.create({
+        message: 'Error updating expense',
+        duration: 3000,
+        color: 'danger',
+        position: 'top'
+      });
+      await toast.present();
     }
   }
 

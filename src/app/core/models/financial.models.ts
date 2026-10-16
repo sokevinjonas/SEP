@@ -73,6 +73,7 @@ export interface UserProfile {
   isLinked?: boolean;
   budgetMode?: 'fixed' | 'discovery';
   cycleStartDay?: number; // 1 to 28, default 1
+  savingsVaultGhs?: number; // Accumulated student savings from completed cycles
   createdAt: string;
   updatedAt: string;
 }

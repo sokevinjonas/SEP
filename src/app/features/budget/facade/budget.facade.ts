@@ -282,4 +282,92 @@ export class BudgetFacade {
       });
     }
   }
+
+  /**
+   * Top-up allowance (e.g. MoMo transfer from parents or campus wages)
+   */
+  async addAllowanceTopUp(amountGhs: number, targetEnvelopeId?: string): Promise<void> {
+    const current = this.state.monthlyBudget();
+    const currentCeiling = current?.totalBudgetGhs || 0;
+    const newCeiling = currentCeiling + amountGhs;
+    const isDisc = current?.isDiscoveryMode || false;
+
+    const updatedBudget: MonthlyBudget = {
+      id: current?.id || 'current',
+      monthYear: current?.monthYear || new Date().toISOString().substring(0, 7),
+      totalBudgetGhs: newCeiling,
+      plannedDailyBudgetGhs: isDisc ? 0 : Math.round(newCeiling / 30),
+      exchangeRateXof: current?.exchangeRateXof || 42.0,
+      isDiscoveryMode: isDisc,
+      cycleStartDay: current?.cycleStartDay || 1
+    };
+    await this.saveMonthlyBudget(updatedBudget);
+
+    // If an envelope was selected to receive the top-up, adjust its allocation
+    if (targetEnvelopeId) {
+      const cat = this.state.categories().find(c => c.id === targetEnvelopeId);
+      if (cat) {
+        await this.addCategory({
+          ...cat,
+          monthlyAllocationGhs: (cat.monthlyAllocationGhs || 0) + amountGhs
+        });
+      }
+    }
+  }
+
+  /**
+   * Cycle Rollover: Closes out current cycle, calculates surplus/deficit,
+   * and either rolls over surplus to next cycle or deposits into Student Savings Vault.
+   */
+  async executeCycleRollover(action: 'rollover_to_budget' | 'save_to_vault'): Promise<{
+    surplusGhs: number;
+    newCeilingGhs: number;
+    newSavingsVaultGhs: number;
+  }> {
+    const consumption = this.consumption();
+    const surplusGhs = Math.max(0, consumption.balanceGhs);
+    const currentBudget = this.state.monthlyBudget();
+    const baseCeiling = currentBudget?.totalBudgetGhs || 600;
+
+    let newCeiling = baseCeiling;
+    let newSavingsVault = 0;
+
+    const profile = this.profileFacade.userProfile();
+    const currentVault = profile?.savingsVaultGhs || 0;
+
+    if (action === 'rollover_to_budget') {
+      newCeiling = baseCeiling + surplusGhs;
+      newSavingsVault = currentVault;
+    } else {
+      // save_to_vault
+      newCeiling = baseCeiling;
+      newSavingsVault = currentVault + surplusGhs;
+    }
+
+    if (profile) {
+      await this.profileFacade.saveUserProfile({
+        ...profile,
+        savingsVaultGhs: newSavingsVault,
+        updatedAt: new Date().toISOString()
+      });
+    }
+
+    const updatedBudget: MonthlyBudget = {
+      id: currentBudget?.id || 'current',
+      monthYear: new Date().toISOString().substring(0, 7),
+      totalBudgetGhs: newCeiling,
+      plannedDailyBudgetGhs: Math.round(newCeiling / 30),
+      exchangeRateXof: currentBudget?.exchangeRateXof || 42.0,
+      isDiscoveryMode: false,
+      cycleStartDay: currentBudget?.cycleStartDay || 1
+    };
+
+    await this.saveMonthlyBudget(updatedBudget);
+
+    return {
+      surplusGhs,
+      newCeilingGhs: newCeiling,
+      newSavingsVaultGhs: newSavingsVault
+    };
+  }
 }

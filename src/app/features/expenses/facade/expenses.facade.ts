@@ -61,6 +61,20 @@ export class ExpensesFacade {
     }
   }
 
+  async updateExpense(expense: Expense): Promise<void> {
+    this.state.setLoading(true);
+    try {
+      await this.repo.update(expense);
+      this.state.update(expense);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : 'Failed to update expense';
+      this.state.setError(msg);
+      throw err;
+    } finally {
+      this.state.setLoading(false);
+    }
+  }
+
   async checkDuplicateReference(ref: string): Promise<Expense | undefined> {
     return this.repo.checkDuplicateReference(ref);
   }

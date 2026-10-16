@@ -25,9 +25,10 @@
           [label]="consumption().isDiscoveryMode ? 'Discovery Mode · AI Learning' : 'Breathing Balance'"
           [status]="consumption().isDiscoveryMode ? 'safe' : 'breathing'" [pulse]="true">
         </app-breathing-badge>
-        <span class="month-label">
-          Cycle Resets on Day {{ consumption().cycleStartDay || 1 }}
-        </span>
+        <button class="month-label rollover-pill-btn" (click)="openCycleRolloverModal()" id="btn-cycle-rollover">
+          <ion-icon name="sync-outline"></ion-icon>
+          <span>Day {{ consumption().cycleStartDay || 1 }} Rollover</span>
+        </button>
       </div>
 
       <!-- Mode A: Fixed Budget Ceiling -->
@@ -77,8 +78,12 @@
             <ion-label>{{ budgetDaysInfo().days }} Budget Days</ion-label>
           </ion-chip>
           <span class="days-detail">
-            Basis: {{ budgetDaysInfo().basis }} · {{ budgetDaysInfo().distinctDaysCount }} active day(s)
+            Basis: {{ budgetDaysInfo().basis }}
           </span>
+          <button class="topup-action-btn" (click)="openTopUpModal()" id="btn-topup-allowance" title="Receive Allowance / Top-up">
+            <ion-icon name="add-circle-outline"></ion-icon>
+            <span>+ Top-up</span>
+          </button>
         </div>
       </ng-container>
 
@@ -107,7 +112,7 @@
     </div>
 
     <!-- Avoided Total Reward Card (Shared Card) -->
-    <div class="sep-card avoided-card" [class.celebrating]="isCelebratingAvoided">
+    <div class="sep-card avoided-card interactive" [class.celebrating]="isCelebratingAvoided" (click)="navigateToPurchases()" id="btn-avoided-card">
       <div class="avoided-card-content">
         <div class="avoided-text">
           <div class="sep-badge safe avoided-badge">
@@ -116,7 +121,15 @@
             <span *ngIf="isCelebratingAvoided"> +Saved!</span>
           </div>
           <h3 class="avoided-amount">{{ currencyService.formatAmount(avoidedGhs()) }}</h3>
-          <span class="avoided-note">Impulse purchases avoided this month</span>
+          <span class="avoided-note">
+            Impulse purchases avoided ·
+            <span class="view-link" *ngIf="purchasesFacade.pendingCount() > 0">
+              <strong>{{ purchasesFacade.pendingCount() }} to review →</strong>
+            </span>
+            <span class="view-link" *ngIf="purchasesFacade.pendingCount() === 0">
+              View wishlist →
+            </span>
+          </span>
         </div>
         <div class="avoided-icon-wrap" [class.celebrating-icon]="isCelebratingAvoided">
           <ion-icon [name]="isCelebratingAvoided ? 'trophy-outline' : 'trending-up-outline'"></ion-icon>
