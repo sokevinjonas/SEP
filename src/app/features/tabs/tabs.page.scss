@@ -20,6 +20,14 @@
       margin-bottom: 2px;
     }
   }
+
+  &.tab-bar-hidden {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    border: none !important;
+    pointer-events: none !important;
+  }
 }
 
 .thumb-action-dock {

@@ -41,10 +41,18 @@ body {
   padding: 18px 16px 140px;
   max-width: 520px;
   margin: 0 auto;
+
+  &.no-bottom-bars {
+    padding-bottom: 36px;
+  }
 }
 
 .has-bottom-bars {
   --padding-bottom: 140px;
+}
+
+.no-bottom-bars {
+  --padding-bottom: 36px;
 }
 
 .sep-page-header {

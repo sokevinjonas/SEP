@@ -32,6 +32,7 @@ import { HesitationModalComponent } from '../../shared/components/hesitation-mod
 })
 export class TabsPage implements OnInit {
   currentTab = 'home';
+  showTabs = true;
 
   constructor(
     private modalCtrl: ModalController,
@@ -56,14 +57,29 @@ export class TabsPage implements OnInit {
   }
 
   private updateTabFromUrl(url: string): void {
-    if (url.includes('/tabs/capture')) {
+    const cleanPath = (url || '').split('?')[0].split('#')[0].replace(/\/+$/, '');
+
+    // Secondary/detail routes where the bottom tab bar must be completely hidden
+    // e.g.: /tabs/purchases, /tabs/expenses, /tabs/budget/category/:id
+    const isSubPage =
+      cleanPath.includes('/category') ||
+      cleanPath.endsWith('/purchases') ||
+      cleanPath.endsWith('/expenses') ||
+      cleanPath.includes('/purchases/') ||
+      cleanPath.includes('/expenses/');
+
+    this.showTabs = !isSubPage;
+
+    if (cleanPath.startsWith('/tabs/capture')) {
       this.currentTab = 'capture';
-    } else if (url.includes('/tabs/budget')) {
+    } else if (cleanPath === '/tabs/budget') {
       this.currentTab = 'budget';
-    } else if (url.includes('/tabs/profile')) {
+    } else if (cleanPath.startsWith('/tabs/profile')) {
       this.currentTab = 'profile';
-    } else {
+    } else if (cleanPath === '/tabs/home' || cleanPath === '/tabs') {
       this.currentTab = 'home';
+    } else {
+      this.currentTab = '';
     }
   }
 
