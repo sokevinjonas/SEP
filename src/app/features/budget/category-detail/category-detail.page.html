@@ -136,7 +136,7 @@
       <div class="operations-list" *ngIf="operations().length > 0">
         <ion-list lines="none" class="sep-ledger-list">
           <ion-item-sliding *ngFor="let exp of operations()" #slidingItem class="sep-sliding-item">
-            <ion-item class="sep-transaction-item">
+            <ion-item class="sep-transaction-item" (click)="openExpenseDetail(exp)" button="true" [detail]="false">
               <div class="sep-date-badge" slot="start">
                 <span class="day">{{ exp.date.substring(8, 10) }}</span>
                 <span class="month">{{ formatDate(exp.date).substring(0, 3) }}</span>

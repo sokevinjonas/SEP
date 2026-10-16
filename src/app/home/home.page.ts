@@ -50,6 +50,7 @@ import { CurrencyService } from '../core/services/currency.service';
 import { CurrencyPillComponent } from '../shared/components/currency-pill/currency-pill.component';
 import { BreathingBadgeComponent } from '../shared/components/breathing-badge/breathing-badge.component';
 import { PognonChatModalComponent } from '../shared/components/pognon-chat-modal/pognon-chat-modal.component';
+import { ExpenseDetailModalComponent } from '../shared/components/expense-detail-modal/expense-detail-modal.component';
 
 @Component({
   selector: 'app-home',
@@ -193,8 +194,24 @@ export class HomePage implements OnInit {
     this.router.navigate(['/tabs/profile']);
   }
 
+  navigateToExpenses(): void {
+    this.router.navigate(['/tabs/expenses']);
+  }
+
   navigateToBudgetSettings(): void {
     this.router.navigate(['/tabs/budget']);
+  }
+
+  async openExpenseDetail(expense: Expense): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: ExpenseDetailModalComponent,
+      componentProps: { expense },
+      breakpoints: [0, 0.72, 0.95],
+      initialBreakpoint: 0.72,
+      handle: true,
+      cssClass: 'expense-detail-modal'
+    });
+    await modal.present();
   }
 
   async openAiBudgetProposal(): Promise<void> {

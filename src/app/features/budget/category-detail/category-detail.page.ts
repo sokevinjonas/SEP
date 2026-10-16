@@ -52,6 +52,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { getCategoryIcon, getCategoryColor } from '../domain/budget.model';
 import { Expense } from '../../../core/models/financial.models';
 import { QuickLogModalComponent } from '../../../shared/components/quick-log-modal/quick-log-modal.component';
+import { ExpenseDetailModalComponent } from '../../../shared/components/expense-detail-modal/expense-detail-modal.component';
 
 @Component({
   selector: 'app-category-detail',
@@ -197,6 +198,18 @@ export class CategoryDetailPage implements OnInit {
         preselectedCategoryId: this.categoryId()
       },
       cssClass: 'quick-log-modal'
+    });
+    await modal.present();
+  }
+
+  async openExpenseDetail(expense: Expense): Promise<void> {
+    const modal = await this.modalCtrl.create({
+      component: ExpenseDetailModalComponent,
+      componentProps: { expense },
+      breakpoints: [0, 0.72, 0.95],
+      initialBreakpoint: 0.72,
+      handle: true,
+      cssClass: 'expense-detail-modal'
     });
     await modal.present();
   }

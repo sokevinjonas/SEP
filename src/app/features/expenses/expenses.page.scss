@@ -1,0 +1,222 @@
+@use "../../../theme/shared" as *;
+
+.expenses-content {
+  --background: var(--sep-base, #F7F3F6);
+}
+
+.search-wrap {
+  padding: 4px 16px 8px;
+  background: var(--sep-card, #FFFFFF);
+
+  .sep-searchbar {
+    --background: var(--sep-base, #F7F3F6);
+    --border-radius: 14px;
+    --placeholder-color: var(--sep-mut, #6B5966);
+    --icon-color: var(--sep-mut, #6B5966);
+    --color: var(--sep-ink, #2B1F28);
+    padding: 0;
+    min-height: 42px;
+  }
+}
+
+/* Time segment pills using shared .sep-chip */
+.filter-segment-wrap {
+  padding: 8px 16px 10px;
+  background: var(--sep-card, #FFFFFF);
+  border-bottom: 1px solid var(--sep-line, #EADFE7);
+
+  .time-pills {
+    display: flex;
+    background: var(--sep-base, #F7F3F6);
+    border-radius: 12px;
+    padding: 3px;
+    gap: 4px;
+
+    .sep-chip {
+      flex: 1;
+      height: 32px;
+      font-size: 11.5px;
+      justify-content: center;
+      border-radius: 9px;
+    }
+  }
+}
+
+/* Category envelopes scrollable row using shared .sep-chip */
+.category-scroll-wrap {
+  background: var(--sep-card, #FFFFFF);
+  padding: 8px 16px 12px;
+  border-bottom: 1px solid var(--sep-line, #EADFE7);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-chips-row {
+    display: inline-flex;
+    gap: 8px;
+
+    .sep-chip {
+      white-space: nowrap;
+
+      ion-icon {
+        font-size: 14px;
+        color: var(--cat-color, var(--sep-primary, #714B67));
+      }
+
+      &.active {
+        ion-icon {
+          color: #FFFFFF;
+        }
+      }
+    }
+  }
+}
+
+/* Hero Summary Card utilizing shared hero tokens */
+.expenses-hero {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 18px;
+  margin-top: 14px;
+  margin-bottom: 20px;
+
+  .hero-left {
+    .hero-label {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--sep-mut, #6B5966);
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .hero-amount-main {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+
+      .currency-tag {
+        font-size: 16px;
+        font-weight: 700;
+      }
+    }
+
+    .hero-equiv {
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--sep-mut, #6B5966);
+      margin-top: 4px;
+      display: block;
+    }
+  }
+
+  .hero-right {
+    .stat-bubble {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background: var(--sep-base, #F7F3F6);
+      border: 1px solid var(--sep-line, #EADFE7);
+      border-radius: 14px;
+      padding: 8px 14px;
+      min-width: 75px;
+
+      .stat-count {
+        font-size: 20px;
+        font-weight: 900;
+        color: var(--sep-primary, #714B67);
+      }
+
+      .stat-sub {
+        font-size: 10.5px;
+        font-weight: 700;
+        color: var(--sep-mut, #6B5966);
+      }
+    }
+  }
+}
+
+/* Timeline Day Groups */
+.expenses-timeline {
+  .day-group {
+    margin-bottom: 20px;
+
+    .day-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 4px 8px;
+
+      .day-title {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 11.5px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        color: var(--sep-mut, #6B5966);
+
+        ion-icon {
+          font-size: 14px;
+        }
+      }
+
+      .day-total {
+        font-size: 12px;
+        font-weight: 800;
+      }
+    }
+  }
+}
+
+.interactive-item {
+  cursor: pointer;
+
+  &:active {
+    opacity: 0.92;
+  }
+
+  .tap-hint {
+    margin-left: 6px;
+    font-size: 14px;
+    color: var(--sep-line, #EADFE7);
+    display: inline-flex;
+    align-items: center;
+  }
+}
+
+.sep-memo-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  color: var(--sep-mut, #6B5966);
+  background: var(--sep-base, #F7F3F6);
+  border: 1px solid var(--sep-line, #EADFE7);
+  border-radius: 6px;
+  padding: 1px 6px;
+  text-transform: uppercase;
+
+  ion-icon {
+    font-size: 11px;
+  }
+}
+
+.empty-actions-row {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+  max-width: 280px;
+  margin: 16px auto 0;
+}

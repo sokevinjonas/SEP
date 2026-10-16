@@ -49,11 +49,20 @@ export const routes: Routes = [
         loadComponent: () => import('./features/profile/profile.page').then((m) => m.ProfilePage),
       },
       {
+        path: 'expenses',
+        loadComponent: () => import('./features/expenses/expenses.page').then((m) => m.ExpensesPage),
+      },
+      {
         path: '',
         redirectTo: 'home',
         pathMatch: 'full',
       },
     ]
+  },
+  {
+    path: 'expenses',
+    redirectTo: 'tabs/expenses',
+    pathMatch: 'full',
   },
   {
     path: 'category-detail/:id',

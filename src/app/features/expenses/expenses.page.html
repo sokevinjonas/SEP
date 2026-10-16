@@ -1,0 +1,208 @@
+<ion-header class="ion-no-border">
+  <ion-toolbar class="sep-header-toolbar">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/home" text="" icon="arrow-back-outline" class="sep-back-btn"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="sep-toolbar-title">All Expenses</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="openQuickLog()" class="sep-icon-btn" aria-label="Log an expense">
+        <ion-icon name="add-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+
+  <!-- Instant Searchbar -->
+  <div class="search-wrap">
+    <ion-searchbar
+      [ngModel]="searchQuery()"
+      (ionInput)="searchQuery.set($any($event).detail.value || '')"
+      placeholder="Search merchant, note, amount..."
+      debounce="150"
+      show-clear-button="focus"
+      class="sep-searchbar">
+    </ion-searchbar>
+  </div>
+
+  <!-- Time Period Segment Badges -->
+  <div class="filter-segment-wrap">
+    <div class="time-pills">
+      <button
+        type="button"
+        class="sep-chip"
+        [class.active]="timeFilter() === 'today'"
+        (click)="setTimeFilter('today')">
+        Today
+      </button>
+      <button
+        type="button"
+        class="sep-chip"
+        [class.active]="timeFilter() === 'yesterday'"
+        (click)="setTimeFilter('yesterday')">
+        Yesterday
+      </button>
+      <button
+        type="button"
+        class="sep-chip"
+        [class.active]="timeFilter() === 'month'"
+        (click)="setTimeFilter('month')">
+        This Month
+      </button>
+      <button
+        type="button"
+        class="sep-chip"
+        [class.active]="timeFilter() === 'all'"
+        (click)="setTimeFilter('all')">
+        All
+      </button>
+    </div>
+  </div>
+
+  <!-- Category Envelopes Scrollable Filter Bar -->
+  <div class="category-scroll-wrap" *ngIf="categories().length > 0">
+    <div class="category-chips-row">
+      <button
+        type="button"
+        class="sep-chip"
+        [class.active]="selectedCategoryId() === 'all'"
+        (click)="selectCategory('all')">
+        <ion-icon name="wallet-outline"></ion-icon>
+        <span>All Envelopes</span>
+      </button>
+
+      <button
+        type="button"
+        *ngFor="let cat of categories()"
+        class="sep-chip"
+        [class.active]="selectedCategoryId() === cat.id"
+        [style.--cat-color]="cat.color"
+        (click)="selectCategory(cat.id)">
+        <ion-icon [name]="cat.icon"></ion-icon>
+        <span>{{ cat.name }}</span>
+      </button>
+    </div>
+  </div>
+</ion-header>
+
+<ion-content class="expenses-content" [fullscreen]="true">
+  <div class="sep-page-container has-bottom-bars">
+
+    <!-- Hero Summary Card using shared sep-card-hero -->
+    <div class="sep-card-hero expenses-hero">
+      <div class="hero-left">
+        <span class="hero-label">Filtered Expenses</span>
+        <div class="hero-amount-main text-negative">
+          -{{ totalFilteredAmount().toFixed(2) }} <span class="currency-tag">GHS</span>
+        </div>
+        <span class="hero-equiv">
+          ≈ {{ currencyService.formatEquiv(totalFilteredAmount()) }}
+        </span>
+      </div>
+
+      <div class="hero-right">
+        <div class="stat-bubble">
+          <span class="stat-count">{{ filteredExpenses().length }}</span>
+          <span class="stat-sub">transactions</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty State when no expenses match using shared sep-empty-state -->
+    <div *ngIf="filteredExpenses().length === 0" class="sep-empty-state">
+      <div class="empty-icon-circle">
+        <ion-icon name="receipt-outline"></ion-icon>
+      </div>
+      <h4>No Expenses Found</h4>
+      <p *ngIf="searchQuery() || timeFilter() !== 'all' || selectedCategoryId() !== 'all'">
+        No transactions match your current search or filters.
+      </p>
+      <p *ngIf="!searchQuery() && timeFilter() === 'all' && selectedCategoryId() === 'all'">
+        You have not recorded any expenses yet. Tap "+ Add" to log your first expense.
+      </p>
+
+      <div class="empty-actions-row">
+        <button
+          type="button"
+          class="sep-btn-outline"
+          *ngIf="searchQuery() || timeFilter() !== 'month' || selectedCategoryId() !== 'all'"
+          (click)="clearAllFilters()">
+          Reset Filters
+        </button>
+
+        <button
+          type="button"
+          class="sep-btn-primary btn-empty-action"
+          (click)="openQuickLog()">
+          <ion-icon name="add-outline"></ion-icon>
+          <span>Log an Expense</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Grouped Expenses Timeline Ledger using shared sep-ledger-list -->
+    <div class="expenses-timeline" *ngIf="filteredExpenses().length > 0">
+      <div class="day-group" *ngFor="let group of groupedExpenses()">
+        <!-- Date Header Divider -->
+        <div class="day-header-row">
+          <div class="day-title">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ group.displayDate }}</span>
+          </div>
+          <div class="day-total text-negative">
+            -{{ group.totalGhs.toFixed(2) }} GHS
+          </div>
+        </div>
+
+        <!-- Transactions in this day -->
+        <ion-list class="sep-ledger-list">
+          <ion-item-sliding *ngFor="let exp of group.expenses" #slidingItem class="sep-sliding-item">
+            <ion-item lines="none" class="sep-transaction-item interactive-item" (click)="openExpenseDetail(exp)" button="true" [detail]="false">
+              <!-- Date / Hour badge -->
+              <div slot="start" class="sep-date-badge">
+                <span class="day">{{ exp.date | date:'dd' }}</span>
+                <span class="month">{{ exp.date | date:'HH:mm' }}</span>
+              </div>
+
+              <!-- Main details -->
+              <div class="sep-item-info">
+                <h4 class="sep-item-title">{{ exp.merchant || exp.categoryName }}</h4>
+                <p class="sep-item-subtitle">{{ exp.categoryName }}</p>
+                <div class="sep-tag-row">
+                  <span class="sep-source-tag" [ngClass]="{
+                    'source-ocr': exp.source === 'ocr_receipt',
+                    'source-manual': exp.source === 'manual',
+                    'source-momo': exp.source === 'ocr_momo'
+                  }">
+                    {{ exp.source === 'ocr_momo' ? 'MOMO' : (exp.source === 'ocr_receipt' ? 'OCR' : 'MANUAL') }}
+                  </span>
+                  <span class="sep-memo-indicator" *ngIf="exp.note">
+                    <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+                    note
+                  </span>
+                </div>
+              </div>
+
+              <!-- Amount & Chevron -->
+              <div slot="end" class="sep-amount-block">
+                <span class="amount-main text-negative">-{{ exp.amount.toFixed(2) }} {{ exp.currency }}</span>
+                <span class="amount-sub" *ngIf="exp.currency === 'GHS'">
+                  {{ currencyService.formatEquiv(exp.amount) }}
+                </span>
+                <span class="tap-hint">
+                  <ion-icon name="chevron-forward-outline"></ion-icon>
+                </span>
+              </div>
+            </ion-item>
+
+            <!-- Slide to delete option -->
+            <ion-item-options side="end">
+              <ion-item-option color="danger" class="delete-option-btn" (click)="confirmDeleteExpense(exp, slidingItem)" aria-label="Delete expense">
+                <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
+              </ion-item-option>
+            </ion-item-options>
+          </ion-item-sliding>
+        </ion-list>
+      </div>
+    </div>
+
+  </div>
+</ion-content>

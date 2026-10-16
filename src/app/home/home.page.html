@@ -169,7 +169,7 @@
     <!-- Recent Expenses Header -->
     <div class="recent-section-header">
       <h3 class="section-title">Recent Expenses</h3>
-      <span class="section-action" (click)="navigateToBudgetSettings()">Details</span>
+      <span class="section-action" (click)="navigateToExpenses()">Details</span>
     </div>
 
     <!-- Reusable Empty State -->
@@ -184,7 +184,7 @@
     <!-- Reusable Ledger List -->
     <ion-list *ngIf="recentExpenses().length > 0" class="sep-ledger-list">
       <ion-item-sliding *ngFor="let exp of recentExpenses()" #slidingItem class="sep-sliding-item">
-        <ion-item lines="none" class="sep-transaction-item">
+        <ion-item lines="none" class="sep-transaction-item" (click)="openExpenseDetail(exp)" button="true" [detail]="false">
           <div slot="start" class="sep-date-badge">
             <span class="day">{{ exp.date | date:'dd' }}</span>
             <span class="month">{{ exp.date | date:'MMM' }}</span>

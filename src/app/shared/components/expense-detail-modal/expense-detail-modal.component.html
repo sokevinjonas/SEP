@@ -1,0 +1,113 @@
+<ion-header class="ion-no-border">
+  <div class="sheet-drag-handle-wrap">
+    <div class="sheet-drag-handle"></div>
+  </div>
+  <ion-toolbar class="sep-modal-toolbar">
+    <ion-title class="sep-modal-title">Expense Details</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="dismiss()" class="sep-modal-close-btn" aria-label="Close">
+        <ion-icon name="close-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="expense-detail-content ion-padding">
+  <!-- Hero Receipt Card using shared card styling -->
+  <div class="sep-card-hero receipt-hero">
+    <div class="category-icon-halo" [style.background-color]="categoryColor + '20'" [style.color]="categoryColor">
+      <ion-icon [name]="categoryIcon"></ion-icon>
+    </div>
+
+    <div class="merchant-name">
+      {{ expense.merchant || expense.categoryName }}
+    </div>
+
+    <div class="hero-amount-huge text-negative">
+      -{{ expense.amount.toFixed(2) }} <span class="currency-label">{{ expense.currency }}</span>
+    </div>
+
+    <div class="hero-equiv" *ngIf="expense.currency === 'GHS'">
+      ≈ {{ currencyService.formatEquiv(expense.amount) }}
+    </div>
+    <div class="hero-equiv" *ngIf="expense.currency === 'XOF'">
+      ≈ {{ (expense.amount / 42.0).toFixed(2) }} GHS
+    </div>
+  </div>
+
+  <!-- Detailed Ledger Breakdown using shared sep-card -->
+  <div class="sep-card detail-rows-card">
+    <!-- Category row -->
+    <div class="detail-row">
+      <div class="row-label">
+        <ion-icon name="wallet-outline"></ion-icon>
+        <span>Envelope / Category</span>
+      </div>
+      <div class="row-value">
+        <span class="category-chip-pill" [style.border-color]="categoryColor" [style.color]="categoryColor">
+          <ion-icon [name]="categoryIcon"></ion-icon>
+          {{ expense.categoryName }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Date & Time row -->
+    <div class="detail-row">
+      <div class="row-label">
+        <ion-icon name="calendar-outline"></ion-icon>
+        <span>Date & Time</span>
+      </div>
+      <div class="row-value">
+        <span class="date-text">{{ expense.date | date:'EEEE, MMM d, y' }}</span>
+        <span class="time-text">{{ expense.date | date:'HH:mm' }}</span>
+      </div>
+    </div>
+
+    <!-- Source / Entry Mode row -->
+    <div class="detail-row">
+      <div class="row-label">
+        <ion-icon [name]="sourceIcon"></ion-icon>
+        <span>Entry Source</span>
+      </div>
+      <div class="row-value">
+        <span class="sep-source-tag" [ngClass]="{
+          'source-ocr': expense.source === 'ocr_receipt',
+          'source-manual': expense.source === 'manual',
+          'source-momo': expense.source === 'ocr_momo'
+        }">
+          {{ sourceLabel }}
+        </span>
+      </div>
+    </div>
+
+    <!-- Transaction Reference (if any) -->
+    <div class="detail-row" *ngIf="expense.transactionRef">
+      <div class="row-label">
+        <ion-icon name="finger-print-outline"></ion-icon>
+        <span>Transaction Ref</span>
+      </div>
+      <div class="row-value">
+        <code class="ref-code">{{ expense.transactionRef }}</code>
+      </div>
+    </div>
+
+    <!-- Note / Memo (if any) -->
+    <div class="detail-row memo-row" *ngIf="expense.note">
+      <div class="row-label">
+        <ion-icon name="chatbubble-ellipses-outline"></ion-icon>
+        <span>Note / Memo</span>
+      </div>
+      <div class="row-value memo-box">
+        <p>{{ expense.note }}</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Actions -->
+  <div class="detail-actions-wrap">
+    <button type="button" class="sep-btn-outline delete-btn" (click)="confirmDelete()">
+      <ion-icon name="trash-outline"></ion-icon>
+      <span>Delete Expense</span>
+    </button>
+  </div>
+</ion-content>
