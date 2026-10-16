@@ -1,0 +1,84 @@
+// =============================================================================
+// REUSABLE CARDS & HERO METRICS GRIDS
+// =============================================================================
+@use './mixins' as *;
+
+.sep-card {
+  @include sep-card-base;
+  padding: 16px;
+  margin: 0;
+
+  &.interactive {
+    @include sep-interactive-tap;
+  }
+}
+
+.sep-card-hero {
+  @include sep-card-hero-base;
+  padding: 18px;
+  margin: 0;
+}
+
+// Uniform 3-column / 2-column stats grid used in Home, Budget, and Detail pages
+.sep-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr auto 1fr;
+  align-items: center;
+  background: var(--sep-base, #F7F3F6);
+  border: 1px solid var(--sep-line, #EADFE7);
+  border-radius: 14px;
+  padding: 12px 14px;
+
+  .stat-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+
+    .stat-label {
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: var(--sep-mut, #6B5966);
+      text-transform: uppercase;
+    }
+
+    .stat-val-row {
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+
+      .stat-val {
+        font-size: 18px;
+        font-weight: 900;
+        color: var(--sep-ink, #2B1F28);
+        letter-spacing: -0.02em;
+      }
+
+      .stat-unit {
+        font-size: 11px;
+        font-weight: 800;
+        color: var(--sep-primary, #714B67);
+      }
+    }
+
+    .stat-equiv {
+      font-size: 10.5px;
+      font-weight: 600;
+      color: var(--sep-action, #017e84);
+    }
+  }
+
+  .stat-divider {
+    width: 1px;
+    height: 36px;
+    background: var(--sep-line, #EADFE7);
+  }
+}
+
+.text-positive {
+  color: var(--sep-action, #017e84) !important;
+}
+
+.text-negative {
+  color: var(--sep-danger, #c0392b) !important;
+}

@@ -1,0 +1,42 @@
+// =============================================================================
+// SEP DESIGN SYSTEM MIXINS (Odoo Calm Ledger Theme)
+// =============================================================================
+
+@mixin sep-card-base {
+  background: var(--sep-card, #FFFFFF);
+  border: 1px solid var(--sep-line, #EADFE7);
+  border-radius: 18px;
+  box-shadow: 0 2px 8px rgba(113, 75, 103, 0.04);
+}
+
+@mixin sep-card-hero-base {
+  @include sep-card-base;
+  border-radius: 22px;
+  box-shadow: 0 4px 16px rgba(113, 75, 103, 0.07);
+}
+
+@mixin sep-pill-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--ion-font-family);
+  font-size: 11px;
+  font-weight: 800;
+  padding: 3px 8px;
+  border-radius: 9999px;
+  line-height: 1.2;
+}
+
+@mixin sep-interactive-tap {
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  &:active {
+    transform: scale(0.985);
+  }
+}
+
+@mixin text-ellipsis {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

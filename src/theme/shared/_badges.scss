@@ -1,0 +1,23 @@
+// =============================================================================
+// REUSABLE BADGES & STATUS PILLS
+// =============================================================================
+@use './mixins' as *;
+
+.sep-badge {
+  @include sep-pill-badge;
+
+  &.safe {
+    background: var(--sep-action-soft, #e5f6f7);
+    color: var(--sep-action, #017e84);
+  }
+
+  &.warn {
+    background: var(--sep-warn-soft, #fff6e0);
+    color: var(--sep-warn-text, #3a2a00);
+  }
+
+  &.danger {
+    background: var(--sep-danger-soft, #fbeae8);
+    color: var(--sep-danger, #c0392b);
+  }
+}

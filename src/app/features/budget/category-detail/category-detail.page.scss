@@ -1,58 +1,20 @@
 // =============================================================================
-// CATEGORY DETAIL PAGE STYLES (SEP - Odoo Enterprise Calm Ledger Theme)
+// CATEGORY DETAIL PAGE (Component-specific layout overrides)
+// Core styling is provided by the global modular design system (src/theme/shared/)
 // =============================================================================
 
 :host {
   display: block;
 }
 
-.category-toolbar {
-  --background: var(--sep-base, #F7F3F6);
-  --color: var(--sep-primary, #714B67);
-  --border-width: 0;
-  padding: 4px 8px;
-
-  ion-back-button {
-    --color: var(--sep-primary, #714B67);
-  }
-
-  .page-title {
-    font-size: 19px;
-    font-weight: 900;
-    color: var(--sep-primary, #714B67);
-    letter-spacing: -0.02em;
-    text-align: center;
-  }
-}
-
 .category-content {
   --background: var(--sep-base, #F7F3F6);
 }
 
-.page-container {
-  max-width: 540px;
-  margin: 0 auto;
+.envelope-hero-content {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 8px 14px 120px;
-}
-
-/* =========================================================================
-   1. HERO ENVELOPE SUMMARY CARD (Light Calm Ledger Card)
-   ========================================================================= */
-.envelope-hero-card {
-  background: var(--sep-card, #FFFFFF);
-  border: 1px solid var(--sep-line, #EADFE7);
-  border-radius: 20px;
-  box-shadow: 0 4px 16px rgba(113, 75, 103, 0.06);
-
-  .envelope-hero-content {
-    padding: 16px 18px;
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-  }
 }
 
 .hero-top-row {
@@ -99,75 +61,6 @@
       margin-top: 2px;
     }
   }
-
-  .hero-status-badge {
-    font-size: 11px;
-    font-weight: 800;
-    padding: 4px 10px;
-    border-radius: 9999px;
-  }
-}
-
-.hero-numbers-grid {
-  display: grid;
-  grid-template-columns: 1fr auto 1fr auto 1fr;
-  align-items: center;
-  background: var(--sep-base, #F7F3F6);
-  border: 1px solid var(--sep-line, #EADFE7);
-  border-radius: 14px;
-  padding: 12px 14px;
-
-  .number-cell {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-
-    .number-label {
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.04em;
-      color: var(--sep-mut, #6B5966);
-      text-transform: uppercase;
-    }
-
-    .number-val-row {
-      display: flex;
-      align-items: baseline;
-      gap: 4px;
-
-      .number-val {
-        font-size: 18px;
-        font-weight: 900;
-        color: var(--sep-ink, #2B1F28);
-      }
-
-      .currency-unit {
-        font-size: 11px;
-        font-weight: 800;
-        color: var(--sep-primary, #714B67);
-      }
-    }
-
-    .number-equiv {
-      font-size: 10.5px;
-      font-weight: 600;
-      color: var(--sep-action, #017e84);
-    }
-  }
-
-  .number-divider {
-    width: 1px;
-    height: 36px;
-    background: var(--sep-line, #EADFE7);
-  }
-}
-
-.text-positive {
-  color: var(--sep-action, #017e84) !important;
-}
-
-.text-negative {
-  color: var(--sep-danger, #c0392b) !important;
 }
 
 .hero-progress-wrap {
@@ -199,9 +92,6 @@
   }
 }
 
-/* =========================================================================
-   2. OPERATIONS / TRANSACTIONS SECTION
-   ========================================================================= */
 .operations-section {
   display: flex;
   flex-direction: column;
@@ -223,15 +113,6 @@
       display: flex;
       align-items: center;
       gap: 6px;
-
-      .count-badge {
-        font-size: 11px;
-        font-weight: 800;
-        border-radius: 9999px;
-        padding: 2px 8px;
-        --background: var(--sep-primary-soft, #f4ecf2);
-        --color: var(--sep-primary, #714B67);
-      }
     }
 
     .btn-add-op {
@@ -244,175 +125,6 @@
       ion-icon {
         font-size: 15px;
         margin-right: 4px;
-      }
-    }
-  }
-}
-
-/* Empty State Card */
-.empty-operations-card {
-  background: var(--sep-card, #FFFFFF);
-  border: 1.5px dashed var(--sep-line, #EADFE7);
-  border-radius: 18px;
-  text-align: center;
-  box-shadow: 0 2px 8px rgba(113, 75, 103, 0.03);
-
-  .empty-content {
-    padding: 32px 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 8px;
-
-    .empty-icon-box {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      background: var(--sep-primary-soft, #f4ecf2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      color: var(--sep-primary, #714B67);
-      margin-bottom: 4px;
-    }
-
-    h4 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 900;
-      color: var(--sep-ink, #2B1F28);
-    }
-
-    p {
-      margin: 0;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--sep-mut, #6B5966);
-      max-width: 300px;
-      line-height: 1.45;
-    }
-
-    .btn-log-first {
-      margin-top: 10px;
-      --background: var(--sep-primary, #714B67);
-      --color: #ffffff;
-      --border-radius: 12px;
-      font-size: 13px;
-      font-weight: 800;
-      text-transform: none;
-      height: 38px;
-    }
-  }
-}
-
-/* Transactions List */
-.ops-ion-list {
-  background: transparent;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  .op-sliding-item {
-    border-radius: 16px;
-    overflow: hidden;
-  }
-
-  .op-item {
-    --background: var(--sep-card, #FFFFFF);
-    --border-radius: 16px;
-    --padding-start: 12px;
-    --padding-end: 14px;
-    --padding-top: 10px;
-    --padding-bottom: 10px;
-    border: 1px solid var(--sep-line, #EADFE7);
-    box-shadow: 0 1px 4px rgba(113, 75, 103, 0.03);
-
-    .op-date-box {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      width: 42px;
-      height: 44px;
-      background: var(--sep-primary-soft, #f4ecf2);
-      border-radius: 12px;
-      margin-right: 12px;
-
-      .date-day {
-        font-size: 15px;
-        font-weight: 900;
-        color: var(--sep-primary, #714B67);
-        line-height: 1;
-      }
-
-      .date-month {
-        font-size: 10px;
-        font-weight: 800;
-        text-transform: uppercase;
-        color: var(--sep-mut, #6B5966);
-        line-height: 1.2;
-      }
-    }
-
-    .op-label {
-      margin: 0;
-
-      .op-merchant {
-        font-size: 14.5px;
-        font-weight: 800;
-        color: var(--sep-ink, #2B1F28);
-        margin: 0 0 2px 0;
-      }
-
-      .op-sub {
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--sep-mut, #6B5966);
-        margin: 0 0 4px 0;
-      }
-
-      .op-tags {
-        display: flex;
-        gap: 6px;
-
-        .source-tag {
-          font-size: 10px;
-          font-weight: 800;
-          padding: 2px 7px;
-          border-radius: 6px;
-          text-transform: uppercase;
-
-          &.source-ocr {
-            background: var(--sep-action-soft, #e5f6f7);
-            color: var(--sep-action, #017e84);
-          }
-
-          &.source-manual {
-            background: var(--sep-primary-soft, #f4ecf2);
-            color: var(--sep-primary, #714B67);
-          }
-        }
-      }
-    }
-
-    .op-amount-box {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 2px;
-
-      .op-amount-ghs {
-        font-size: 15px;
-        font-weight: 900;
-        color: var(--sep-ink, #2B1F28);
-      }
-
-      .op-amount-xof {
-        font-size: 11px;
-        font-weight: 700;
-        color: var(--sep-action, #017e84);
       }
     }
   }

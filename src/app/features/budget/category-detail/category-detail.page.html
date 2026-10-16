@@ -1,9 +1,9 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="category-toolbar">
+  <ion-toolbar class="sep-toolbar">
     <ion-buttons slot="start">
       <ion-back-button defaultHref="/tabs/budget" text="" icon="arrow-back-outline"></ion-back-button>
     </ion-buttons>
-    <ion-title class="page-title">{{ envelope()?.category?.name || 'Category' }}</ion-title>
+    <ion-title class="sep-page-title">{{ envelope()?.category?.name || 'Category' }}</ion-title>
     <ion-buttons slot="end">
       <ion-button (click)="openEditAllocation()" fill="clear" color="primary">
         <ion-icon slot="icon-only" name="create-outline"></ion-icon>
@@ -13,12 +13,12 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="category-content ion-padding">
-  <div class="page-container has-bottom-bars">
+  <div class="sep-page-container has-bottom-bars">
 
     <!-- =========================================================================
          1. HERO ENVELOPE SUMMARY CARD
          ========================================================================= -->
-    <ion-card *ngIf="envelope() as env" class="envelope-hero-card ion-no-margin">
+    <ion-card *ngIf="envelope() as env" class="sep-card-hero envelope-hero-card ion-no-margin">
       <ion-card-content class="envelope-hero-content">
         <div class="hero-top-row">
           <div class="hero-label-wrap">
@@ -34,48 +34,50 @@
             </div>
           </div>
 
-          <ion-badge
-            [color]="env.status === 'safe' ? 'success' : (env.status === 'warning' ? 'warning' : 'danger')"
-            class="hero-status-badge">
+          <span
+            class="sep-badge"
+            [class.safe]="env.status === 'safe'"
+            [class.warn]="env.status === 'warning'"
+            [class.danger]="env.status === 'danger'">
             {{ env.percentage }}% Spent
-          </ion-badge>
+          </span>
         </div>
 
-        <div class="hero-numbers-grid">
-          <div class="number-cell">
-            <span class="number-label">SPENT THIS MONTH</span>
-            <div class="number-val-row">
-              <span class="number-val spent-text">{{ env.spentGhs.toFixed(2) }}</span>
-              <span class="currency-unit">GHS</span>
+        <div class="sep-stat-grid">
+          <div class="stat-cell">
+            <span class="stat-label">SPENT THIS MONTH</span>
+            <div class="stat-val-row">
+              <span class="stat-val">{{ env.spentGhs.toFixed(2) }}</span>
+              <span class="stat-unit">GHS</span>
             </div>
-            <span class="number-equiv">≈ {{ currencyService.toXof(env.spentGhs).toLocaleString() }} XOF</span>
+            <span class="stat-equiv">≈ {{ currencyService.toXof(env.spentGhs).toLocaleString() }} XOF</span>
           </div>
 
-          <div class="number-divider"></div>
+          <div class="stat-divider"></div>
 
-          <div class="number-cell">
-            <span class="number-label">MONTHLY ALLOCATION</span>
-            <div class="number-val-row">
-              <span class="number-val">{{ env.allocatedGhs }}</span>
-              <span class="currency-unit">GHS</span>
+          <div class="stat-cell">
+            <span class="stat-label">MONTHLY ALLOCATION</span>
+            <div class="stat-val-row">
+              <span class="stat-val">{{ env.allocatedGhs }}</span>
+              <span class="stat-unit">GHS</span>
             </div>
-            <span class="number-equiv">≈ {{ currencyService.toXof(env.allocatedGhs).toLocaleString() }} XOF</span>
+            <span class="stat-equiv">≈ {{ currencyService.toXof(env.allocatedGhs).toLocaleString() }} XOF</span>
           </div>
 
-          <div class="number-divider"></div>
+          <div class="stat-divider"></div>
 
-          <div class="number-cell">
-            <span class="number-label">REMAINING RUNWAY</span>
-            <div class="number-val-row">
+          <div class="stat-cell">
+            <span class="stat-label">REMAINING RUNWAY</span>
+            <div class="stat-val-row">
               <span
-                class="number-val"
+                class="stat-val"
                 [class.text-positive]="(env.allocatedGhs - env.spentGhs) >= 0"
                 [class.text-negative]="(env.allocatedGhs - env.spentGhs) < 0">
                 {{ (env.allocatedGhs - env.spentGhs) >= 0 ? '+' : '' }}{{ (env.allocatedGhs - env.spentGhs).toFixed(0) }}
               </span>
-              <span class="currency-unit">GHS</span>
+              <span class="stat-unit">GHS</span>
             </div>
-            <span class="number-equiv">
+            <span class="stat-equiv">
               {{ (env.allocatedGhs - env.spentGhs) >= 0 ? 'Remaining' : 'Exceeded' }}
             </span>
           </div>
@@ -109,7 +111,7 @@
       <div class="section-header-row">
         <h3 class="section-title">
           <span>OPERATIONS</span>
-          <ion-badge color="medium" class="count-badge">{{ operations().length }}</ion-badge>
+          <span class="sep-badge safe">{{ operations().length }}</span>
         </h3>
         <ion-button fill="clear" size="small" class="btn-add-op" (click)="openQuickLog()">
           <ion-icon slot="start" name="add-outline"></ion-icon>
@@ -117,47 +119,45 @@
         </ion-button>
       </div>
 
-      <!-- Empty State -->
-      <ion-card *ngIf="operations().length === 0" class="empty-operations-card ion-no-margin">
-        <ion-card-content class="empty-content">
-          <div class="empty-icon-box">
-            <ion-icon name="receipt-outline"></ion-icon>
-          </div>
-          <h4>No operations yet</h4>
-          <p>No expenses logged in this envelope. Add transactions manually or capture receipts anytime.</p>
-          <ion-button size="small" fill="solid" (click)="openQuickLog()" class="btn-log-first">
-            <ion-icon slot="start" name="add-outline"></ion-icon>
-            <span>Log First Expense</span>
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+      <!-- Shared Empty State Component -->
+      <div *ngIf="operations().length === 0" class="sep-empty-state">
+        <div class="empty-icon-circle">
+          <ion-icon name="receipt-outline"></ion-icon>
+        </div>
+        <h4>No operations yet</h4>
+        <p>No expenses logged in this envelope. Add transactions manually or capture receipts anytime.</p>
+        <ion-button size="small" fill="solid" (click)="openQuickLog()" class="btn-empty-action">
+          <ion-icon slot="start" name="add-outline"></ion-icon>
+          <span>Log First Expense</span>
+        </ion-button>
+      </div>
 
-      <!-- Transactions List -->
+      <!-- Shared Transactions List -->
       <div class="operations-list" *ngIf="operations().length > 0">
-        <ion-list lines="none" class="ops-ion-list">
-          <ion-item-sliding *ngFor="let exp of operations()" #slidingItem class="op-sliding-item">
-            <ion-item class="op-item">
-              <div class="op-date-box" slot="start">
-                <span class="date-day">{{ exp.date.substring(8, 10) }}</span>
-                <span class="date-month">{{ formatDate(exp.date).substring(0, 3) }}</span>
+        <ion-list lines="none" class="sep-ledger-list">
+          <ion-item-sliding *ngFor="let exp of operations()" #slidingItem class="sep-sliding-item">
+            <ion-item class="sep-transaction-item">
+              <div class="sep-date-badge" slot="start">
+                <span class="day">{{ exp.date.substring(8, 10) }}</span>
+                <span class="month">{{ formatDate(exp.date).substring(0, 3) }}</span>
               </div>
 
-              <ion-label class="op-label">
-                <h3 class="op-merchant">{{ exp.merchant || exp.categoryName || 'Expense' }}</h3>
-                <p class="op-sub">
-                  <span class="op-date-full">{{ formatDate(exp.date) }}</span>
-                  <span *ngIf="exp.note" class="op-note"> · {{ exp.note }}</span>
+              <ion-label class="sep-item-info">
+                <h3 class="sep-item-title">{{ exp.merchant || exp.categoryName || 'Expense' }}</h3>
+                <p class="sep-item-subtitle">
+                  <span>{{ formatDate(exp.date) }}</span>
+                  <span *ngIf="exp.note"> · {{ exp.note }}</span>
                 </p>
-                <div class="op-tags">
-                  <span class="source-tag" [class.source-ocr]="exp.source !== 'manual'" [class.source-manual]="exp.source === 'manual'">
+                <div class="sep-tag-row">
+                  <span class="sep-source-tag" [class.source-ocr]="exp.source !== 'manual'" [class.source-manual]="exp.source === 'manual'">
                     {{ exp.source === 'ocr_receipt' ? 'Receipt Scan' : (exp.source === 'ocr_momo' ? 'Mobile Money' : 'Manual') }}
                   </span>
                 </div>
               </ion-label>
 
-              <div slot="end" class="op-amount-box">
-                <span class="op-amount-ghs">-{{ exp.amount.toFixed(2) }} GHS</span>
-                <span class="op-amount-xof">≈ {{ currencyService.toXof(exp.amount).toLocaleString() }} XOF</span>
+              <div slot="end" class="sep-amount-block">
+                <span class="amount-main">-{{ exp.amount.toFixed(2) }} GHS</span>
+                <span class="amount-sub">≈ {{ currencyService.toXof(exp.amount).toLocaleString() }} XOF</span>
               </div>
             </ion-item>
 

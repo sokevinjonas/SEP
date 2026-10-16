@@ -90,17 +90,6 @@
 }
 
 .envelope-card {
-  background: #FFFFFF;
-  border: 1px solid #EADFE7;
-  border-radius: 18px;
-  box-shadow: 0 2px 8px rgba(113, 75, 103, 0.04);
-  cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
-
-  &:active {
-    transform: scale(0.99);
-  }
-
   .envelope-card-content {
     padding: 13px 15px;
   }

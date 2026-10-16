@@ -1,0 +1,127 @@
+// =============================================================================
+// REUSABLE LEDGER TRANSACTIONS & LIST ITEMS
+// =============================================================================
+@use './mixins' as *;
+
+.sep-ledger-list {
+  background: transparent;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .sep-sliding-item {
+    border-radius: 16px;
+    overflow: hidden;
+  }
+}
+
+.sep-transaction-item {
+  --background: var(--sep-card, #FFFFFF);
+  --border-radius: 16px;
+  --padding-start: 12px;
+  --padding-end: 14px;
+  --padding-top: 10px;
+  --padding-bottom: 10px;
+  border: 1px solid var(--sep-line, #EADFE7);
+  box-shadow: 0 1px 4px rgba(113, 75, 103, 0.03);
+
+  .sep-date-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 44px;
+    background: var(--sep-primary-soft, #f4ecf2);
+    border-radius: 12px;
+    margin-right: 12px;
+    flex-shrink: 0;
+
+    .day {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--sep-primary, #714B67);
+      line-height: 1;
+    }
+
+    .month {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: var(--sep-mut, #6B5966);
+      line-height: 1.2;
+    }
+  }
+
+  .sep-item-info {
+    margin: 0;
+    min-width: 0;
+    flex: 1;
+
+    .sep-item-title {
+      font-size: 14.5px;
+      font-weight: 800;
+      color: var(--sep-ink, #2B1F28);
+      margin: 0 0 2px 0;
+      @include text-ellipsis;
+    }
+
+    .sep-item-subtitle {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--sep-mut, #6B5966);
+      margin: 0 0 4px 0;
+      @include text-ellipsis;
+    }
+
+    .sep-tag-row {
+      display: flex;
+      gap: 6px;
+    }
+  }
+
+  .sep-source-tag {
+    font-size: 10px;
+    font-weight: 800;
+    padding: 2px 7px;
+    border-radius: 6px;
+    text-transform: uppercase;
+    display: inline-block;
+
+    &.source-ocr {
+      background: var(--sep-action-soft, #e5f6f7);
+      color: var(--sep-action, #017e84);
+    }
+
+    &.source-manual {
+      background: var(--sep-primary-soft, #f4ecf2);
+      color: var(--sep-primary, #714B67);
+    }
+
+    &.source-momo {
+      background: var(--sep-warn-soft, #fff6e0);
+      color: var(--sep-warn-text, #3a2a00);
+    }
+  }
+
+  .sep-amount-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 2px;
+    flex-shrink: 0;
+
+    .amount-main {
+      font-size: 15px;
+      font-weight: 900;
+      color: var(--sep-ink, #2B1F28);
+    }
+
+    .amount-sub {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--sep-action, #017e84);
+    }
+  }
+}

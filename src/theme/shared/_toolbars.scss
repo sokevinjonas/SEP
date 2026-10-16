@@ -1,0 +1,31 @@
+// =============================================================================
+// REUSABLE TOOLBARS & PAGE CONTAINER
+// =============================================================================
+
+.sep-toolbar {
+  --background: var(--sep-base, #F7F3F6);
+  --color: var(--sep-primary, #714B67);
+  --border-width: 0;
+  padding: 4px 8px;
+
+  ion-back-button {
+    --color: var(--sep-primary, #714B67);
+  }
+
+  .sep-page-title {
+    font-size: 19px;
+    font-weight: 900;
+    color: var(--sep-primary, #714B67);
+    letter-spacing: -0.02em;
+    text-align: center;
+  }
+}
+
+.sep-page-container {
+  max-width: 540px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 14px 120px;
+}

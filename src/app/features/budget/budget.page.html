@@ -43,19 +43,20 @@
          ========================================================================= -->
     <div class="section-wrapper">
       <!-- Empty state when no envelopes -->
-      <ion-card *ngIf="envelopes().length === 0" class="empty-card ion-no-margin">
-        <ion-card-content class="empty-content">
-          <ion-icon name="wallet-outline" class="empty-icon"></ion-icon>
-          <p>No envelopes allocated yet.</p>
-          <ion-button size="small" fill="outline" (click)="openBudgetConfigModal()" class="btn-create-envelopes">
-            Configure Envelopes
-          </ion-button>
-        </ion-card-content>
-      </ion-card>
+      <div *ngIf="envelopes().length === 0" class="sep-empty-state">
+        <div class="empty-icon-circle">
+          <ion-icon name="wallet-outline"></ion-icon>
+        </div>
+        <h4>No envelopes allocated yet</h4>
+        <p>Allocate funds to campus categories to track and safeguard your monthly allowance.</p>
+        <ion-button size="small" fill="solid" (click)="openBudgetConfigModal()" class="btn-empty-action">
+          Configure Envelopes
+        </ion-button>
+      </div>
 
       <!-- Envelope Cards Grid -->
       <div class="envelopes-grid" *ngIf="envelopes().length > 0">
-        <ion-card *ngFor="let env of envelopes()" class="envelope-card ion-no-margin"
+        <ion-card *ngFor="let env of envelopes()" class="sep-card interactive envelope-card ion-no-margin"
           (click)="goToCategoryDetail(env)">
           <ion-card-content class="envelope-card-content">
             <div class="env-top">
