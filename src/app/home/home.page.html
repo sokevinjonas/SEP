@@ -18,47 +18,95 @@
 <ion-content [fullscreen]="true" class="home-content">
   <div class="page-container has-bottom-bars">
 
-    <!-- Breathing Balance Card (Official ion-card) -->
-    <ion-card class="balance-card ion-no-margin">
+    <!-- Breathing Balance / Discovery Mode Card (Official ion-card) -->
+    <ion-card class="balance-card ion-no-margin" [class.discovery-balance-card]="consumption().isDiscoveryMode">
       <ion-card-header>
         <div class="balance-header-row">
-          <app-breathing-badge label="Breathing Balance" status="breathing" [pulse]="true"></app-breathing-badge>
-          <ion-note class="month-label">Current Month</ion-note>
+          <app-breathing-badge
+            [label]="consumption().isDiscoveryMode ? 'Discovery Mode · AI Learning' : 'Breathing Balance'"
+            [status]="consumption().isDiscoveryMode ? 'safe' : 'breathing'"
+            [pulse]="true">
+          </app-breathing-badge>
+          <ion-note class="month-label">
+            Cycle Resets on Day {{ consumption().cycleStartDay || 1 }}
+          </ion-note>
         </div>
 
-        <div class="balance-hero">
-          <span class="balance-amount">
-            {{ currencyService.activeCurrency() === 'GHS' ? consumption().balanceGhs.toFixed(2) :
-            currencyService.toXof(consumption().balanceGhs).toLocaleString() }}
-          </span>
-          <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
-        </div>
+        <!-- Mode A: Fixed Budget Ceiling -->
+        <ng-container *ngIf="!consumption().isDiscoveryMode">
+          <div class="balance-hero">
+            <span class="balance-amount">
+              {{ currencyService.activeCurrency() === 'GHS' ? consumption().balanceGhs.toFixed(2) :
+              currencyService.toXof(consumption().balanceGhs).toLocaleString() }}
+            </span>
+            <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
+          </div>
 
-        <ion-card-subtitle class="balance-secondary">
-          {{ currencyService.formatEquiv(consumption().balanceGhs) }} (Rate: {{ currencyService.rateDescription() }})
-        </ion-card-subtitle>
+          <ion-card-subtitle class="balance-secondary">
+            {{ currencyService.formatEquiv(consumption().balanceGhs) }} (Rate: {{ currencyService.rateDescription() }})
+          </ion-card-subtitle>
+        </ng-container>
+
+        <!-- Mode B: Discovery Mode (AI Learning) -->
+        <ng-container *ngIf="consumption().isDiscoveryMode">
+          <div class="balance-hero discovery-hero">
+            <span class="balance-amount">
+              {{ currencyService.activeCurrency() === 'GHS' ? consumption().totalSpentGhs.toFixed(2) :
+              currencyService.toXof(consumption().totalSpentGhs).toLocaleString() }}
+            </span>
+            <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
+          </div>
+
+          <ion-card-subtitle class="balance-secondary">
+            Total expenses tracked this cycle · (Rate: {{ currencyService.rateDescription() }})
+          </ion-card-subtitle>
+        </ng-container>
       </ion-card-header>
 
       <ion-card-content>
-        <!-- Official Ionic Progress Bar -->
-        <ion-progress-bar class="budget-progress-bar" [value]="consumption().consumedPercent / 100"
-          [color]="consumption().status === 'safe' ? 'secondary' : (consumption().status === 'warning' ? 'warning' : 'danger')">
-        </ion-progress-bar>
+        <!-- Mode A Progress (Spent vs Ceiling) -->
+        <ng-container *ngIf="!consumption().isDiscoveryMode">
+          <ion-progress-bar class="budget-progress-bar" [value]="consumption().consumedPercent / 100"
+            [color]="consumption().status === 'safe' ? 'secondary' : (consumption().status === 'warning' ? 'warning' : 'danger')">
+          </ion-progress-bar>
 
-        <div class="progress-label-row">
-          <span>Spent: {{ consumption().totalSpentGhs.toFixed(2) }} GHS ({{ consumption().consumedPercent }}%)</span>
-          <span>Ceiling: {{ consumption().totalBudgetGhs }} GHS</span>
-        </div>
+          <div class="progress-label-row">
+            <span>Spent: {{ consumption().totalSpentGhs.toFixed(2) }} GHS ({{ consumption().consumedPercent }}%)</span>
+            <span>Ceiling: {{ consumption().totalBudgetGhs }} GHS</span>
+          </div>
 
-        <div class="budget-days-strip">
-          <ion-chip class="days-chip" color="primary">
-            <ion-icon name="time-outline"></ion-icon>
-            <ion-label>{{ budgetDaysInfo().days }} Budget Days</ion-label>
-          </ion-chip>
-          <ion-note class="days-detail">
-            Basis: {{ budgetDaysInfo().basis }} · {{ budgetDaysInfo().distinctDaysCount }} active day(s)
-          </ion-note>
-        </div>
+          <div class="budget-days-strip">
+            <ion-chip class="days-chip" color="primary">
+              <ion-icon name="time-outline"></ion-icon>
+              <ion-label>{{ budgetDaysInfo().days }} Budget Days</ion-label>
+            </ion-chip>
+            <ion-note class="days-detail">
+              Basis: {{ budgetDaysInfo().basis }} · {{ budgetDaysInfo().distinctDaysCount }} active day(s)
+            </ion-note>
+          </div>
+        </ng-container>
+
+        <!-- Mode B Progress (Cycle Days Elapsed toward AI Recommendation) -->
+        <ng-container *ngIf="consumption().isDiscoveryMode">
+          <ion-progress-bar class="budget-progress-bar discovery-progress-bar" [value]="(consumption().cycleProgressPercent || 0) / 100" color="secondary">
+          </ion-progress-bar>
+
+          <div class="progress-label-row">
+            <span>Cycle Day {{ consumption().cycleDaysElapsed || 1 }} of {{ consumption().cycleDaysTotal || 30 }}</span>
+            <span>{{ consumption().cycleDaysRemaining || 0 }} day(s) to AI proposal</span>
+          </div>
+
+          <div class="discovery-actions-strip">
+            <ion-chip class="discovery-ai-chip" (click)="openAiBudgetProposal()">
+              <ion-icon name="sparkles-outline"></ion-icon>
+              <ion-label>View AI Budget Proposal</ion-label>
+            </ion-chip>
+
+            <button class="switch-budget-text-btn" (click)="navigateToBudgetSettings()">
+              Set Target Ceiling
+            </button>
+          </div>
+        </ng-container>
       </ion-card-content>
     </ion-card>
 
@@ -91,7 +139,10 @@
           <div class="coach-title-row">
             <h4 class="coach-name">M. Pognon Advice</h4>
             <div class="coach-tags-wrap">
-              <ion-badge [color]="consumption().consumedPercent > 70 ? 'warning' : 'secondary'">
+              <ion-badge *ngIf="consumption().isDiscoveryMode" color="secondary">
+                Discovery Mode
+              </ion-badge>
+              <ion-badge *ngIf="!consumption().isDiscoveryMode" [color]="consumption().consumedPercent > 70 ? 'warning' : 'secondary'">
                 {{ consumption().consumedPercent > 70 ? '70% Alert' : 'On Track' }}
               </ion-badge>
               <ion-chip class="coach-chat-pill" color="primary">
@@ -100,11 +151,16 @@
               </ion-chip>
             </div>
           </div>
-          <p class="coach-quote" *ngIf="consumption().consumedPercent > 70">
+          <!-- Discovery Mode Quote -->
+          <p class="coach-quote" *ngIf="consumption().isDiscoveryMode">
+            "Hey {{ userProfile()?.name || 'Student' }}, you're in Discovery Mode! Keep logging your meals and trotro rides freely. On day {{ consumption().cycleStartDay || 1 }}, I will audit your real spending and propose your optimal tailored budget."
+          </p>
+          <!-- Regular Fixed Ceiling Quotes -->
+          <p class="coach-quote" *ngIf="!consumption().isDiscoveryMode && consumption().consumedPercent > 70">
             "{{ userProfile()?.name || 'Student' }}, watch out for food and campus outings! Stick to the cafeteria
             rather than spontaneous buys to protect your month-end."
           </p>
-          <p class="coach-quote" *ngIf="consumption().consumedPercent <= 70">
+          <p class="coach-quote" *ngIf="!consumption().isDiscoveryMode && consumption().consumedPercent <= 70">
             "Steady pace, {{ userProfile()?.name || 'Student' }}. Your daily burn rate is healthy. Tap to consult me
             before any expense!"
           </p>

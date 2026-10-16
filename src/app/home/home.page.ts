@@ -43,7 +43,10 @@ import {
   trophyOutline,
   chatbubblesOutline,
   sparklesOutline,
-  trashOutline
+  trashOutline,
+  calendarOutline,
+  compassOutline,
+  arrowForwardOutline
 } from 'ionicons/icons';
 import { Expense } from '../core/models/financial.models';
 import { ExpensesFacade } from '../features/expenses/facade/expenses.facade';
@@ -92,6 +95,7 @@ export class HomePage implements OnInit {
   readonly userProfile = this.profileFacade.userProfile;
   readonly consumption = this.budgetFacade.consumption;
   readonly budgetDaysInfo = this.budgetFacade.budgetDaysInfo;
+  readonly isDiscoveryMode = this.budgetFacade.isDiscoveryMode;
   readonly avoidedGhs = this.purchasesFacade.avoidedTotal;
   readonly recentExpenses = this.expensesFacade.recentExpenses;
 
@@ -123,7 +127,10 @@ export class HomePage implements OnInit {
       trophyOutline,
       chatbubblesOutline,
       sparklesOutline,
-      trashOutline
+      trashOutline,
+      calendarOutline,
+      compassOutline,
+      arrowForwardOutline
     });
   }
 
@@ -198,5 +205,70 @@ export class HomePage implements OnInit {
 
   openSettings(): void {
     this.router.navigate(['/tabs/profile']);
+  }
+
+  navigateToBudgetSettings(): void {
+    this.router.navigate(['/tabs/budget']);
+  }
+
+  async openAiBudgetProposal(): Promise<void> {
+    const totalSpent = this.consumption().totalSpentGhs;
+    const daysElapsed = this.consumption().cycleDaysElapsed || 1;
+    const daysTotal = this.consumption().cycleDaysTotal || 30;
+    const cycleDay = this.consumption().cycleStartDay || 1;
+
+    // Estimate realistic monthly target:
+    // If user has tracked for at least a few days, project to 30 days and round to clean ceiling
+    let suggestedBudget = 500;
+    if (totalSpent > 0 && daysElapsed > 0) {
+      const projected = (totalSpent / daysElapsed) * daysTotal;
+      suggestedBudget = Math.max(100, Math.round(projected / 50) * 50);
+    }
+
+    const alert = await this.alertCtrl.create({
+      header: 'M. Pognon AI Proposal',
+      subHeader: `Observation: ${totalSpent.toFixed(2)} GHS tracked over ${daysElapsed} day(s)`,
+      message: `Based on your real campus spending velocity, M. Pognon projects an optimal monthly allowance target of ${suggestedBudget} GHS (~${this.currencyService.toXof(suggestedBudget).toLocaleString()} XOF).\n\nWould you like to adopt this as your target monthly budget ceiling now?`,
+      buttons: [
+        {
+          text: 'Continue in Discovery Mode',
+          role: 'cancel'
+        },
+        {
+          text: `Adopt ${suggestedBudget} GHS Budget`,
+          handler: async () => {
+            const currentBudget = this.budgetFacade.monthlyBudget();
+            const updatedBudget = {
+              id: currentBudget?.id || '2026-10',
+              monthYear: currentBudget?.monthYear || '2026-10',
+              totalBudgetGhs: suggestedBudget,
+              exchangeRateXof: currentBudget?.exchangeRateXof || 42.0,
+              plannedDailyBudgetGhs: Math.round(suggestedBudget / 30),
+              isDiscoveryMode: false,
+              cycleStartDay: cycleDay
+            };
+            await this.budgetFacade.saveMonthlyBudget(updatedBudget);
+
+            const profile = this.userProfile();
+            if (profile) {
+              await this.profileFacade.saveUserProfile({
+                ...profile,
+                budgetMode: 'fixed',
+                updatedAt: new Date().toISOString()
+              });
+            }
+
+            const toast = await this.toastCtrl.create({
+              message: `Personalized budget of ${suggestedBudget} GHS adopted! Breathing balance is now active.`,
+              duration: 3000,
+              color: 'success',
+              position: 'top'
+            });
+            await toast.present();
+          }
+        }
+      ]
+    });
+    await alert.present();
   }
 }

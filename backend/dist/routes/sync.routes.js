@@ -11,7 +11,7 @@ const config_js_1 = require("../config.js");
 const authMiddleware = (req, res, next) => {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ success: false, error: 'Accès non autorisé : Token manquant.' });
+        return res.status(401).json({ success: false, error: 'Unauthorized: Missing access token.' });
     }
     const token = authHeader.split(' ')[1];
     // 1. Check if it's the shared secret token
@@ -28,7 +28,7 @@ const authMiddleware = (req, res, next) => {
         return next();
     }
     catch (err) {
-        return res.status(401).json({ success: false, error: 'Session expirée ou token invalide.' });
+        return res.status(401).json({ success: false, error: 'Session expired or invalid token.' });
     }
 };
 exports.authMiddleware = authMiddleware;
@@ -53,7 +53,7 @@ exports.syncRouter.post('/backup', exports.authMiddleware, async (req, res) => {
     }
     catch (err) {
         console.error('[backup Error]', err);
-        return res.status(500).json({ success: false, error: err.message || 'Erreur lors de la sauvegarde.' });
+        return res.status(500).json({ success: false, error: err.message || 'Error during cloud backup.' });
     }
 });
 // GET /api/restore
@@ -61,7 +61,7 @@ exports.syncRouter.get('/restore', exports.authMiddleware, async (req, res) => {
     try {
         const email = req.userEmail || req.query.email;
         if (!email) {
-            return res.status(400).json({ success: false, error: 'Email requis pour la restauration.' });
+            return res.status(400).json({ success: false, error: 'Email is required to restore cloud backup.' });
         }
         const backup = db_service_js_1.dbService.getBackup(email);
         if (!backup || !backup.data) {
@@ -94,7 +94,7 @@ exports.syncRouter.get('/restore', exports.authMiddleware, async (req, res) => {
     }
     catch (err) {
         console.error('[restore Error]', err);
-        return res.status(500).json({ success: false, error: err.message || 'Erreur lors de la restauration.' });
+        return res.status(500).json({ success: false, error: err.message || 'Error during cloud restore.' });
     }
 });
 // POST /api/sync (Incremental queue sync)

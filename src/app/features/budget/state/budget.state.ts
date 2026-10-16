@@ -25,6 +25,14 @@ export class BudgetState {
     this._monthlyBudget()?.plannedDailyBudgetGhs ?? 20
   );
 
+  readonly isDiscoveryMode = computed(() =>
+    !!this._monthlyBudget()?.isDiscoveryMode || this._monthlyBudget()?.totalBudgetGhs === 0
+  );
+
+  readonly cycleStartDay = computed(() =>
+    this._monthlyBudget()?.cycleStartDay ?? 1
+  );
+
   setCategories(data: Category[]): void {
     this._categories.set(data);
   }

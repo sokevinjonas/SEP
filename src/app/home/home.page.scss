@@ -174,6 +174,62 @@
   color: var(--sep-mut, #6B5966);
 }
 
+/* Discovery Mode Balance Card Variant */
+.discovery-balance-card {
+  background: linear-gradient(145deg, #FFFFFF 0%, #edf8f8 100%);
+  border-color: #017e84;
+
+  .discovery-hero .balance-amount {
+    color: #015f64;
+  }
+}
+
+.discovery-progress-bar {
+  --progress-background: #017e84;
+}
+
+.discovery-actions-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 12px;
+  margin-top: 10px;
+  border-top: 1px dashed var(--sep-line, #EADFE7);
+
+  .discovery-ai-chip {
+    --background: linear-gradient(135deg, #017e84 0%, #02a2a9 100%);
+    --color: #ffffff;
+    font-weight: 800;
+    font-size: 11px;
+    height: 30px;
+    margin: 0;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(1, 126, 132, 0.25);
+    transition: transform 0.2s ease;
+
+    &:active {
+      transform: scale(0.96);
+    }
+
+    ion-icon {
+      color: #ffffff;
+      font-size: 14px;
+    }
+  }
+
+  .switch-budget-text-btn {
+    background: transparent;
+    border: none;
+    font-family: var(--ion-font-family);
+    font-size: 11.5px;
+    font-weight: 800;
+    color: var(--sep-primary, #714B67);
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 4px 6px;
+  }
+}
+
 /* Avoided Total Reward Card (Official ion-card) */
 .avoided-card {
   background: var(--sep-card, #FFFFFF);

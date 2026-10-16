@@ -17,6 +17,8 @@ export class BudgetFacade {
   readonly totalBudgetAllocatedGhs = this.state.totalBudgetAllocatedGhs;
   readonly totalBudgetCeilingGhs = this.state.totalBudgetCeilingGhs;
   readonly plannedDailyBudgetGhs = this.state.plannedDailyBudgetGhs;
+  readonly isDiscoveryMode = this.state.isDiscoveryMode;
+  readonly cycleStartDay = this.state.cycleStartDay;
   readonly loading = this.state.loading;
   readonly error = this.state.error;
 
@@ -62,7 +64,9 @@ export class BudgetFacade {
   readonly consumption = computed<BudgetConsumption>(() => {
     const totalCeiling = this.totalBudgetCeilingGhs();
     const totalSpent = this.expensesFacade.currentMonthTotalSpent();
-    return this.calculator.calculateConsumption(totalCeiling, totalSpent);
+    const isDiscovery = this.isDiscoveryMode();
+    const cycleDay = this.cycleStartDay();
+    return this.calculator.calculateConsumption(totalCeiling, totalSpent, isDiscovery, cycleDay);
   });
 
   /**

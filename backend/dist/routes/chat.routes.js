@@ -9,7 +9,7 @@ exports.chatRouter.post('/chat', sync_routes_js_1.authMiddleware, async (req, re
     try {
         const { message } = req.body;
         if (!message || typeof message !== 'string') {
-            return res.status(400).json({ error: 'Message requis.' });
+            return res.status(400).json({ error: 'Message is required.' });
         }
         // 1. If OpenAI API key is set, call OpenAI
         if (config_js_1.config.openaiApiKey) {
@@ -25,7 +25,7 @@ exports.chatRouter.post('/chat', sync_routes_js_1.authMiddleware, async (req, re
                         messages: [
                             {
                                 role: 'system',
-                                content: 'Tu es M. Pognon, le coach budgétaire étudiant impitoyable mais bienveillant de Student Savings. Ton but est de protéger le solde de l\'étudiant pour qu\'il termine le mois sans famine ni dette sur le campus. Sois direct, réaliste, percutant et propose toujours une solution concrète (ex: période de réflexion 48h, repas campus).'
+                                content: 'You are M. Pognon, the shrewd yet caring student financial coach in Student Savings. Your mission is to protect the student ledger so they finish the month or cycle without going broke or into campus debt. Be direct, realistic, encouraging, and always propose tangible solutions (e.g. 48h hesitation period, campus dining hall meals, envelope adjustments).'
                             },
                             {
                                 role: 'user',
@@ -51,19 +51,19 @@ exports.chatRouter.post('/chat', sync_routes_js_1.authMiddleware, async (req, re
         // 2. Local heuristic advice
         const query = message.toLowerCase();
         let reply = '';
-        if (query.includes('sneaker') || query.includes('chaussure') || query.includes('buy') || query.includes('acheter')) {
-            reply = 'Attention étudiant ! Acheter sur un coup de tête amputera tes repas de fin de mois. Mets cet article en réflexion 48h dans ta liste d\'envies. Si tu en as encore besoin dans deux jours, nous réévaluerons ton solde.';
+        if (query.includes('sneaker') || query.includes('shoes') || query.includes('buy') || query.includes('purchase')) {
+            reply = 'Hold on, student! Impulse spending on gadgets or fashion will cut into your essential meals. Place this item on a 48h cool-off in your hesitation list. If you still need it in two days, we will audit your balance.';
         }
-        else if (query.includes('manger') || query.includes('food') || query.includes('restaurant') || query.includes('faim')) {
-            reply = 'La nourriture hors-campus est le piège n°1 des étudiants. Privilégie la cantine universitaire ou cuisine en colocation pour diviser ta facture par deux cette semaine.';
+        else if (query.includes('eat') || query.includes('food') || query.includes('restaurant') || query.includes('hungry')) {
+            reply = 'Off-campus dining is the #1 pitfall for university students. Stick to the campus dining hall or batch-cook with roommates to cut your food spending in half this week.';
         }
         else {
-            reply = 'Garde le cap ! Chaque cédi ou franc CFA que tu protèges aujourd\'hui t\'assure la tranquillité d\'esprit pendant tes examens. Que souhaites-tu auditer d\'autre dans ton budget ?';
+            reply = 'Stay the course! Every cedi or CFA franc you protect today guarantees peace of mind during exams. What else in your campus budget would you like to review?';
         }
         return res.json({ reply });
     }
     catch (err) {
         console.error('[Chat Error]', err);
-        return res.status(500).json({ error: err.message || 'Erreur lors du chat.' });
+        return res.status(500).json({ error: err.message || 'Error processing chat request.' });
     }
 });

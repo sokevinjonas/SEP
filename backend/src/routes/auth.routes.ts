@@ -11,7 +11,7 @@ authRouter.post('/send-otp', async (req: Request, res: Response) => {
   try {
     const { email } = req.body;
     if (!email || typeof email !== 'string' || !email.includes('@')) {
-      return res.status(400).json({ success: false, error: 'Adresse email valide requise.' });
+      return res.status(400).json({ success: false, error: 'A valid email address is required.' });
     }
 
     const normEmail = email.toLowerCase().trim();
@@ -26,20 +26,20 @@ authRouter.post('/send-otp', async (req: Request, res: Response) => {
     const sent = await emailService.sendOtpEmail(normEmail, code, isNew);
 
     if (!sent) {
-      return res.status(500).json({ success: false, error: "Erreur lors de l'envoi du mail de vérification." });
+      return res.status(500).json({ success: false, error: 'Failed to send verification email.' });
     }
 
     return res.json({
       success: true,
       isNew,
       message: isNew
-        ? 'Bienvenue ! Un email avec votre code d\'activation à 6 chiffres vous a été envoyé.'
-        : 'Code de vérification envoyé à votre adresse email.',
+        ? 'Welcome! An email with your 6-digit activation code has been sent.'
+        : 'Verification code sent to your email address.',
       email: normEmail
     });
   } catch (err: any) {
     console.error('[send-otp Error]', err);
-    return res.status(500).json({ success: false, error: err.message || 'Erreur serveur.' });
+    return res.status(500).json({ success: false, error: err.message || 'Internal server error.' });
   }
 });
 
@@ -48,14 +48,14 @@ authRouter.post('/verify-otp', async (req: Request, res: Response) => {
   try {
     const { email, code } = req.body;
     if (!email || !code) {
-      return res.status(400).json({ success: false, error: 'Email et code OTP requis.' });
+      return res.status(400).json({ success: false, error: 'Email and verification code are required.' });
     }
 
     const normEmail = (email as string).toLowerCase().trim();
     const isValid = dbService.verifyOtp(normEmail, (code as string).trim());
 
     if (!isValid) {
-      return res.status(400).json({ success: false, error: 'Code de vérification incorrect ou expiré.' });
+      return res.status(400).json({ success: false, error: 'Invalid or expired verification code.' });
     }
 
     const user = dbService.getOrCreateUser(normEmail);
@@ -76,6 +76,7 @@ authRouter.post('/verify-otp', async (req: Request, res: Response) => {
     });
   } catch (err: any) {
     console.error('[verify-otp Error]', err);
-    return res.status(500).json({ success: false, error: err.message || 'Erreur serveur.' });
+    return res.status(500).json({ success: false, error: err.message || 'Internal server error.' });
   }
 });
+

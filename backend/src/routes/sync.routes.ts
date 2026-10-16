@@ -11,7 +11,7 @@ export interface AuthenticatedRequest extends Request {
 export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ success: false, error: 'Accès non autorisé : Token manquant.' });
+    return res.status(401).json({ success: false, error: 'Unauthorized: Missing access token.' });
   }
 
   const token = authHeader.split(' ')[1];
@@ -30,7 +30,7 @@ export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: N
     req.userId = decoded.id;
     return next();
   } catch (err) {
-    return res.status(401).json({ success: false, error: 'Session expirée ou token invalide.' });
+    return res.status(401).json({ success: false, error: 'Session expired or invalid token.' });
   }
 };
 
@@ -58,7 +58,7 @@ syncRouter.post('/backup', authMiddleware, async (req: AuthenticatedRequest, res
     });
   } catch (err: any) {
     console.error('[backup Error]', err);
-    return res.status(500).json({ success: false, error: err.message || 'Erreur lors de la sauvegarde.' });
+    return res.status(500).json({ success: false, error: err.message || 'Error during cloud backup.' });
   }
 });
 
@@ -67,7 +67,7 @@ syncRouter.get('/restore', authMiddleware, async (req: AuthenticatedRequest, res
   try {
     const email = req.userEmail || (req.query.email as string);
     if (!email) {
-      return res.status(400).json({ success: false, error: 'Email requis pour la restauration.' });
+      return res.status(400).json({ success: false, error: 'Email is required to restore cloud backup.' });
     }
 
     const backup = dbService.getBackup(email);
@@ -102,9 +102,10 @@ syncRouter.get('/restore', authMiddleware, async (req: AuthenticatedRequest, res
     });
   } catch (err: any) {
     console.error('[restore Error]', err);
-    return res.status(500).json({ success: false, error: err.message || 'Erreur lors de la restauration.' });
+    return res.status(500).json({ success: false, error: err.message || 'Error during cloud restore.' });
   }
 });
+
 
 // POST /api/sync (Incremental queue sync)
 syncRouter.post('/sync', authMiddleware, async (req: AuthenticatedRequest, res: Response) => {

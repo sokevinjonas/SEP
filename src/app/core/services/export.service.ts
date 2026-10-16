@@ -90,15 +90,15 @@ export class ExportService {
           const content = event.target?.result as string;
           const parsed = JSON.parse(content);
           if (!parsed || (typeof parsed !== 'object')) {
-            reject(new Error('Fichier JSON invalide.'));
+            reject(new Error('Invalid JSON file.'));
             return;
           }
           resolve(parsed);
         } catch (err) {
-          reject(new Error('Impossible de lire le fichier JSON de sauvegarde.'));
+          reject(new Error('Unable to read backup JSON file.'));
         }
       };
-      reader.onerror = () => reject(new Error('Erreur de lecture du fichier.'));
+      reader.onerror = () => reject(new Error('Error reading file.'));
       reader.readAsText(file);
     });
   }

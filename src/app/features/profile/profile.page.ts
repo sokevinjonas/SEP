@@ -358,13 +358,30 @@ export class ProfilePage implements OnInit, OnDestroy {
     await this.showToast('Currencies and exchange rates saved.', 'success');
   }
 
+  onBudgetModeChange(mode: string): void {
+    const isDiscovery = mode === 'discovery';
+    this.monthlyBudget.isDiscoveryMode = isDiscovery;
+    if (isDiscovery) {
+      this.monthlyBudget.totalBudgetGhs = 0;
+    } else if (this.monthlyBudget.totalBudgetGhs <= 0) {
+      this.monthlyBudget.totalBudgetGhs = 600;
+    }
+  }
+
   async saveBudget(): Promise<void> {
-    if (this.monthlyBudget.totalBudgetGhs <= 0) {
+    const isDiscovery = this.monthlyBudget.isDiscoveryMode;
+    if (!isDiscovery && this.monthlyBudget.totalBudgetGhs <= 0) {
       this.showToast('Monthly budget must be greater than zero.', 'warning');
       return;
     }
 
-    this.monthlyBudget.plannedDailyBudgetGhs = Math.round(this.monthlyBudget.totalBudgetGhs / 30);
+    const safeCycle = Math.min(28, Math.max(1, this.userProfile.cycleStartDay || 1));
+    this.userProfile.cycleStartDay = safeCycle;
+    this.userProfile.budgetMode = isDiscovery ? 'discovery' : 'fixed';
+    await this.profileFacade.saveUserProfile(this.userProfile);
+
+    this.monthlyBudget.cycleStartDay = safeCycle;
+    this.monthlyBudget.plannedDailyBudgetGhs = isDiscovery ? 0 : Math.round(this.monthlyBudget.totalBudgetGhs / 30);
     await this.budgetFacade.saveMonthlyBudget(this.monthlyBudget);
 
     for (const cat of this.categories) {
@@ -372,7 +389,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
 
     this.closeModal();
-    await this.showToast('Budget ceiling and envelopes saved.', 'success');
+    await this.showToast('Budget strategy and envelopes saved.', 'success');
   }
 
   // Cloudflare D1 & JSON Vault Backup
@@ -514,25 +531,25 @@ export class ProfilePage implements OnInit, OnDestroy {
   async openLinkAccountModal(): Promise<void> {
     if (this.isLinked) {
       const alert = await this.alertCtrl.create({
-        header: 'Compte Cloud Lié',
+        header: 'Cloud Account Linked',
         subHeader: this.linkedEmail || '',
-        message: 'Votre compte est connecté au serveur. Vos dépenses et votre budget peuvent être synchronisés automatiquement.',
+        message: 'Your account is connected to the server. Your expenses and budget can be synced automatically.',
         buttons: [
           {
-            text: 'Sauvegarder maintenant',
+            text: 'Backup Now',
             handler: () => {
               this.backupToCloud();
             }
           },
           {
-            text: 'Dissocier le compte',
+            text: 'Disconnect Account',
             role: 'destructive',
             handler: () => {
               this.unlinkAccount();
             }
           },
           {
-            text: 'Fermer',
+            text: 'Close',
             role: 'cancel'
           }
         ]
@@ -549,7 +566,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   async sendLinkOtp(): Promise<void> {
     const email = this.linkEmailInput.trim();
     if (!email || !email.includes('@') || !email.includes('.')) {
-      await this.showToast('Veuillez saisir une adresse email valide.', 'warning');
+      await this.showToast('Please enter a valid email address.', 'warning');
       return;
     }
 
@@ -560,16 +577,16 @@ export class ProfilePage implements OnInit, OnDestroy {
     if (res.success) {
       this.linkStep = 'otp';
       this.startLinkCountdown(60);
-      await this.showToast(res.message || 'Code à 6 chiffres envoyé par email.', 'success');
+      await this.showToast(res.message || '6-digit code sent to your email.', 'success');
     } else {
-      await this.showToast(res.error || "Erreur lors de l'envoi du code. Vérifiez votre connexion.", 'danger');
+      await this.showToast(res.error || 'Error sending code. Please check your connection.', 'danger');
     }
   }
 
   async verifyLinkOtp(): Promise<void> {
     const code = this.linkOtpInput.trim();
     if (!code || code.length < 6) {
-      await this.showToast('Veuillez saisir le code à 6 chiffres reçu par email.', 'warning');
+      await this.showToast('Please enter the 6-digit code received by email.', 'warning');
       return;
     }
 
@@ -594,9 +611,9 @@ export class ProfilePage implements OnInit, OnDestroy {
       // Push current local data as initial cloud backup
       await this.syncService.backupToCloud();
 
-      await this.showToast('Compte lié avec succès ! La synchronisation Cloud est désormais active.', 'success');
+      await this.showToast('Account linked successfully! Cloud sync is now active.', 'success');
     } else {
-      await this.showToast(res.error || 'Code de vérification incorrect ou expiré.', 'danger');
+      await this.showToast(res.error || 'Invalid or expired verification code.', 'danger');
     }
   }
 
@@ -626,12 +643,12 @@ export class ProfilePage implements OnInit, OnDestroy {
 
   async unlinkAccount(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Dissocier le compte ?',
-      message: 'La synchronisation en ligne sera désactivée. Toutes vos données locales resteront bien conservées sur cet appareil.',
+      header: 'Disconnect Account?',
+      message: 'Online synchronization will be disabled. All your local data will remain safe on this device.',
       buttons: [
-        { text: 'Annuler', role: 'cancel' },
+        { text: 'Cancel', role: 'cancel' },
         {
-          text: 'Dissocier',
+          text: 'Disconnect',
           role: 'destructive',
           handler: async () => {
             this.syncService.logout();
@@ -642,7 +659,7 @@ export class ProfilePage implements OnInit, OnDestroy {
             };
             await this.profileFacade.saveUserProfile(updatedProfile);
             this.userProfile = { ...updatedProfile };
-            await this.showToast('Compte dissocié avec succès.', 'success');
+            await this.showToast('Account disconnected successfully.', 'success');
           }
         }
       ]

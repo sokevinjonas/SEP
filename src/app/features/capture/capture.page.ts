@@ -282,7 +282,7 @@ export class CapturePage implements OnInit, OnDestroy {
       categoryId: this.activeExtraction.categoryId,
       categoryName: this.getCategoryName(this.activeExtraction.categoryId),
       merchant: this.activeExtraction.merchant.trim(),
-      note: `Capture OCR (${this.activeExtraction.source === 'ocr_momo' ? 'Mobile Money' : 'Ticket papier'})`,
+      note: `OCR Capture (${this.activeExtraction.source === 'ocr_momo' ? 'Mobile Money' : 'Paper Receipt'})`,
       date: this.activeExtraction.date || new Date().toISOString(),
       source: this.activeExtraction.source,
       transactionRef: this.activeExtraction.transactionReference || undefined,
@@ -297,7 +297,7 @@ export class CapturePage implements OnInit, OnDestroy {
     }
 
     this.closePreview();
-    await this.showToast(`Dépense de ${expense.amount} ${expense.currency} validée et enregistrée !`, 'success');
+    await this.showToast(`Expense of ${expense.amount} ${expense.currency} recorded successfully!`, 'success');
   }
 
   getCategoryName(catId: string): string {
@@ -309,13 +309,13 @@ export class CapturePage implements OnInit, OnDestroy {
     event.stopPropagation();
     this.queuedCaptures = this.queuedCaptures.filter(c => c.id !== id);
     this.saveQueuedCaptures();
-    this.showToast('Capture retirée de la file d\'attente.', 'warning');
+    this.showToast('Capture removed from queue.', 'warning');
   }
 
   clearQueue(): void {
     this.queuedCaptures = [];
     this.saveQueuedCaptures();
-    this.showToast('File d\'attente nettoyée.', 'success');
+    this.showToast('Capture queue cleared successfully.', 'success');
   }
 
   private async showToast(message: string, color: 'success' | 'warning' | 'danger'): Promise<void> {

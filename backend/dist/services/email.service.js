@@ -12,19 +12,19 @@ class EmailService {
     }
     async sendOtpEmail(toEmail, otpCode, isNew = false) {
         const subject = isNew
-            ? `🎉 Bienvenue sur Student Savings ! Votre code d'activation : ${otpCode}`
-            : `[Student Savings] Votre code de connexion : ${otpCode}`;
+            ? `🎉 Welcome to Student Savings! Your activation code: ${otpCode}`
+            : `[Student Savings] Your verification code: ${otpCode}`;
         const title = isNew
-            ? `Bienvenue sur Student Savings !`
-            : `Connexion & Synchronisation`;
+            ? `Welcome to Student Savings!`
+            : `Sign In & Cloud Sync`;
         const description = isNew
-            ? `Félicitations pour votre inscription ! Pour valider votre compte et activer la sauvegarde de votre budget et de vos dépenses d'étudiant, voici votre code d'activation à 6 chiffres :`
-            : `Voici votre code de vérification à usage unique pour connecter votre compte et synchroniser vos données financières :`;
+            ? `Congratulations on joining Student Savings! To confirm your email address and activate automated cloud backup for your campus budget and expenses, here is your 6-digit confirmation code:`
+            : `Here is your single-use verification code to link your account and sync your campus finances securely:`;
         const html = `
       <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 520px; margin: 0 auto; background: #FFFFFF; border-radius: 16px; border: 1px solid #EADFE7; overflow: hidden; color: #2B1F28;">
         <div style="background: linear-gradient(135deg, #714B67 0%, #58354f 100%); padding: 24px; text-align: center; color: #FFFFFF;">
           <h1 style="margin: 0; font-size: 20px; font-weight: 800; letter-spacing: 0.02em;">Student Savings</h1>
-          <p style="margin: 6px 0 0; font-size: 13px; opacity: 0.9;">Votre coach financier étudiant</p>
+          <p style="margin: 6px 0 0; font-size: 13px; opacity: 0.9;">Your campus financial coach</p>
         </div>
 
         <div style="padding: 28px 24px; text-align: center;">
@@ -38,13 +38,13 @@ class EmailService {
           </div>
 
           <p style="margin: 0; font-size: 12px; color: #6B5966;">
-            Ce code est valable pendant <strong>10 minutes</strong>.<br>
-            Si vous n'êtes pas à l'origine de cette demande, vous pouvez ignorer cet email en toute sécurité.
+            This code is valid for <strong>10 minutes</strong>.<br>
+            If you did not request this verification code, you can safely ignore this email.
           </p>
         </div>
 
         <div style="background: #FAF8F9; padding: 14px; text-align: center; border-top: 1px solid #EADFE7; font-size: 11px; color: #6B5966;">
-          Student Savings · Conçu avec rigueur pour les étudiants de campus
+          Student Savings · Rigorously crafted for campus students
         </div>
       </div>
     `;

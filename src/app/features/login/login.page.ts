@@ -130,7 +130,7 @@ export class LoginPage implements OnInit, OnDestroy {
   async sendOtp(): Promise<void> {
     const trimmedEmail = this.email.trim();
     if (!trimmedEmail || !trimmedEmail.includes('@') || !trimmedEmail.includes('.')) {
-      await this.showToast('Veuillez saisir une adresse email valide.', 'warning');
+      await this.showToast('Please enter a valid email address.', 'warning');
       return;
     }
 
@@ -141,16 +141,16 @@ export class LoginPage implements OnInit, OnDestroy {
     if (res.success) {
       this.step = 'otp';
       this.startCountdown(60);
-      await this.showToast(res.message || 'Code OTP envoyé à votre adresse email.', 'success');
+      await this.showToast(res.message || 'Verification code sent to your email address.', 'success');
     } else {
-      await this.showToast(res.error || 'Impossible d’envoyer le code. Vérifiez votre connexion.', 'danger');
+      await this.showToast(res.error || 'Failed to send code. Please check your network connection.', 'danger');
     }
   }
 
   async verifyOtp(): Promise<void> {
     const trimmedCode = this.otpCode.trim();
     if (!trimmedCode || trimmedCode.length < 6) {
-      await this.showToast('Veuillez saisir le code à 6 chiffres reçu par email.', 'warning');
+      await this.showToast('Please enter the 6-digit code received by email.', 'warning');
       return;
     }
 
@@ -159,7 +159,7 @@ export class LoginPage implements OnInit, OnDestroy {
     this.isLoading = false;
 
     if (!res.success) {
-      await this.showToast(res.error || 'Code incorrect ou expiré.', 'danger');
+      await this.showToast(res.error || 'Invalid or expired verification code.', 'danger');
       return;
     }
 
@@ -192,8 +192,8 @@ export class LoginPage implements OnInit, OnDestroy {
     ]);
 
     const welcomeMsg = res.hasBackup
-      ? `Bon retour ! Vos données ont été synchronisées (${restoredExpenses} dépenses).`
-      : 'Connexion réussie ! Bienvenue sur Student Savings.';
+      ? `Welcome back! Your campus data has been synced (${restoredExpenses} expenses).`
+      : 'Sign in successful! Welcome to Student Savings.';
     await this.showToast(welcomeMsg, 'success');
 
     await this.router.navigate(['/tabs/home'], { replaceUrl: true });
@@ -231,12 +231,12 @@ export class LoginPage implements OnInit, OnDestroy {
     try {
       const backupData = await this.exportService.readBackupFile(file);
       const alert = await this.alertCtrl.create({
-        header: 'Restaurer la sauvegarde ?',
-        message: `Fichier : ${file.name}\n${backupData.expenses?.length || 0} dépenses détectées.\nConfirmer la restauration ?`,
+        header: 'Restore Backup File?',
+        message: `File: ${file.name}\n${backupData.expenses?.length || 0} expenses detected.\nDo you want to restore this data?`,
         buttons: [
-          { text: 'Annuler', role: 'cancel' },
+          { text: 'Cancel', role: 'cancel' },
           {
-            text: 'Restaurer',
+            text: 'Restore',
             handler: async () => {
               this.isRestoringFile = true;
               const stats = await this.idbService.restoreAllData(backupData);
@@ -247,7 +247,7 @@ export class LoginPage implements OnInit, OnDestroy {
                 this.purchasesFacade.load()
               ]);
               this.isRestoringFile = false;
-              await this.showToast(`Données restaurées ! (${stats.expenses} dépenses)`, 'success');
+              await this.showToast(`Data restored successfully! (${stats.expenses} expenses)`, 'success');
               this.router.navigate(['/tabs/home'], { replaceUrl: true });
             }
           }
@@ -255,11 +255,12 @@ export class LoginPage implements OnInit, OnDestroy {
       });
       await alert.present();
     } catch (err: any) {
-      await this.showToast(err.message || 'Fichier de sauvegarde invalide.', 'danger');
+      await this.showToast(err.message || 'Invalid backup file.', 'danger');
     } finally {
       input.value = '';
     }
   }
+
 
   private async showToast(message: string, color: 'success' | 'warning' | 'danger'): Promise<void> {
     const toast = await this.toastCtrl.create({

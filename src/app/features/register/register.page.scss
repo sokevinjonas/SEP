@@ -530,3 +530,260 @@
     }
   }
 }
+
+/* ==========================================================================
+   Budget Strategy Selection Cards
+   ========================================================================== */
+.strategy-cards-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 4px;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.strategy-card {
+  background: var(--sep-card, #FFFFFF);
+  border: 2px solid var(--sep-line, #EADFE7);
+  border-radius: 20px;
+  padding: 16px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 14px rgba(113, 75, 103, 0.04);
+  position: relative;
+
+  &:hover {
+    border-color: var(--sep-primary, #714B67);
+    transform: translateY(-2px);
+  }
+
+  &.selected {
+    border-color: var(--sep-primary, #714B67);
+    background: linear-gradient(160deg, #FFFFFF 0%, #FAF5F9 100%);
+    box-shadow: 0 6px 20px rgba(113, 75, 103, 0.15);
+  }
+
+  &.discovery-card.selected {
+    border-color: #017e84;
+    background: linear-gradient(160deg, #FFFFFF 0%, #F0F9F9 100%);
+    box-shadow: 0 6px 20px rgba(1, 126, 132, 0.15);
+  }
+
+  .strategy-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+
+    .strategy-icon-wrap {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+
+      &.fixed-icon {
+        background: rgba(113, 75, 103, 0.1);
+        color: var(--sep-primary, #714B67);
+      }
+
+      &.discovery-icon {
+        background: rgba(1, 126, 132, 0.12);
+        color: #017e84;
+      }
+    }
+
+    .strategy-check ion-icon {
+      font-size: 24px;
+      color: var(--sep-primary, #714B67);
+    }
+  }
+
+  &.discovery-card .strategy-check ion-icon {
+    color: #017e84;
+  }
+
+  .discovery-title-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .strategy-title {
+    font-size: 15.5px;
+    font-weight: 900;
+    color: var(--sep-ink, #2B1F28);
+    margin: 0 0 6px;
+    line-height: 1.25;
+  }
+
+  .ai-pill {
+    background: linear-gradient(135deg, #017e84 0%, #02a2a9 100%);
+    color: #FFFFFF;
+    font-size: 9px;
+    font-weight: 900;
+    letter-spacing: 0.5px;
+    padding: 3px 7px;
+    border-radius: 8px;
+  }
+
+  .strategy-desc {
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--sep-mut, #6B5966);
+    margin: 0;
+    flex: 1;
+  }
+
+  .strategy-badge {
+    margin-top: 12px;
+    align-self: flex-start;
+    font-size: 9.5px;
+    font-weight: 900;
+    letter-spacing: 0.6px;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: var(--sep-primary, #714B67);
+    color: #FFFFFF;
+
+    &.discovery-badge {
+      background: #017e84;
+    }
+  }
+}
+
+/* ==========================================================================
+   Cycle Reset Day Selection
+   ========================================================================== */
+.cycle-card {
+  .cycle-chips-wrapper {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 14px 16px 16px;
+
+    .cycle-chip {
+      --background: var(--sep-base, #F7F3F6);
+      --color: var(--sep-ink, #2B1F28);
+      border: 1px solid var(--sep-line, #EADFE7);
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 6px 10px;
+      margin: 0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      ion-icon {
+        color: var(--sep-primary, #714B67);
+        font-size: 15px;
+      }
+
+      &.active {
+        --background: var(--sep-primary, #714B67);
+        --color: #FFFFFF;
+        border-color: var(--sep-primary, #714B67);
+        box-shadow: 0 3px 10px rgba(113, 75, 103, 0.25);
+
+        ion-icon {
+          color: #FFFFFF;
+        }
+      }
+
+      &.custom-chip.active {
+        --background: #017e84;
+        border-color: #017e84;
+        box-shadow: 0 3px 10px rgba(1, 126, 132, 0.25);
+      }
+    }
+  }
+
+  .custom-cycle-picker-box {
+    padding: 0 16px 16px;
+
+    .apply-cycle-btn {
+      --background: #017e84;
+      --color: #FFFFFF;
+      --border-radius: 10px;
+      font-weight: 800;
+      font-size: 12px;
+      margin: 0 4px;
+    }
+  }
+}
+
+/* ==========================================================================
+   Discovery Mode Highlight Banner
+   ========================================================================== */
+.discovery-info-banner {
+  padding: 16px;
+  background: linear-gradient(135deg, rgba(1, 126, 132, 0.08) 0%, rgba(113, 75, 103, 0.05) 100%);
+  border-bottom: 1px solid var(--sep-line, #EADFE7);
+
+  .discovery-info-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+
+    .discovery-active-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 5px 10px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      --background: #017e84;
+      color: #FFFFFF;
+    }
+
+    .reset-date-tag {
+      font-size: 11.5px;
+      font-weight: 800;
+      color: var(--sep-primary, #714B67);
+    }
+  }
+
+  .discovery-lead {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--sep-ink, #2B1F28);
+    margin: 0 0 12px;
+    line-height: 1.45;
+  }
+
+  .discovery-feature-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .feature-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+
+      ion-icon {
+        font-size: 16px;
+        color: #017e84;
+        margin-top: 1px;
+        flex-shrink: 0;
+      }
+
+      span {
+        font-size: 12px;
+        color: var(--sep-mut, #6B5966);
+        line-height: 1.4;
+      }
+    }
+  }
+}
+

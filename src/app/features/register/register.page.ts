@@ -21,6 +21,7 @@ import {
   IonButton,
   IonIcon,
   IonChip,
+  IonBadge,
   IonSpinner,
   ToastController
 } from '@ionic/angular';
@@ -39,7 +40,12 @@ import {
   checkmarkCircleOutline,
   cloudDownloadOutline,
   documentTextOutline,
-  logInOutline
+  logInOutline,
+  sparklesOutline,
+  compassOutline,
+  calendarOutline,
+  helpCircleOutline,
+  checkmarkOutline
 } from 'ionicons/icons';
 import { ProfileFacade } from '../profile/facade/profile.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
@@ -77,6 +83,7 @@ import { UserProfile, MonthlyBudget } from '../../core/models/financial.models';
     IonButton,
     IonIcon,
     IonChip,
+    IonBadge,
     IonSpinner
   ],
   templateUrl: './register.page.html',
@@ -99,7 +106,12 @@ export class RegisterPage implements OnInit {
   isLoadingCountries = false;
   isLoadingCities = false;
 
-  // Financial engine
+  // Financial engine & Budget strategy
+  budgetMode: 'fixed' | 'discovery' = 'fixed';
+  cycleStartDay = 1;
+  customCycleInput = 1;
+  showCustomCyclePicker = false;
+
   primaryCurrency: CurrencyCode = 'GHS';
   secondaryCurrency: CurrencyCode = 'XOF';
   exchangeRate = 42.0;
@@ -139,7 +151,12 @@ export class RegisterPage implements OnInit {
       checkmarkCircleOutline,
       cloudDownloadOutline,
       documentTextOutline,
-      logInOutline
+      logInOutline,
+      sparklesOutline,
+      compassOutline,
+      calendarOutline,
+      helpCircleOutline,
+      checkmarkOutline
     });
   }
 
@@ -149,12 +166,12 @@ export class RegisterPage implements OnInit {
 
   async restoreFromCloud(): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Restaurer depuis le Cloud ?',
-      message: 'Voulez-vous récupérer vos dépenses, achats et réglages enregistrés sur Cloudflare D1 ?',
+      header: 'Restore from Cloud?',
+      message: 'Do you want to restore your student expenses, purchases, and settings from the backup server?',
       buttons: [
-        { text: 'Annuler', role: 'cancel' },
+        { text: 'Cancel', role: 'cancel' },
         {
-          text: 'Restaurer',
+          text: 'Restore',
           handler: async () => {
             this.isRestoring = true;
             const res = await this.syncService.restoreFromCloud();
@@ -167,10 +184,10 @@ export class RegisterPage implements OnInit {
                 this.expensesFacade.load(),
                 this.purchasesFacade.load()
               ]);
-              await this.showToast(`Données restaurées ! (${res.stats?.expenses || 0} dépenses)`, 'success');
+              await this.showToast(`Data restored successfully! (${res.stats?.expenses || 0} expenses)`, 'success');
               this.router.navigate(['/tabs/home'], { replaceUrl: true });
             } else {
-              await this.showToast(res.error || 'Impossible de restaurer depuis le Cloud.', 'danger');
+              await this.showToast(res.error || 'Unable to restore data from cloud.', 'danger');
             }
           }
         }
@@ -187,12 +204,12 @@ export class RegisterPage implements OnInit {
     try {
       const backupData = await this.exportService.readBackupFile(file);
       const alert = await this.alertCtrl.create({
-        header: 'Restaurer la sauvegarde ?',
-        message: `Fichier : ${file.name}\n${backupData.expenses?.length || 0} dépenses détectées.\nConfirmer la restauration ?`,
+        header: 'Restore Backup File?',
+        message: `File: ${file.name}\n${backupData.expenses?.length || 0} expenses detected.\nConfirm restoration?`,
         buttons: [
-          { text: 'Annuler', role: 'cancel' },
+          { text: 'Cancel', role: 'cancel' },
           {
-            text: 'Restaurer',
+            text: 'Restore',
             handler: async () => {
               this.isRestoring = true;
               const stats = await this.idbService.restoreAllData(backupData);
@@ -203,7 +220,7 @@ export class RegisterPage implements OnInit {
                 this.purchasesFacade.load()
               ]);
               this.isRestoring = false;
-              await this.showToast(`Données restaurées ! (${stats.expenses} dépenses)`, 'success');
+              await this.showToast(`Data restored successfully! (${stats.expenses} expenses)`, 'success');
               this.router.navigate(['/tabs/home'], { replaceUrl: true });
             }
           }
@@ -211,7 +228,7 @@ export class RegisterPage implements OnInit {
       });
       await alert.present();
     } catch (err: any) {
-      await this.showToast(err.message || 'Fichier invalide.', 'danger');
+      await this.showToast(err.message || 'Invalid backup file.', 'danger');
     } finally {
       input.value = '';
     }
@@ -326,6 +343,30 @@ export class RegisterPage implements OnInit {
   }
 
 
+  selectBudgetMode(mode: 'fixed' | 'discovery'): void {
+    this.budgetMode = mode;
+  }
+
+  selectCycleDay(day: number): void {
+    this.cycleStartDay = Math.min(28, Math.max(1, day));
+    this.showCustomCyclePicker = false;
+  }
+
+  openCustomCyclePicker(): void {
+    this.showCustomCyclePicker = true;
+    this.customCycleInput = this.cycleStartDay;
+  }
+
+  applyCustomCycleDay(): void {
+    const val = parseInt(String(this.customCycleInput), 10);
+    if (!isNaN(val) && val >= 1 && val <= 28) {
+      this.cycleStartDay = val;
+      this.showCustomCyclePicker = false;
+    } else {
+      this.showToast('Please select a cycle start day between 1 and 28.', 'warning');
+    }
+  }
+
   get dailyAllowance(): number {
     return this.monthlyBudget > 0 ? parseFloat((this.monthlyBudget / 30).toFixed(2)) : 0;
   }
@@ -355,10 +396,19 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    if (this.monthlyBudget <= 0 || this.exchangeRate <= 0) {
+    if (this.budgetMode === 'fixed' && (this.monthlyBudget <= 0 || this.exchangeRate <= 0)) {
       this.showToast('Budget ceiling and exchange rate must be greater than zero.', 'warning');
       return;
     }
+
+    if (this.exchangeRate <= 0) {
+      this.showToast('Exchange rate must be greater than zero.', 'warning');
+      return;
+    }
+
+    const isDiscovery = this.budgetMode === 'discovery';
+    const effectiveBudget = isDiscovery ? 0 : this.monthlyBudget;
+    const safeCycleDay = Math.min(28, Math.max(1, this.cycleStartDay || 1));
 
     // 1. Save User Profile via ProfileFacade
     const profile: UserProfile = {
@@ -369,6 +419,8 @@ export class RegisterPage implements OnInit {
       campus: this.campus.trim(),
       primaryCurrency: this.primaryCurrency,
       hasCompletedOnboarding: true,
+      budgetMode: this.budgetMode,
+      cycleStartDay: safeCycleDay,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
     };
@@ -380,9 +432,11 @@ export class RegisterPage implements OnInit {
     const budget: MonthlyBudget = {
       id: existingBudget?.id || '2026-10',
       monthYear: existingBudget?.monthYear || '2026-10',
-      totalBudgetGhs: this.monthlyBudget,
+      totalBudgetGhs: effectiveBudget,
       exchangeRateXof: this.exchangeRate,
-      plannedDailyBudgetGhs: Math.round(this.monthlyBudget / 30)
+      plannedDailyBudgetGhs: isDiscovery ? 0 : Math.round(this.monthlyBudget / 30),
+      isDiscoveryMode: isDiscovery,
+      cycleStartDay: safeCycleDay
     };
     await this.budgetFacade.saveMonthlyBudget(budget);
 
@@ -391,7 +445,11 @@ export class RegisterPage implements OnInit {
     await this.currencyService.setSecondaryCurrency(this.secondaryCurrency);
     await this.currencyService.setExchangeRate(this.exchangeRate);
 
-    await this.showToast(`Welcome, ${profile.name}! Your campus vault is ready.`, 'success');
+    const welcomeMsg = isDiscovery
+      ? `Welcome, ${profile.name}! Discovery Mode activated. M. Pognon will observe your expenses until day ${safeCycleDay}.`
+      : `Welcome, ${profile.name}! Your campus vault with ${effectiveBudget} ${this.primaryCurrency} budget is ready.`;
+
+    await this.showToast(welcomeMsg, 'success');
 
     // 4. Navigate to main dashboard
     await this.router.navigate(['/tabs/home'], { replaceUrl: true });

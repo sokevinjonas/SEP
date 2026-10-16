@@ -26,6 +26,17 @@ export interface MonthlyBudget {
   totalBudgetGhs: number;
   plannedDailyBudgetGhs: number;
   exchangeRateXof: number;
+  isDiscoveryMode?: boolean;
+  cycleStartDay?: number; // 1 to 28, day of the month allowance arrives / resets
+  cycleStartDate?: string;
+  cycleEndDate?: string;
+  aiSuggestedBudgetGhs?: number;
+  aiSuggestedBreakdown?: {
+    categoryId: string;
+    categoryName: string;
+    suggestedAllocationGhs: number;
+    percentage: number;
+  }[];
 }
 
 export interface Purchase {
@@ -60,6 +71,8 @@ export interface UserProfile {
   hasCompletedOnboarding: boolean;
   email?: string;
   isLinked?: boolean;
+  budgetMode?: 'fixed' | 'discovery';
+  cycleStartDay?: number; // 1 to 28, default 1
   createdAt: string;
   updatedAt: string;
 }

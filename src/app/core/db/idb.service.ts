@@ -49,7 +49,15 @@ export const DEFAULT_CATEGORIES: Category[] = [
 ];
 
 export function defaultMonthlyBudget(key: string = currentMonthKey()): MonthlyBudget {
-  return { id: key, monthYear: key, totalBudgetGhs: 600.0, plannedDailyBudgetGhs: 20.0, exchangeRateXof: 42.0 };
+  return {
+    id: key,
+    monthYear: key,
+    totalBudgetGhs: 600.0,
+    plannedDailyBudgetGhs: 20.0,
+    exchangeRateXof: 42.0,
+    isDiscoveryMode: false,
+    cycleStartDay: 1
+  };
 }
 
 export function defaultUserProfile(): UserProfile {
@@ -62,6 +70,8 @@ export function defaultUserProfile(): UserProfile {
     campus: '',
     primaryCurrency: 'GHS',
     hasCompletedOnboarding: false,
+    budgetMode: 'fixed',
+    cycleStartDay: 1,
     createdAt: now,
     updatedAt: now
   };

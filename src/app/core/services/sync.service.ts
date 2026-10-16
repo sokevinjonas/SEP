@@ -112,7 +112,7 @@ export class SyncService {
    */
   async sendOtp(email: string): Promise<{ success: boolean; isNew?: boolean; message?: string; error?: string }> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, error: 'Connexion Internet requise pour envoyer le code.' };
+      return { success: false, error: 'Internet connection required to request verification code.' };
     }
 
     try {
@@ -129,13 +129,13 @@ export class SyncService {
 
       const data = await response.json();
       if (!response.ok) {
-        return { success: false, error: data.error || `Erreur serveur (${response.status})` };
+        return { success: false, error: data.error || `Server error (${response.status})` };
       }
 
       this.setUserEmail(email);
       return { success: true, isNew: data.isNew, message: data.message };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Impossible de contacter le serveur.' };
+      return { success: false, error: err.message || 'Unable to reach authentication server.' };
     }
   }
 
@@ -152,7 +152,7 @@ export class SyncService {
     error?: string;
   }> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, error: 'Connexion Internet requise pour vérifier le code.' };
+      return { success: false, error: 'Internet connection required to verify code.' };
     }
 
     try {
@@ -169,7 +169,7 @@ export class SyncService {
 
       const data = await response.json();
       if (!response.ok) {
-        return { success: false, error: data.error || 'Code incorrect ou expiré.' };
+        return { success: false, error: data.error || 'Invalid or expired verification code.' };
       }
 
       if (data.token) {
@@ -186,7 +186,7 @@ export class SyncService {
         isNew: data.isNew
       };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Erreur lors de la vérification du code.' };
+      return { success: false, error: err.message || 'Error occurred while verifying code.' };
     }
   }
 
@@ -257,11 +257,11 @@ export class SyncService {
    */
   async backupToCloud(): Promise<{ success: boolean; stats?: any; error?: string }> {
     if (!this.isAuthenticated()) {
-      return { success: false, error: 'Compte non connecté. Connectez votre compte dans votre Profil pour activer la sauvegarde Cloud.' };
+      return { success: false, error: 'Account not linked. Please connect your account in Profile to enable Cloud backup.' };
     }
 
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, error: 'Connexion Internet requise pour la sauvegarde Cloud.' };
+      return { success: false, error: 'Internet connection required for Cloud backup.' };
     }
 
     try {
@@ -282,14 +282,14 @@ export class SyncService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        return { success: false, error: `Erreur serveur (${response.status}) pendant la sauvegarde.` };
+        return { success: false, error: `Server error (${response.status}) during Cloud backup.` };
       }
 
       const result = await response.json();
       this.lastSyncedAt = new Date().toISOString();
       return { success: true, stats: result.stats };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Impossible de joindre le serveur de sauvegarde.' };
+      return { success: false, error: err.message || 'Unable to connect to Cloud backup server.' };
     }
   }
 
@@ -298,11 +298,11 @@ export class SyncService {
    */
   async restoreFromCloud(): Promise<{ success: boolean; stats?: { expenses: number; purchases: number; categories: number }; error?: string }> {
     if (!this.isAuthenticated()) {
-      return { success: false, error: 'Compte non connecté. Connectez votre compte dans votre Profil pour restaurer depuis le Cloud.' };
+      return { success: false, error: 'Account not linked. Please connect your account in Profile to restore from Cloud.' };
     }
 
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
-      return { success: false, error: 'Connexion Internet requise pour restaurer depuis le Cloud.' };
+      return { success: false, error: 'Internet connection required to restore from Cloud.' };
     }
 
     try {
@@ -319,7 +319,7 @@ export class SyncService {
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        return { success: false, error: `Erreur serveur (${response.status}) pendant la restauration.` };
+        return { success: false, error: `Server error (${response.status}) during Cloud restore.` };
       }
 
       const data = await response.json();
@@ -328,8 +328,9 @@ export class SyncService {
 
       return { success: true, stats };
     } catch (err: any) {
-      return { success: false, error: err.message || 'Impossible de joindre le serveur.' };
+      return { success: false, error: err.message || 'Unable to reach Cloud server.' };
     }
   }
+
 }
 
