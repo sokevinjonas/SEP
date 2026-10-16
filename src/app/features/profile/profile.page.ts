@@ -392,7 +392,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     await this.showToast('Budget strategy and envelopes saved.', 'success');
   }
 
-  // Cloudflare D1 & JSON Vault Backup
+  // Cloud & JSON Vault Backup
   async backupToCloud(): Promise<void> {
     this.isCloudSyncing = true;
     const result = await this.syncService.backupToCloud();
@@ -402,7 +402,7 @@ export class ProfilePage implements OnInit, OnDestroy {
       await this.showToast('Data backed up to Cloud successfully!', 'success');
       const alert = await this.alertCtrl.create({
         header: 'Cloud Backup Complete',
-        message: `Your ${result.stats?.expenses || 0} expense(s), ${result.stats?.purchases || 0} wishlist item(s), and settings are safely mirrored on Cloudflare D1.`,
+        message: `Your ${result.stats?.expenses || 0} expense(s), ${result.stats?.purchases || 0} wishlist item(s), and settings are safely mirrored on the cloud server.`,
         buttons: ['Done']
       });
       await alert.present();
@@ -414,7 +414,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   async restoreFromCloud(): Promise<void> {
     const confirmAlert = await this.alertCtrl.create({
       header: 'Restore from Cloud?',
-      message: 'This will load all data from Cloudflare D1 and refresh your device. Continue?',
+      message: 'This will load all data from your cloud backup and refresh your device. Continue?',
       buttons: [
         { text: 'Cancel', role: 'cancel' },
         {
@@ -536,9 +536,15 @@ export class ProfilePage implements OnInit, OnDestroy {
         message: 'Your account is connected to the server. Your expenses and budget can be synced automatically.',
         buttons: [
           {
-            text: 'Backup Now',
+            text: 'Backup to Cloud',
             handler: () => {
               this.backupToCloud();
+            }
+          },
+          {
+            text: 'Restore from Cloud',
+            handler: () => {
+              this.restoreFromCloud();
             }
           },
           {

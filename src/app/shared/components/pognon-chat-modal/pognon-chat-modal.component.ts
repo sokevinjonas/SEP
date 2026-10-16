@@ -200,7 +200,7 @@ export class PognonChatModalComponent implements OnInit {
     this.userInput = '';
     this.isTyping = true;
 
-    // 2. Attempt online backend call to Cloudflare Worker /api/chat (OpenAI LLM)
+    // 2. Attempt online backend call to /api/chat (AI LLM)
     if (typeof navigator !== 'undefined' && navigator.onLine) {
       try {
         const controller = new AbortController();

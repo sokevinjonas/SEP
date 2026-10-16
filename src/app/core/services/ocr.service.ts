@@ -45,13 +45,13 @@ export class OcrService {
 
   /**
    * Processes an image file or DataURL through intelligent OCR extraction.
-   * Calls the Cloudflare Worker GPT-4o-mini vision pipeline when online,
+   * Calls the backend AI vision pipeline when online,
    * with graceful local fallback if offline.
    */
   async extractFromImage(file: File | string, fileName?: string): Promise<ExtractedTransaction> {
     const name = typeof file === 'string' ? (fileName || 'capture.jpg') : file.name;
 
-    // 1. Attempt online Worker Vision extraction if online
+    // 1. Attempt online backend Vision extraction if online
     if (typeof navigator !== 'undefined' && navigator.onLine) {
       try {
         const formData = new FormData();
