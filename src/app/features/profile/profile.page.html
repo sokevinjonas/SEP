@@ -20,7 +20,7 @@
 
       <div class="hero-info">
         <div class="hero-name-row">
-          <h2 class="user-display-name">{{ userProfile.name || 'Campus Student' }}</h2>
+          <h2 class="user-display-name">{{ (userProfile.name && userProfile.name.trim()) ? userProfile.name : 'Campus Student' }}</h2>
           <span class="sep-badge safe status-badge">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
             <span>Campus Active</span>
@@ -28,7 +28,7 @@
         </div>
         <p class="user-sub-campus">
           <ion-icon name="school-outline"></ion-icon>
-          <span>{{ userProfile.campus || 'University not set' }}</span>
+          <span>{{ (userProfile.campus && userProfile.campus.trim()) ? userProfile.campus : 'University Campus' }}</span>
         </p>
         <p class="user-sub-loc">
           <ion-icon name="globe-outline"></ion-icon>
