@@ -1,3 +1,7 @@
+// =============================================================================
+// HOME PAGE STYLES (Modular & Lean)
+// =============================================================================
+
 .home-header {
   --background: var(--sep-base, #F7F3F6);
 }
@@ -30,35 +34,27 @@
 
 .user-meta-label {
   cursor: pointer;
-}
 
-.user-name {
-  font-family: var(--ion-font-family);
-  font-size: 16px;
-  font-weight: 900;
-  color: var(--sep-primary, #714B67);
-  margin: 0;
-  line-height: 1.2;
-}
+  .user-name {
+    font-size: 16px;
+    font-weight: 900;
+    color: var(--sep-primary, #714B67);
+    margin: 0;
+    line-height: 1.2;
+  }
 
-.user-sub {
-  font-family: var(--ion-font-family);
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--sep-mut, #6B5966);
-  margin: 2px 0 0;
+  .user-sub {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--sep-mut, #6B5966);
+    margin: 2px 0 0;
+  }
 }
 
 .header-buttons {
   display: flex;
   align-items: center;
   gap: 6px;
-
-  #btn-settings {
-    --color: var(--sep-primary, #714B67);
-    font-size: 20px;
-    margin: 0;
-  }
 }
 
 .home-content {
@@ -69,174 +65,162 @@
   padding: 12px 16px 140px;
   max-width: 500px;
   margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
 }
 
-/* Breathing Balance Card (Official ion-card) */
+/* =============================================================================
+   Breathing Balance / Discovery Mode Card
+   ============================================================================= */
 .balance-card {
-  background: linear-gradient(145deg, #FFFFFF 0%, var(--sep-primary-soft, #f4ecf2) 100%);
-  border: 1.5px solid var(--sep-primary-light, #8d6482);
-  border-radius: 22px;
-  box-shadow: 0 4px 16px rgba(113, 75, 103, 0.08);
-  margin-bottom: 14px;
-
-  ion-card-header {
-    padding: 18px 18px 8px;
+  .balance-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
   }
 
-  ion-card-content {
-    padding: 0 18px 18px;
-  }
-}
-
-.balance-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 6px;
-}
-
-.month-label {
-  font-size: 11px;
-  font-weight: 800;
-  color: var(--sep-mut, #6B5966);
-}
-
-.balance-hero {
-  display: flex;
-  align-items: baseline;
-  gap: 6px;
-  margin: 4px 0;
-}
-
-.balance-amount {
-  font-size: 38px;
-  font-weight: 900;
-  color: var(--sep-primary-dark, #58354f);
-  letter-spacing: -0.03em;
-  line-height: 1;
-}
-
-.balance-unit {
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--sep-primary, #714B67);
-}
-
-.balance-secondary {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--sep-mut, #6B5966);
-  margin-top: 4px;
-}
-
-.budget-progress-bar {
-  height: 8px;
-  border-radius: 9999px;
-  --background: var(--sep-base, #F7F3F6);
-  margin-top: 10px;
-}
-
-.progress-label-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 10.5px;
-  font-weight: 800;
-  color: var(--sep-mut, #6B5966);
-  margin-top: 6px;
-}
-
-.budget-days-strip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 12px;
-  margin-top: 10px;
-  border-top: 1px dashed var(--sep-line, #EADFE7);
-}
-
-.days-chip {
-  --background: var(--sep-primary, #714B67);
-  --color: #ffffff;
-  font-weight: 800;
-  font-size: 11px;
-  height: 28px;
-  margin: 0;
-
-  ion-icon {
-    color: #ffffff;
-    font-size: 13px;
-  }
-}
-
-.days-detail {
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--sep-mut, #6B5966);
-}
-
-/* Discovery Mode Balance Card Variant */
-.discovery-balance-card {
-  background: linear-gradient(145deg, #FFFFFF 0%, #edf8f8 100%);
-  border-color: #017e84;
-
-  .discovery-hero .balance-amount {
-    color: #015f64;
-  }
-}
-
-.discovery-progress-bar {
-  --progress-background: #017e84;
-}
-
-.discovery-actions-strip {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding-top: 12px;
-  margin-top: 10px;
-  border-top: 1px dashed var(--sep-line, #EADFE7);
-
-  .discovery-ai-chip {
-    --background: linear-gradient(135deg, #017e84 0%, #02a2a9 100%);
-    --color: #ffffff;
-    font-weight: 800;
+  .month-label {
     font-size: 11px;
-    height: 30px;
-    margin: 0;
-    cursor: pointer;
-    box-shadow: 0 2px 8px rgba(1, 126, 132, 0.25);
-    transition: transform 0.2s ease;
+    font-weight: 800;
+    color: var(--sep-mut, #6B5966);
+  }
 
-    &:active {
-      transform: scale(0.96);
+  .balance-hero {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 4px 0;
+
+    .balance-amount {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--sep-primary-dark, #58354f);
+      letter-spacing: -0.03em;
+      line-height: 1;
     }
 
-    ion-icon {
-      color: #ffffff;
-      font-size: 14px;
+    .balance-unit {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--sep-primary, #714B67);
     }
   }
 
-  .switch-budget-text-btn {
-    background: transparent;
-    border: none;
-    font-family: var(--ion-font-family);
-    font-size: 11.5px;
+  .balance-secondary {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sep-mut, #6B5966);
+    margin: 2px 0 0;
+  }
+
+  .budget-progress-bar {
+    height: 8px;
+    border-radius: 9999px;
+    --background: var(--sep-base, #F7F3F6);
+    margin-top: 10px;
+  }
+
+  .progress-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10.5px;
     font-weight: 800;
-    color: var(--sep-primary, #714B67);
-    text-decoration: underline;
-    cursor: pointer;
-    padding: 4px 6px;
+    color: var(--sep-mut, #6B5966);
+    margin-top: 6px;
+  }
+
+  .budget-days-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    margin-top: 10px;
+    border-top: 1px dashed var(--sep-line, #EADFE7);
+
+    .days-chip {
+      --background: var(--sep-primary, #714B67);
+      --color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      height: 28px;
+      margin: 0;
+
+      ion-icon {
+        color: #ffffff;
+        font-size: 13px;
+      }
+    }
+
+    .days-detail {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--sep-mut, #6B5966);
+    }
+  }
+
+  /* Discovery Mode Variant */
+  &.discovery-balance-card {
+    background: linear-gradient(145deg, #FFFFFF 0%, #edf8f8 100%);
+    border-color: #017e84;
+
+    .discovery-hero .balance-amount {
+      color: #015f64;
+    }
+
+    .discovery-progress-bar {
+      --progress-background: #017e84;
+    }
+
+    .discovery-actions-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      margin-top: 10px;
+      border-top: 1px dashed var(--sep-line, #EADFE7);
+
+      .discovery-ai-chip {
+        --background: linear-gradient(135deg, #017e84 0%, #02a2a9 100%);
+        --color: #ffffff;
+        font-weight: 800;
+        font-size: 11px;
+        height: 30px;
+        margin: 0;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(1, 126, 132, 0.25);
+        transition: transform 0.2s ease;
+
+        &:active {
+          transform: scale(0.96);
+        }
+
+        ion-icon {
+          color: #ffffff;
+          font-size: 14px;
+        }
+      }
+
+      .switch-budget-text-btn {
+        background: transparent;
+        border: none;
+        font-family: inherit;
+        font-size: 11.5px;
+        font-weight: 800;
+        color: var(--sep-primary, #714B67);
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 4px 6px;
+      }
+    }
   }
 }
 
-/* Avoided Total Reward Card (Official ion-card) */
+/* =============================================================================
+   Avoided Total Reward Card
+   ============================================================================= */
 .avoided-card {
-  background: var(--sep-card, #FFFFFF);
-  border: 1.5px solid var(--sep-line, #EADFE7);
-  border-radius: 18px;
-  box-shadow: 0 3px 12px rgba(113, 75, 103, 0.05);
-  margin-bottom: 14px;
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
 
   &.celebrating {
@@ -249,6 +233,52 @@
       color: #FFFFFF;
       transform: scale(1.15) rotate(8deg);
       transition: all 0.3s ease;
+    }
+  }
+
+  .avoided-card-content {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .avoided-text {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+
+  .avoided-badge {
+    margin-bottom: 2px;
+    align-self: flex-start;
+  }
+
+  .avoided-amount {
+    font-size: 22px;
+    font-weight: 900;
+    color: var(--sep-action, #017e84);
+    margin: 0;
+    line-height: 1.2;
+  }
+
+  .avoided-note {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sep-mut, #6B5966);
+  }
+
+  .avoided-icon-wrap {
+    width: 44px;
+    height: 44px;
+    background: var(--sep-action-soft, #e5f6f7);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--sep-action, #017e84);
+
+    ion-icon {
+      font-size: 24px;
     }
   }
 }
@@ -266,148 +296,86 @@
   }
 }
 
-.avoided-card-content {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 16px;
-}
-
-.avoided-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.avoided-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 10.5px;
-  font-weight: 800;
-  padding: 4px 8px;
-  border-radius: 9999px;
-  width: fit-content;
-  margin-bottom: 4px;
-
-  ion-icon {
-    font-size: 12px;
-  }
-}
-
-.avoided-amount {
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--sep-action, #017e84);
-  margin: 0;
-  line-height: 1.2;
-}
-
-.avoided-note {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--sep-mut, #6B5966);
-}
-
-.avoided-icon-wrap {
-  width: 44px;
-  height: 44px;
-  background: var(--sep-action-soft, #e5f6f7);
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--sep-action, #017e84);
-
-  ion-icon {
-    font-size: 24px;
-  }
-}
-
-/* Coach M. Pognon Card (Official ion-card) */
+/* =============================================================================
+   Coach M. Pognon Card
+   ============================================================================= */
 .coach-card {
-  background: var(--sep-card, #FFFFFF);
-  border: 1px solid var(--sep-line, #EADFE7);
-  border-radius: 18px;
-  box-shadow: 0 2px 8px rgba(113, 75, 103, 0.04);
-  margin-bottom: 14px;
-}
-
-.coach-card-content {
-  display: flex;
-  gap: 12px;
-  padding: 14px 16px;
-}
-
-.coach-avatar {
-  width: 44px;
-  height: 44px;
-  min-width: 44px;
-  border-radius: 12px;
-  overflow: hidden;
-  border: 1.5px solid var(--sep-line, #EADFE7);
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  .coach-card-content {
+    display: flex;
+    gap: 12px;
   }
-}
 
-.coach-body {
-  flex: 1;
-}
+  .coach-avatar {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1.5px solid var(--sep-line, #EADFE7);
 
-.coach-title-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 4px;
-}
-
-.coach-name {
-  font-size: 12.5px;
-  font-weight: 900;
-  color: var(--sep-primary, #714B67);
-  margin: 0;
-}
-
-.coach-tags-wrap {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-
-  .coach-chat-pill {
-    height: 22px;
-    font-size: 10px;
-    font-weight: 800;
-    margin: 0;
-    --background: rgba(113, 75, 103, 0.08);
-    --color: #714B67;
-
-    ion-icon {
-      font-size: 12px;
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
     }
   }
-}
 
-.coach-quote {
-  font-size: 11.5px;
-  font-weight: 600;
-  color: var(--sep-ink, #2B1F28);
-  margin: 0;
-  line-height: 1.35;
-  font-style: italic;
-}
-
-/* Recent Micro-Logs (Official ion-list & ion-item) */
-.recent-list {
-  background: transparent;
-  margin: 8px 0 0;
-
-  ion-list-header {
-    padding: 0 2px 8px;
-    min-height: auto;
+  .coach-body {
+    flex: 1;
+    min-width: 0;
   }
+
+  .coach-title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 4px;
+  }
+
+  .coach-name {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: var(--sep-primary, #714B67);
+    margin: 0;
+  }
+
+  .coach-tags-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+
+    .coach-chat-pill {
+      height: 22px;
+      font-size: 10px;
+      font-weight: 800;
+      margin: 0;
+      --background: rgba(113, 75, 103, 0.08);
+      --color: #714B67;
+
+      ion-icon {
+        font-size: 12px;
+      }
+    }
+  }
+
+  .coach-quote {
+    font-size: 11.5px;
+    font-weight: 600;
+    color: var(--sep-ink, #2B1F28);
+    margin: 0;
+    line-height: 1.35;
+    font-style: italic;
+  }
+}
+
+/* =============================================================================
+   Recent Expenses Header & Actions
+   ============================================================================= */
+.recent-section-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 2px 0;
 
   .section-title {
     font-size: 12.5px;
@@ -415,6 +383,7 @@
     color: var(--sep-mut, #6B5966);
     text-transform: uppercase;
     letter-spacing: 0.04em;
+    margin: 0;
   }
 
   .section-action {
@@ -425,93 +394,10 @@
   }
 }
 
-.empty-item {
-  --background: var(--sep-card, #FFFFFF);
-  --border-radius: 16px;
-  border: 1px dashed var(--sep-line, #EADFE7);
-  padding: 12px;
-
-  p {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--sep-mut, #6B5966);
-  }
-}
-
-.log-sliding-item {
-  margin-bottom: 8px;
-  border-radius: 14px;
-  overflow: hidden;
-
-  .log-item {
-    margin-bottom: 0;
-  }
-
-  ion-item-options {
-    border-bottom: none;
-  }
-
-  .delete-option-btn {
-    --background: var(--sep-danger, #c0392b);
-    --color: #ffffff;
-    font-size: 20px;
-    padding: 0 16px;
-    border-radius: 0 14px 14px 0;
-  }
-}
-
-.log-item {
-  --background: var(--sep-card, #FFFFFF);
-  --border-radius: 14px;
-  --padding-start: 12px;
-  --inner-padding-end: 12px;
-  border: 1px solid var(--sep-line, #EADFE7);
-  box-shadow: 0 1px 4px rgba(113, 75, 103, 0.03);
-}
-
-.log-avatar {
-  width: 36px;
-  height: 36px;
-  background: var(--sep-primary-soft, #f4ecf2);
-  border-radius: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--sep-primary, #714B67);
-
-  ion-icon {
-    font-size: 18px;
-  }
-}
-
-.log-title {
-  font-size: 13.5px;
-  font-weight: 800;
-  color: var(--sep-ink, #2B1F28);
-  margin: 0;
-}
-
-.log-meta {
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--sep-mut, #6B5966);
-  margin: 2px 0 0;
-}
-
-.log-end-note {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-end;
-}
-
-.log-price {
-  font-size: 13px;
-  font-weight: 900;
-  color: var(--sep-danger, #c0392b);
-}
-
-.log-equiv {
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--sep-mut, #6B5966);
+.delete-option-btn {
+  --background: var(--sep-danger, #c0392b);
+  --color: #ffffff;
+  font-size: 20px;
+  padding: 0 16px;
+  border-radius: 0 14px 14px 0;
 }

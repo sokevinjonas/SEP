@@ -1,17 +1,17 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="capture-toolbar">
-    <ion-title class="capture-title">Receipts &amp; MoMo Capture</ion-title>
+  <ion-toolbar class="sep-toolbar">
+    <ion-title class="sep-page-title">Receipts &amp; MoMo Capture</ion-title>
     <ion-buttons slot="end">
-      <ion-badge [color]="isOnline ? 'success' : 'medium'" class="network-badge">
+      <span class="sep-badge" [ngClass]="isOnline ? 'safe' : 'warn'">
         <ion-icon [name]="isOnline ? 'cloud-done-outline' : 'shield-checkmark-outline'"></ion-icon>
         <span>{{ isOnline ? 'Online' : '100% Offline' }}</span>
-      </ion-badge>
+      </span>
     </ion-buttons>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="capture-content ion-padding">
-  <div class="capture-container has-bottom-bars">
+  <div class="sep-page-container capture-container has-bottom-bars">
 
     <!-- Subtitle -->
     <div class="header-intro">
@@ -54,7 +54,7 @@
         expand="block"
         fill="outline"
         size="large"
-        class="camera-action-btn"
+        class="sep-btn-outline camera-action-btn"
         (click)="triggerFileInput(cameraInput)"
         id="btn-take-photo">
         <ion-icon slot="start" name="camera-outline"></ion-icon>
@@ -65,10 +65,10 @@
     <!-- 3. Sample Presets for Easy Browser Demo -->
     <div class="presets-section">
       <span class="presets-title">Instant demo examples:</span>
-      <div class="presets-row">
+      <div class="sep-chip-row">
         <ion-chip
           *ngFor="let preset of samplePresets"
-          class="preset-chip"
+          class="sep-chip preset-chip"
           (click)="loadPreset(preset)">
           <ion-icon name="sparkles-outline"></ion-icon>
           <ion-label>{{ preset.label }}</ion-label>
@@ -134,7 +134,7 @@
     </div>
 
     <!-- Security offline-first note -->
-    <div class="privacy-note-card">
+    <div class="sep-alert-card info privacy-note-card">
       <ion-icon name="shield-checkmark-outline"></ion-icon>
       <p>
         Your receipts are processed locally. No personal financial data is shared with third parties.
@@ -162,8 +162,8 @@
       <ion-content class="ion-padding modal-content" *ngIf="activeExtraction">
         <div class="preview-inner-wrap">
 
-          <!-- DUPLICATE WARNING CARD (Story 3.5) -->
-          <div class="duplicate-alert-card" *ngIf="isDuplicateDetected">
+          <!-- DUPLICATE WARNING CARD (Shared Alert Card) -->
+          <div class="sep-alert-card warn duplicate-alert-card" *ngIf="isDuplicateDetected">
             <div class="alert-icon-wrap">
               <ion-icon name="warning-outline"></ion-icon>
             </div>
@@ -186,10 +186,10 @@
           </div>
 
           <!-- Form Fields with Uncertainty Highlighting (Story 3.4) -->
-          <ion-list lines="none" class="preview-fields-list">
+          <ion-list lines="none" class="sep-input-list preview-fields-list">
 
             <!-- Amount -->
-            <ion-item class="preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.amount">
+            <ion-item class="sep-input-item preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.amount">
               <ion-label position="stacked">
                 Extracted Amount
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.amount" class="uncertain-badge">
@@ -208,7 +208,7 @@
             </ion-item>
 
             <!-- Merchant / Store -->
-            <ion-item class="preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.merchant">
+            <ion-item class="sep-input-item preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.merchant">
               <ion-label position="stacked">
                 Merchant / Store
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.merchant" class="uncertain-badge">
@@ -223,7 +223,7 @@
             </ion-item>
 
             <!-- Category -->
-            <ion-item class="preview-field-item select-item">
+            <ion-item class="sep-input-item preview-field-item select-item">
               <ion-label position="stacked">Budget Category</ion-label>
               <ion-select
                 [(ngModel)]="activeExtraction.categoryId"
@@ -235,7 +235,7 @@
             </ion-item>
 
             <!-- Transaction Reference -->
-            <ion-item class="preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.reference">
+            <ion-item class="sep-input-item preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.reference">
               <ion-label position="stacked">
                 Transaction Reference
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.reference" class="uncertain-badge">
@@ -257,7 +257,7 @@
             <ion-button
               expand="block"
               size="large"
-              class="btn-validate-expense"
+              class="sep-btn-primary btn-validate-expense"
               (click)="validateAndSaveExpense()"
               id="btn-confirm-ocr-expense">
               <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>

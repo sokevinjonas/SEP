@@ -18,120 +18,115 @@
 <ion-content [fullscreen]="true" class="home-content">
   <div class="page-container has-bottom-bars">
 
-    <!-- Breathing Balance / Discovery Mode Card (Official ion-card) -->
-    <ion-card class="balance-card ion-no-margin" [class.discovery-balance-card]="consumption().isDiscoveryMode">
-      <ion-card-header>
-        <div class="balance-header-row">
-          <app-breathing-badge
-            [label]="consumption().isDiscoveryMode ? 'Discovery Mode · AI Learning' : 'Breathing Balance'"
-            [status]="consumption().isDiscoveryMode ? 'safe' : 'breathing'" [pulse]="true">
-          </app-breathing-badge>
-          <ion-note class="month-label">
-            Cycle Resets on Day {{ consumption().cycleStartDay || 1 }}
-          </ion-note>
+    <!-- Breathing Balance / Discovery Mode Card (Shared Hero Card) -->
+    <div class="sep-card-hero balance-card" [class.discovery-balance-card]="consumption().isDiscoveryMode">
+      <div class="balance-header-row">
+        <app-breathing-badge
+          [label]="consumption().isDiscoveryMode ? 'Discovery Mode · AI Learning' : 'Breathing Balance'"
+          [status]="consumption().isDiscoveryMode ? 'safe' : 'breathing'" [pulse]="true">
+        </app-breathing-badge>
+        <span class="month-label">
+          Cycle Resets on Day {{ consumption().cycleStartDay || 1 }}
+        </span>
+      </div>
+
+      <!-- Mode A: Fixed Budget Ceiling -->
+      <ng-container *ngIf="!consumption().isDiscoveryMode">
+        <div class="balance-hero">
+          <span class="balance-amount">
+            {{ currencyService.activeCurrency() === 'GHS' ? consumption().balanceGhs.toFixed(2) :
+            currencyService.toXof(consumption().balanceGhs).toLocaleString() }}
+          </span>
+          <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
         </div>
 
-        <!-- Mode A: Fixed Budget Ceiling -->
-        <ng-container *ngIf="!consumption().isDiscoveryMode">
-          <div class="balance-hero">
-            <span class="balance-amount">
-              {{ currencyService.activeCurrency() === 'GHS' ? consumption().balanceGhs.toFixed(2) :
-              currencyService.toXof(consumption().balanceGhs).toLocaleString() }}
-            </span>
-            <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
-          </div>
+        <p class="balance-secondary">
+          {{ currencyService.formatEquiv(consumption().balanceGhs) }} (Rate: {{ currencyService.rateDescription() }})
+        </p>
+      </ng-container>
 
-          <ion-card-subtitle class="balance-secondary">
-            {{ currencyService.formatEquiv(consumption().balanceGhs) }} (Rate: {{ currencyService.rateDescription() }})
-          </ion-card-subtitle>
-        </ng-container>
+      <!-- Mode B: Discovery Mode (AI Learning) -->
+      <ng-container *ngIf="consumption().isDiscoveryMode">
+        <div class="balance-hero discovery-hero">
+          <span class="balance-amount">
+            {{ currencyService.activeCurrency() === 'GHS' ? consumption().totalSpentGhs.toFixed(2) :
+            currencyService.toXof(consumption().totalSpentGhs).toLocaleString() }}
+          </span>
+          <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
+        </div>
 
-        <!-- Mode B: Discovery Mode (AI Learning) -->
-        <ng-container *ngIf="consumption().isDiscoveryMode">
-          <div class="balance-hero discovery-hero">
-            <span class="balance-amount">
-              {{ currencyService.activeCurrency() === 'GHS' ? consumption().totalSpentGhs.toFixed(2) :
-              currencyService.toXof(consumption().totalSpentGhs).toLocaleString() }}
-            </span>
-            <span class="balance-unit">{{ currencyService.activeCurrency() }}</span>
-          </div>
+        <p class="balance-secondary">
+          Total expenses tracked this cycle · (Rate: {{ currencyService.rateDescription() }})
+        </p>
+      </ng-container>
 
-          <ion-card-subtitle class="balance-secondary">
-            Total expenses tracked this cycle · (Rate: {{ currencyService.rateDescription() }})
-          </ion-card-subtitle>
-        </ng-container>
-      </ion-card-header>
+      <!-- Mode A Progress (Spent vs Ceiling) -->
+      <ng-container *ngIf="!consumption().isDiscoveryMode">
+        <ion-progress-bar class="budget-progress-bar" [value]="consumption().consumedPercent / 100"
+          [color]="consumption().status === 'safe' ? 'secondary' : (consumption().status === 'warning' ? 'warning' : 'danger')">
+        </ion-progress-bar>
 
-      <ion-card-content>
-        <!-- Mode A Progress (Spent vs Ceiling) -->
-        <ng-container *ngIf="!consumption().isDiscoveryMode">
-          <ion-progress-bar class="budget-progress-bar" [value]="consumption().consumedPercent / 100"
-            [color]="consumption().status === 'safe' ? 'secondary' : (consumption().status === 'warning' ? 'warning' : 'danger')">
-          </ion-progress-bar>
+        <div class="progress-label-row">
+          <span>Spent: {{ consumption().totalSpentGhs.toFixed(2) }} GHS ({{ consumption().consumedPercent }}%)</span>
+          <span>Ceiling: {{ consumption().totalBudgetGhs }} GHS</span>
+        </div>
 
-          <div class="progress-label-row">
-            <span>Spent: {{ consumption().totalSpentGhs.toFixed(2) }} GHS ({{ consumption().consumedPercent }}%)</span>
-            <span>Ceiling: {{ consumption().totalBudgetGhs }} GHS</span>
-          </div>
+        <div class="budget-days-strip">
+          <ion-chip class="days-chip" color="primary">
+            <ion-icon name="time-outline"></ion-icon>
+            <ion-label>{{ budgetDaysInfo().days }} Budget Days</ion-label>
+          </ion-chip>
+          <span class="days-detail">
+            Basis: {{ budgetDaysInfo().basis }} · {{ budgetDaysInfo().distinctDaysCount }} active day(s)
+          </span>
+        </div>
+      </ng-container>
 
-          <div class="budget-days-strip">
-            <ion-chip class="days-chip" color="primary">
-              <ion-icon name="time-outline"></ion-icon>
-              <ion-label>{{ budgetDaysInfo().days }} Budget Days</ion-label>
-            </ion-chip>
-            <ion-note class="days-detail">
-              Basis: {{ budgetDaysInfo().basis }} · {{ budgetDaysInfo().distinctDaysCount }} active day(s)
-            </ion-note>
-          </div>
-        </ng-container>
+      <!-- Mode B Progress (Cycle Days Elapsed toward AI Recommendation) -->
+      <ng-container *ngIf="consumption().isDiscoveryMode">
+        <ion-progress-bar class="budget-progress-bar discovery-progress-bar"
+          [value]="(consumption().cycleProgressPercent || 0) / 100" color="secondary">
+        </ion-progress-bar>
 
-        <!-- Mode B Progress (Cycle Days Elapsed toward AI Recommendation) -->
-        <ng-container *ngIf="consumption().isDiscoveryMode">
-          <ion-progress-bar class="budget-progress-bar discovery-progress-bar"
-            [value]="(consumption().cycleProgressPercent || 0) / 100" color="secondary">
-          </ion-progress-bar>
+        <div class="progress-label-row">
+          <span>Cycle Day {{ consumption().cycleDaysElapsed || 1 }} of {{ consumption().cycleDaysTotal || 30 }}</span>
+          <span>{{ consumption().cycleDaysRemaining || 0 }} day(s) to AI proposal</span>
+        </div>
 
-          <div class="progress-label-row">
-            <span>Cycle Day {{ consumption().cycleDaysElapsed || 1 }} of {{ consumption().cycleDaysTotal || 30 }}</span>
-            <span>{{ consumption().cycleDaysRemaining || 0 }} day(s) to AI proposal</span>
-          </div>
+        <div class="discovery-actions-strip">
+          <ion-chip class="discovery-ai-chip" (click)="openAiBudgetProposal()">
+            <ion-icon name="sparkles-outline"></ion-icon>
+            <ion-label>View AI Budget Proposal</ion-label>
+          </ion-chip>
 
-          <div class="discovery-actions-strip">
-            <ion-chip class="discovery-ai-chip" (click)="openAiBudgetProposal()">
-              <ion-icon name="sparkles-outline"></ion-icon>
-              <ion-label>View AI Budget Proposal</ion-label>
-            </ion-chip>
+          <button class="switch-budget-text-btn" (click)="navigateToBudgetSettings()">
+            Set Target Ceiling
+          </button>
+        </div>
+      </ng-container>
+    </div>
 
-            <button class="switch-budget-text-btn" (click)="navigateToBudgetSettings()">
-              Set Target Ceiling
-            </button>
-          </div>
-        </ng-container>
-      </ion-card-content>
-    </ion-card>
-
-    <!-- Avoided Total Reward Card (Official ion-card) -->
-    <ion-card class="avoided-card ion-no-margin" [class.celebrating]="isCelebratingAvoided">
-      <ion-card-content class="avoided-card-content">
+    <!-- Avoided Total Reward Card (Shared Card) -->
+    <div class="sep-card avoided-card" [class.celebrating]="isCelebratingAvoided">
+      <div class="avoided-card-content">
         <div class="avoided-text">
-          <ion-badge color="secondary" class="avoided-badge">
+          <div class="sep-badge safe avoided-badge">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
-            Total Saved (Anti-Impulse)
+            <span>Total Saved (Anti-Impulse)</span>
             <span *ngIf="isCelebratingAvoided"> +Saved!</span>
-          </ion-badge>
+          </div>
           <h3 class="avoided-amount">{{ currencyService.formatAmount(avoidedGhs()) }}</h3>
-          <ion-note class="avoided-note">Impulse purchases avoided this month</ion-note>
+          <span class="avoided-note">Impulse purchases avoided this month</span>
         </div>
         <div class="avoided-icon-wrap" [class.celebrating-icon]="isCelebratingAvoided">
           <ion-icon [name]="isCelebratingAvoided ? 'trophy-outline' : 'trending-up-outline'"></ion-icon>
         </div>
-      </ion-card-content>
-    </ion-card>
+      </div>
+    </div>
 
-    <!-- Coach M. Pognon Card (Official ion-card) -->
-    <ion-card class="coach-card ion-no-margin" (click)="openPognonChat()" id="btn-home-coach-card"
-      style="cursor: pointer;">
-      <ion-card-content class="coach-card-content">
+    <!-- Coach M. Pognon Card (Shared Interactive Card) -->
+    <div class="sep-card interactive coach-card" (click)="openPognonChat()" id="btn-home-coach-card">
+      <div class="coach-card-content">
         <ion-avatar class="coach-avatar">
           <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
         </ion-avatar>
@@ -139,13 +134,13 @@
           <div class="coach-title-row">
             <h4 class="coach-name">M. Pognon Advice</h4>
             <div class="coach-tags-wrap">
-              <ion-badge *ngIf="consumption().isDiscoveryMode" color="secondary">
+              <span *ngIf="consumption().isDiscoveryMode" class="sep-badge safe">
                 Discovery Mode
-              </ion-badge>
-              <ion-badge *ngIf="!consumption().isDiscoveryMode"
-                [color]="consumption().consumedPercent > 70 ? 'warning' : 'secondary'">
+              </span>
+              <span *ngIf="!consumption().isDiscoveryMode" class="sep-badge"
+                [ngClass]="consumption().consumedPercent > 70 ? 'warn' : 'safe'">
                 {{ consumption().consumedPercent > 70 ? '70% Alert' : 'On Track' }}
-              </ion-badge>
+              </span>
               <ion-chip class="coach-chat-pill" color="primary">
                 <ion-icon name="chatbubbles-outline"></ion-icon>
                 <ion-label>Chat</ion-label>
@@ -168,40 +163,51 @@
             before any expense!"
           </p>
         </div>
-      </ion-card-content>
-    </ion-card>
+      </div>
+    </div>
 
-    <!-- Recent Micro-Logs (Official ion-list & ion-item) -->
-    <ion-list class="recent-list ion-no-padding" [inset]="true">
-      <ion-list-header>
-        <ion-label class="section-title">Recent Expenses</ion-label>
-        <ion-note class="section-action">Details</ion-note>
-      </ion-list-header>
+    <!-- Recent Expenses Header -->
+    <div class="recent-section-header">
+      <h3 class="section-title">Recent Expenses</h3>
+      <span class="section-action" (click)="navigateToBudgetSettings()">Details</span>
+    </div>
 
-      <ion-item *ngIf="recentExpenses().length === 0" lines="none" class="empty-item">
-        <ion-label class="ion-text-center">
-          <p>No expenses recorded this month. Tap "+ Add" to begin.</p>
-        </ion-label>
-      </ion-item>
+    <!-- Reusable Empty State -->
+    <div *ngIf="recentExpenses().length === 0" class="sep-empty-state">
+      <div class="empty-icon-circle">
+        <ion-icon name="receipt-outline"></ion-icon>
+      </div>
+      <h4>No Expenses Recorded</h4>
+      <p>No expenses recorded this month. Tap "+ Add" to log an expense.</p>
+    </div>
 
-      <ion-item-sliding *ngFor="let exp of recentExpenses()" #slidingItem class="log-sliding-item">
-        <ion-item lines="none" class="log-item">
-          <ion-avatar slot="start" class="log-avatar">
-            <ion-icon
-              [name]="getCategoryIcon(exp.categoryId === 'cat-food' ? 'restaurant-outline' : exp.categoryId === 'cat-transport' ? 'bus-outline' : 'book-outline')"></ion-icon>
-          </ion-avatar>
+    <!-- Reusable Ledger List -->
+    <ion-list *ngIf="recentExpenses().length > 0" class="sep-ledger-list">
+      <ion-item-sliding *ngFor="let exp of recentExpenses()" #slidingItem class="sep-sliding-item">
+        <ion-item lines="none" class="sep-transaction-item">
+          <div slot="start" class="sep-date-badge">
+            <span class="day">{{ exp.date | date:'dd' }}</span>
+            <span class="month">{{ exp.date | date:'MMM' }}</span>
+          </div>
 
-          <ion-label>
-            <h3 class="log-title">{{ exp.merchant || exp.categoryName }}</h3>
-            <p class="log-meta">{{ exp.categoryName }} · {{ exp.date | date:'dd MMM, HH:mm' }}</p>
-          </ion-label>
+          <div class="sep-item-info">
+            <h4 class="sep-item-title">{{ exp.merchant || exp.categoryName }}</h4>
+            <p class="sep-item-subtitle">{{ exp.categoryName }} · {{ exp.date | date:'HH:mm' }}</p>
+            <div class="sep-tag-row">
+              <span class="sep-source-tag" [ngClass]="{
+                'source-ocr': exp.source === 'ocr_receipt',
+                'source-manual': exp.source === 'manual',
+                'source-momo': exp.source === 'ocr_momo'
+              }">{{ exp.source === 'ocr_momo' ? 'MOMO' : (exp.source === 'ocr_receipt' ? 'OCR' : 'MANUAL') }}</span>
+            </div>
+          </div>
 
-          <ion-note slot="end" class="log-end-note">
-            <span class="log-price">-{{ exp.amount.toFixed(2) }} {{ exp.currency }}</span>
-            <span class="log-equiv" *ngIf="exp.currency === 'GHS'">
+          <div slot="end" class="sep-amount-block">
+            <span class="amount-main text-negative">-{{ exp.amount.toFixed(2) }} {{ exp.currency }}</span>
+            <span class="amount-sub" *ngIf="exp.currency === 'GHS'">
               {{ currencyService.formatEquiv(exp.amount) }}
             </span>
-          </ion-note>
+          </div>
         </ion-item>
 
         <ion-item-options side="end">

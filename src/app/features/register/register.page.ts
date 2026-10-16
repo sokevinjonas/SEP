@@ -7,10 +7,7 @@ import {
   IonToolbar,
   IonTitle,
   IonContent,
-  IonCard,
   IonCardHeader,
-  IonCardTitle,
-  IonCardSubtitle,
   IonCardContent,
   IonList,
   IonItem,
@@ -21,7 +18,6 @@ import {
   IonButton,
   IonIcon,
   IonChip,
-  IonBadge,
   IonSpinner,
   ToastController
 } from '@ionic/angular';
@@ -69,10 +65,7 @@ import { UserProfile, MonthlyBudget } from '../../core/models/financial.models';
     IonToolbar,
     IonTitle,
     IonContent,
-    IonCard,
     IonCardHeader,
-    IonCardTitle,
-    IonCardSubtitle,
     IonCardContent,
     IonList,
     IonItem,
@@ -83,7 +76,6 @@ import { UserProfile, MonthlyBudget } from '../../core/models/financial.models';
     IonButton,
     IonIcon,
     IonChip,
-    IonBadge,
     IonSpinner
   ],
   templateUrl: './register.page.html',

@@ -1,16 +1,16 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="login-toolbar">
+  <ion-toolbar class="sep-toolbar">
     <ion-button slot="start" fill="clear" class="back-nav-btn" (click)="goBack()" aria-label="Back">
       <ion-icon slot="icon-only" name="arrow-back-outline"></ion-icon>
     </ion-button>
-    <ion-title class="login-title">
+    <ion-title class="sep-page-title">
       {{ step === 'email' ? 'Student Sign In' : 'Verification Code' }}
     </ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="login-content ion-padding">
-  <div class="login-container">
+  <div class="sep-page-container login-container">
 
     <!-- Logo / Brand Header -->
     <div class="login-brand-header">
@@ -29,20 +29,20 @@
     <!-- STEP 1: EMAIL ADDRESS                          -->
     <!-- ============================================== -->
     <div *ngIf="step === 'email'" class="step-card-wrapper step-fade-in">
-      <ion-card class="form-card ion-no-margin">
+      <div class="sep-form-card">
         <ion-card-header>
-          <div class="card-title-row">
-            <ion-icon name="lock-closed-outline" class="title-icon"></ion-icon>
-            <ion-card-title class="card-heading">Passwordless Authentication</ion-card-title>
+          <div class="sep-card-header-row">
+            <ion-icon name="lock-closed-outline" class="header-icon"></ion-icon>
+            <h2 class="header-title">Passwordless Authentication</h2>
           </div>
-          <ion-card-subtitle class="card-subheading">
+          <p class="sep-card-subheading">
             We will send you a temporary 6-digit code (valid for 10 minutes).
-          </ion-card-subtitle>
+          </p>
         </ion-card-header>
 
         <ion-card-content class="ion-no-padding">
-          <ion-list lines="none" class="login-list">
-            <ion-item class="custom-item">
+          <ion-list lines="none" class="sep-input-list">
+            <ion-item class="sep-input-item">
               <ion-icon name="mail-outline" slot="start" class="input-icon"></ion-icon>
               <ion-input
                 type="email"
@@ -57,14 +57,14 @@
             </ion-item>
           </ion-list>
         </ion-card-content>
-      </ion-card>
+      </div>
 
       <!-- Action Button -->
       <div class="action-wrap">
         <ion-button
           expand="block"
           size="large"
-          class="submit-login-btn"
+          class="sep-btn-primary"
           [disabled]="isLoading || !email.trim()"
           (click)="sendOtp()"
           id="btn-send-otp">
@@ -89,7 +89,7 @@
         <ion-button
           fill="outline"
           size="default"
-          class="offline-restore-btn"
+          class="sep-btn-outline"
           (click)="loginFileInput.click()"
           [disabled]="isRestoringFile">
           <ion-icon slot="start" name="document-text-outline"></ion-icon>
@@ -104,20 +104,20 @@
     <!-- STEP 2: OTP VERIFICATION CODE                 -->
     <!-- ============================================== -->
     <div *ngIf="step === 'otp'" class="step-card-wrapper step-fade-in">
-      <ion-card class="form-card ion-no-margin">
+      <div class="sep-form-card">
         <ion-card-header>
-          <div class="card-title-row">
-            <ion-icon name="shield-checkmark-outline" class="title-icon"></ion-icon>
-            <ion-card-title class="card-heading">Verification Code</ion-card-title>
+          <div class="sep-card-header-row">
+            <ion-icon name="shield-checkmark-outline" class="header-icon"></ion-icon>
+            <h2 class="header-title">Verification Code</h2>
           </div>
-          <ion-card-subtitle class="card-subheading">
+          <p class="sep-card-subheading">
             Sent to <strong class="highlight-email">{{ email }}</strong>
-          </ion-card-subtitle>
+          </p>
         </ion-card-header>
 
         <ion-card-content class="ion-no-padding">
-          <ion-list lines="none" class="login-list">
-            <ion-item class="custom-item otp-item">
+          <ion-list lines="none" class="sep-input-list">
+            <ion-item class="sep-input-item otp-item">
               <ion-icon name="key-outline" slot="start" class="input-icon"></ion-icon>
               <ion-input
                 type="text"
@@ -133,14 +133,14 @@
             </ion-item>
           </ion-list>
         </ion-card-content>
-      </ion-card>
+      </div>
 
       <!-- Action Button -->
       <div class="action-wrap">
         <ion-button
           expand="block"
           size="large"
-          class="submit-login-btn"
+          class="sep-btn-primary"
           [disabled]="isLoading || !otpCode.trim() || otpCode.trim().length < 6"
           (click)="verifyOtp()"
           id="btn-verify-otp">

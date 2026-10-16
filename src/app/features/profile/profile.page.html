@@ -1,14 +1,14 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="settings-toolbar">
-    <ion-title class="settings-page-title">Settings &amp; Profile</ion-title>
+  <ion-toolbar class="sep-toolbar">
+    <ion-title class="sep-page-title">Settings &amp; Profile</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="settings-content ion-padding">
-  <div class="settings-container has-bottom-bars">
+  <div class="sep-page-container settings-container has-bottom-bars">
 
-    <!-- 1. Top User Profile Card (iOS / Android Modern Settings style) -->
-    <div class="settings-hero-card">
+    <!-- 1. Top User Profile Card (Shared Hero Card) -->
+    <div class="sep-card-hero settings-hero-card">
       <div class="hero-avatar-wrap">
         <ion-avatar class="settings-avatar">
           <img src="assets/images/m_pognon_coin_logo.jpg" alt="Avatar" />
@@ -21,10 +21,10 @@
       <div class="hero-info">
         <div class="hero-name-row">
           <h2 class="user-display-name">{{ userProfile.name || 'Campus Student' }}</h2>
-          <ion-badge color="secondary" class="status-badge">
+          <span class="sep-badge safe status-badge">
             <ion-icon name="shield-checkmark-outline"></ion-icon>
-            Campus Active
-          </ion-badge>
+            <span>Campus Active</span>
+          </span>
         </div>
         <p class="user-sub-campus">
           <ion-icon name="school-outline"></ion-icon>
@@ -189,7 +189,7 @@
         <ion-list lines="none" class="modal-form-list">
 
           <!-- Name -->
-          <ion-item class="modal-input-item">
+          <ion-item class="sep-input-item modal-input-item">
             <ion-icon name="person-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-input label="Student Name or Nickname" labelPlacement="stacked" placeholder="e.g. Jonas"
               [(ngModel)]="userProfile.name">
@@ -197,7 +197,7 @@
           </ion-item>
 
           <!-- Country -->
-          <ion-item class="modal-input-item select-field">
+          <ion-item class="sep-input-item modal-input-item select-field">
             <ion-icon name="globe-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-select label="Study Country" labelPlacement="stacked" interface="action-sheet"
               [value]="userProfile.country" (ionChange)="onCountryChanged($event.detail.value)">
@@ -209,7 +209,7 @@
           </ion-item>
 
           <!-- City -->
-          <ion-item class="modal-input-item select-field">
+          <ion-item class="sep-input-item modal-input-item select-field">
             <ion-icon name="business-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-select label="Study City" labelPlacement="stacked" interface="action-sheet" [value]="userProfile.city"
               (ionChange)="userProfile.city = $event.detail.value" [disabled]="isLoadingCities || cities.length === 0">
@@ -221,7 +221,7 @@
           </ion-item>
 
           <!-- Campus -->
-          <ion-item class="modal-input-item">
+          <ion-item class="sep-input-item modal-input-item">
             <ion-icon name="school-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-input label="University Campus" labelPlacement="stacked" placeholder="e.g. KNUST, Legon, etc."
               [(ngModel)]="userProfile.campus">
@@ -232,7 +232,7 @@
           <div class="campus-chips-block" *ngIf="suggestedCampuses.length > 0">
             <span class="chips-title">Quick campus suggestions:</span>
             <div class="chips-row">
-              <ion-chip *ngFor="let camp of suggestedCampuses" class="campus-chip"
+              <ion-chip *ngFor="let camp of suggestedCampuses" class="sep-chip campus-chip"
                 [class.active]="userProfile.campus === camp" (click)="selectSuggestedCampus(camp)">
                 <ion-label>{{ camp }}</ion-label>
               </ion-chip>
@@ -242,7 +242,7 @@
         </ion-list>
 
         <div class="modal-actions-bar">
-          <ion-button expand="block" class="modal-submit-btn" (click)="saveProfile()">
+          <ion-button expand="block" class="sep-btn-primary modal-submit-btn" (click)="saveProfile()">
             <ion-icon slot="start" name="save-outline"></ion-icon>
             <span>Save Profile</span>
           </ion-button>
@@ -287,7 +287,7 @@
         <ion-list lines="none" class="modal-form-list">
 
           <!-- Primary Currency -->
-          <ion-item class="modal-input-item select-field">
+          <ion-item class="sep-input-item modal-input-item select-field">
             <ion-icon name="globe-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-select label="Primary Local Currency" labelPlacement="stacked"
               [(ngModel)]="userProfile.primaryCurrency">
@@ -300,7 +300,7 @@
           </ion-item>
 
           <!-- Street Rate Input -->
-          <ion-item class="modal-input-item">
+          <ion-item class="sep-input-item modal-input-item">
             <ion-icon name="cash-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-input type="number"
               [label]="'Street Negotiated Rate (1 ' + userProfile.primaryCurrency + ' to ' + currencyService.secondaryCurrency() + ')'"
@@ -317,7 +317,7 @@
         </ion-list>
 
         <div class="modal-actions-bar">
-          <ion-button expand="block" class="modal-submit-btn" (click)="saveCurrencies()">
+          <ion-button expand="block" class="sep-btn-primary modal-submit-btn" (click)="saveCurrencies()">
             <ion-icon slot="start" name="save-outline"></ion-icon>
             <span>Apply Currencies &amp; Rates</span>
           </ion-button>
@@ -344,7 +344,7 @@
 
       <ion-content class="ion-padding modal-content">
         <!-- Budget Mode Selection -->
-        <ion-item class="modal-input-item select-field" lines="none">
+        <ion-item class="sep-input-item modal-input-item select-field" lines="none">
           <ion-icon name="sparkles-outline" slot="start" class="modal-field-icon"></ion-icon>
           <ion-select label="Budget Strategy" labelPlacement="stacked"
             [value]="monthlyBudget.isDiscoveryMode ? 'discovery' : 'fixed'"
@@ -355,7 +355,7 @@
         </ion-item>
 
         <!-- Allowance Cycle Reset Day -->
-        <ion-item class="modal-input-item" lines="none">
+        <ion-item class="sep-input-item modal-input-item" lines="none">
           <ion-icon name="calendar-outline" slot="start" class="modal-field-icon"></ion-icon>
           <ion-input type="number" label="Allowance Arrival &amp; Reset Day (1 to 28)" labelPlacement="stacked"
             placeholder="e.g. 1, 15, or 25" [(ngModel)]="userProfile.cycleStartDay" min="1" max="28">
@@ -377,7 +377,7 @@
 
         <!-- Monthly Budget Input (When in Fixed Mode) -->
         <div *ngIf="!monthlyBudget.isDiscoveryMode">
-          <ion-item class="modal-input-item" lines="none">
+          <ion-item class="sep-input-item modal-input-item" lines="none">
             <ion-icon name="wallet-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-input type="number" [label]="'Total Monthly Allowance (' + userProfile.primaryCurrency + ')'"
               labelPlacement="stacked" placeholder="e.g. 600" [(ngModel)]="monthlyBudget.totalBudgetGhs" min="10"
@@ -417,7 +417,7 @@
         </div>
 
         <div class="modal-actions-bar">
-          <ion-button expand="block" class="modal-submit-btn" (click)="saveBudget()">
+          <ion-button expand="block" class="sep-btn-primary modal-submit-btn" (click)="saveBudget()">
             <ion-icon slot="start" name="save-outline"></ion-icon>
             <span>Save Budget Strategy</span>
           </ion-button>
@@ -454,7 +454,7 @@
             confirmation code.
           </p>
 
-          <ion-item class="modal-input-item" lines="none">
+          <ion-item class="sep-input-item modal-input-item" lines="none">
             <ion-icon name="mail-outline" slot="start" class="field-icon"></ion-icon>
             <ion-input type="email" inputmode="email" label="Student Email Address *" labelPlacement="stacked"
               placeholder="e.g. jonas.student@gmail.com" [(ngModel)]="linkEmailInput" (keyup.enter)="sendLinkOtp()">
@@ -462,7 +462,7 @@
           </ion-item>
 
           <div class="modal-actions-bar">
-            <ion-button expand="block" class="modal-submit-btn" [disabled]="isLinking || !linkEmailInput.trim()"
+            <ion-button expand="block" class="sep-btn-primary modal-submit-btn" [disabled]="isLinking || !linkEmailInput.trim()"
               (click)="sendLinkOtp()" id="btn-submit-link-email">
               <span *ngIf="!isLinking">Send 6-Digit Code</span>
               <ion-spinner *ngIf="isLinking" name="crescent"></ion-spinner>
@@ -481,7 +481,7 @@
             Enter the temporary 6-digit code sent to <strong class="text-highlight">{{ linkEmailInput }}</strong>
           </p>
 
-          <ion-item class="modal-input-item otp-item" lines="none">
+          <ion-item class="sep-input-item modal-input-item otp-item" lines="none">
             <ion-icon name="key-outline" slot="start" class="field-icon"></ion-icon>
             <ion-input type="text" inputmode="numeric" maxlength="6" label="6-Digit OTP Code *" labelPlacement="stacked"
               placeholder="123456" [(ngModel)]="linkOtpInput" (keyup.enter)="verifyLinkOtp()" class="otp-field-input">
@@ -489,7 +489,7 @@
           </ion-item>
 
           <div class="modal-actions-bar">
-            <ion-button expand="block" class="modal-submit-btn"
+            <ion-button expand="block" class="sep-btn-primary modal-submit-btn"
               [disabled]="isLinking || !linkOtpInput.trim() || linkOtpInput.trim().length < 6" (click)="verifyLinkOtp()"
               id="btn-submit-link-otp">
               <span *ngIf="!isLinking">Verify &amp; Link Account</span>

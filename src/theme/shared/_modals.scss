@@ -1,0 +1,70 @@
+// =============================================================================
+// REUSABLE MODALS & BOTTOM SHEETS
+// =============================================================================
+
+.sep-modal-sheet {
+  --border-radius: 24px 24px 0 0;
+  --backdrop-opacity: 0.55;
+
+  .modal-toolbar {
+    --background: #FFFFFF;
+    --color: var(--sep-primary, #714B67);
+    border-bottom: 1px solid var(--sep-line, #EADFE7);
+    padding: 4px 8px;
+
+    ion-title {
+      font-size: 17px;
+      font-weight: 900;
+      color: var(--sep-primary, #714B67);
+    }
+  }
+
+  .modal-content {
+    --background: var(--sep-base, #F7F3F6);
+  }
+}
+
+.sep-alert-card {
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  border: 1px solid;
+
+  &.warn {
+    background: var(--sep-warn-soft, #fff6e0);
+    border-color: #ffd175;
+    color: var(--sep-warn-text, #3a2a00);
+
+    ion-icon {
+      color: #d97706;
+    }
+  }
+
+  &.danger {
+    background: var(--sep-danger-soft, #fbeae8);
+    border-color: #f5c2bc;
+    color: var(--sep-danger, #c0392b);
+
+    ion-icon {
+      color: var(--sep-danger, #c0392b);
+    }
+  }
+
+  &.info {
+    background: var(--sep-action-soft, #e5f6f7);
+    border-color: #b3e3e5;
+    color: var(--sep-ink, #2B1F28);
+
+    ion-icon {
+      color: var(--sep-action, #017e84);
+    }
+  }
+
+  ion-icon {
+    font-size: 20px;
+    flex-shrink: 0;
+    margin-top: 1px;
+  }
+}

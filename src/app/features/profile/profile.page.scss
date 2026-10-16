@@ -1,3 +1,8 @@
+// =============================================================================
+// SETTINGS & PROFILE PAGE STYLES (Modular & Calm Ledger DA)
+// =============================================================================
+@use '../../../theme/shared/mixins' as *;
+
 .settings-toolbar {
   --background: var(--sep-base, #F7F3F6);
   --color: var(--sep-primary, #714B67);
@@ -5,7 +10,6 @@
 }
 
 .settings-page-title {
-  font-family: var(--ion-font-family);
   font-size: 19px;
   font-weight: 900;
   color: var(--sep-primary, #714B67);
@@ -21,36 +25,33 @@
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 18px;
   padding-bottom: 34px;
 }
 
-/* ==========================================================================
-   1. Hero User Profile Card (iOS / Material Settings style)
-   ========================================================================== */
+/* =============================================================================
+   1. Hero User Profile Card (Calm Ledger Deep Plum Theme)
+   ============================================================================= */
 .settings-hero-card {
-  background: linear-gradient(135deg, #2D1A2B 0%, #170C16 100%);
-  border-radius: 24px;
+  @include sep-card-hero-base;
   padding: 18px 20px;
-  color: #FFFFFF;
-  box-shadow: 0 10px 28px rgba(45, 26, 43, 0.25);
-  border: 1px solid rgba(255, 215, 0, 0.22);
   display: flex;
   align-items: center;
   gap: 16px;
   position: relative;
+  margin: 0;
 
   .hero-avatar-wrap {
     position: relative;
     flex-shrink: 0;
 
     .settings-avatar {
-      width: 62px;
-      height: 62px;
-      border-radius: 20px;
-      border: 2px solid #FFD700;
+      width: 60px;
+      height: 60px;
+      border-radius: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.4);
       overflow: hidden;
-      box-shadow: 0 4px 14px rgba(255, 215, 0, 0.28);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 
       img {
         width: 100%;
@@ -66,15 +67,15 @@
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: #FFD700;
-      color: #2D1A2B;
-      border: 2px solid #170C16;
+      background: var(--sep-action, #017e84);
+      color: #ffffff;
+      border: 2px solid #58354f;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       font-size: 13px;
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
     }
   }
 
@@ -92,13 +93,11 @@
       flex-wrap: wrap;
 
       .user-display-name {
-        font-size: 19px;
+        font-size: 18px;
         font-weight: 900;
         margin: 0;
-        color: #FFFFFF;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        color: #ffffff;
+        @include text-ellipsis;
       }
 
       .status-badge {
@@ -109,6 +108,8 @@
         display: inline-flex;
         align-items: center;
         gap: 3px;
+        --background: var(--sep-action, #017e84);
+        --color: #ffffff;
       }
     }
 
@@ -118,11 +119,9 @@
       gap: 5px;
       font-size: 12px;
       font-weight: 700;
-      color: #FFD700;
+      color: var(--sep-action-soft, #e5f6f7);
       margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      @include text-ellipsis;
 
       ion-icon {
         font-size: 14px;
@@ -147,7 +146,7 @@
   }
 
   .hero-action-btn {
-    --color: #FFFFFF;
+    --color: #ffffff;
     --border-color: rgba(255, 255, 255, 0.35);
     --border-radius: 12px;
     font-size: 12px;
@@ -157,42 +156,37 @@
   }
 }
 
-/* ==========================================================================
+/* =============================================================================
    2. Grouped Settings Sections & Inset Lists
-   ========================================================================== */
+   ============================================================================= */
 .settings-section {
   display: flex;
   flex-direction: column;
   gap: 6px;
 
   .section-title-label {
-    font-size: 11.5px;
+    font-size: 11px;
     font-weight: 800;
-    color: #8C7588;
+    color: var(--sep-mut, #6B5966);
     letter-spacing: 0.8px;
     padding-left: 14px;
     margin-bottom: 2px;
   }
 
   .settings-group-list {
-    background: #FFFFFF;
+    background: var(--sep-card, #FFFFFF);
     border-radius: 18px;
-    box-shadow: 0 4px 18px rgba(113, 75, 103, 0.06);
+    box-shadow: 0 2px 10px rgba(113, 75, 103, 0.04);
     margin: 0;
     overflow: hidden;
-    border: 1px solid rgba(113, 75, 103, 0.08);
+    border: 1px solid var(--sep-line, #EADFE7);
 
     .settings-list-item {
-      --background: #FFFFFF;
+      --background: var(--sep-card, #FFFFFF);
       --padding-start: 14px;
       --padding-end: 14px;
       --inner-padding-end: 6px;
       --min-height: 56px;
-      transition: background 0.15s ease;
-
-      &:hover {
-        --background: #FAF7F9;
-      }
 
       .item-icon-box {
         width: 34px;
@@ -202,84 +196,67 @@
         align-items: center;
         justify-content: center;
         font-size: 18px;
-        color: #FFFFFF;
+        color: #ffffff;
         margin-right: 12px;
         flex-shrink: 0;
 
-        &.primary-bg { background: #714B67; }
-        &.purple-bg  { background: #58354F; }
-        &.teal-bg    { background: #017E84; }
-        &.gold-bg    { background: #DDA200; }
-        &.orange-bg  { background: #E67E22; }
-        &.drive-bg   { background: linear-gradient(135deg, #1EA362 0%, #0F9D58 100%); }
-        &.blue-bg    { background: #2980B9; }
-        &.green-bg   { background: #27AE60; }
-        &.red-bg     { background: #C0392B; }
+        &.primary-bg { background: var(--sep-primary, #714B67); }
+        &.teal-bg    { background: var(--sep-action, #017e84); }
+        &.gold-bg    { background: #d97706; }
+        &.orange-bg  { background: #e67e22; }
+        &.blue-bg    { background: #2563eb; }
+        &.green-bg   { background: #16a34a; }
+        &.red-bg     { background: var(--sep-danger, #c0392b); }
       }
 
       .item-title {
         font-size: 14px;
         font-weight: 700;
-        color: #2D1A2B;
+        color: var(--sep-ink, #2B1F28);
         margin: 0 0 2px;
       }
 
       .item-desc {
         font-size: 11.5px;
         font-weight: 500;
-        color: #7A6975;
+        color: var(--sep-mut, #6B5966);
         margin: 0;
-
-        &.drive-synced {
-          color: #1EA362;
-          font-weight: 600;
-        }
       }
 
       .item-value-note {
         font-size: 12.5px;
         font-weight: 600;
-        color: #8C7588;
+        color: var(--sep-mut, #6B5966);
 
         &.rate-val {
-          color: #DDA200;
+          color: var(--sep-action, #017e84);
           font-weight: 800;
         }
 
         &.text-success {
-          color: #27AE60;
+          color: #16a34a;
           font-weight: 700;
         }
       }
 
       .currency-tag {
-        font-size: 11.5px;
+        font-size: 11px;
         font-weight: 800;
         padding: 4px 8px;
         border-radius: 8px;
-        color: #017E84;
-        background: rgba(1, 126, 132, 0.1);
-      }
-
-      .drive-status-badge {
-        font-size: 11px;
-        font-weight: 700;
-        padding: 3px 8px;
-        border-radius: 8px;
+        color: var(--sep-action, #017e84);
+        background: var(--sep-action-soft, #e5f6f7);
       }
 
       &.danger-item {
         .item-title.text-danger {
-          color: #C0392B;
+          color: var(--sep-danger, #c0392b);
         }
       }
     }
   }
 }
 
-/* ==========================================================================
-   3. App Version Footer
-   ========================================================================== */
 .app-version-footer {
   text-align: center;
   padding: 16px 0 10px;
@@ -287,39 +264,39 @@
   .app-name {
     font-size: 12.5px;
     font-weight: 800;
-    color: #714B67;
+    color: var(--sep-primary, #714B67);
     margin: 0 0 2px;
   }
 
   .app-sub {
     font-size: 11px;
     font-weight: 500;
-    color: #A08C9C;
+    color: var(--sep-mut, #6B5966);
     margin: 0;
   }
 }
 
-/* ==========================================================================
-   4. Modals Styling (Native Bottom Sheet Style)
-   ========================================================================== */
+/* =============================================================================
+   3. Modals Styling (Native Bottom Sheet Style)
+   ============================================================================= */
 .settings-modal-sheet {
   --border-radius: 24px 24px 0 0;
   --backdrop-opacity: 0.55;
 
   .modal-toolbar {
-    --background: #FFFFFF;
-    --color: #2D1A2B;
-    border-bottom: 1px solid rgba(113, 75, 103, 0.08);
+    --background: #ffffff;
+    --color: var(--sep-ink, #2B1F28);
+    border-bottom: 1px solid var(--sep-line, #EADFE7);
 
     ion-title {
       font-size: 17px;
       font-weight: 800;
-      color: #714B67;
+      color: var(--sep-primary, #714B67);
     }
   }
 
   .modal-content {
-    --background: #FAF7F9;
+    --background: var(--sep-base, #F7F3F6);
   }
 
   .modal-form-list {
@@ -328,20 +305,15 @@
     flex-direction: column;
     gap: 12px;
     padding: 6px 0;
+  }
 
-    .modal-input-item {
-      --background: #FFFFFF;
-      --border-radius: 14px;
-      border: 1.5px solid rgba(113, 75, 103, 0.12);
-      border-radius: 14px;
-      box-shadow: 0 2px 8px rgba(113, 75, 103, 0.04);
-      --min-height: 58px;
+  .modal-input-item {
+    --background: var(--sep-card, #ffffff);
 
-      .modal-field-icon {
-        color: #714B67;
-        font-size: 20px;
-        margin-right: 10px;
-      }
+    .modal-field-icon {
+      color: var(--sep-primary, #714B67);
+      font-size: 20px;
+      margin-right: 10px;
     }
   }
 
@@ -354,36 +326,22 @@
     .chips-title {
       font-size: 11.5px;
       font-weight: 700;
-      color: #714B67;
+      color: var(--sep-primary, #714B67);
     }
 
     .chips-row {
       display: flex;
       flex-wrap: wrap;
       gap: 6px;
-
-      .campus-chip {
-        --background: #FFFFFF;
-        --color: #714B67;
-        border: 1px solid rgba(113, 75, 103, 0.18);
-        font-size: 11px;
-        font-weight: 600;
-
-        &.active {
-          --background: #714B67;
-          --color: #FFFFFF;
-          border-color: #714B67;
-        }
-      }
     }
   }
 
   /* Live FX engine box */
   .live-fx-card {
-    background: linear-gradient(135deg, #017E84 0%, #015B5F 100%);
+    background: linear-gradient(135deg, var(--sep-action, #017e84) 0%, #015B5F 100%);
     border-radius: 16px;
     padding: 14px 16px;
-    color: #FFFFFF;
+    color: #ffffff;
     margin-bottom: 12px;
     box-shadow: 0 4px 14px rgba(1, 126, 132, 0.22);
 
@@ -411,7 +369,7 @@
       }
 
       .sync-live-btn {
-        --color: #FFFFFF;
+        --color: #ffffff;
         --border-color: rgba(255, 255, 255, 0.4);
         --border-radius: 10px;
         font-size: 11.5px;
@@ -424,21 +382,45 @@
 
   .form-helper-note {
     font-size: 11.5px;
-    color: #7A6975;
+    color: var(--sep-mut, #6B5966);
     line-height: 1.45;
     margin: 4px 4px 0;
   }
 
+  /* Discovery mode info box in modal */
+  .discovery-profile-info {
+    background: var(--sep-action-soft, #e5f6f7);
+    border: 1px solid rgba(1, 126, 132, 0.2);
+    border-radius: 14px;
+    padding: 14px;
+    margin: 12px 0;
+
+    ion-badge {
+      --background: var(--sep-action, #017e84);
+      --color: #ffffff;
+      margin-bottom: 6px;
+      font-size: 10.5px;
+      font-weight: 800;
+    }
+
+    p {
+      font-size: 12px;
+      line-height: 1.45;
+      color: var(--sep-ink, #2B1F28);
+      margin: 0;
+    }
+  }
+
   /* Allowance stat card in budget modal */
   .allowance-stat-card {
-    background: #FFFFFF;
+    background: var(--sep-card, #ffffff);
     border-radius: 14px;
     padding: 14px 16px;
     display: flex;
     align-items: center;
     justify-content: space-around;
-    border: 1px solid rgba(113, 75, 103, 0.1);
-    box-shadow: 0 2px 10px rgba(113, 75, 103, 0.05);
+    border: 1px solid var(--sep-line, #EADFE7);
+    box-shadow: 0 2px 10px rgba(113, 75, 103, 0.04);
     margin: 12px 0;
 
     .stat-col {
@@ -450,58 +432,59 @@
 
       .stat-title {
         font-size: 10.5px;
-        font-weight: 700;
-        color: #8C7588;
+        font-weight: 800;
         text-transform: uppercase;
+        color: var(--sep-mut, #6B5966);
       }
 
       .stat-num {
         font-size: 15px;
         font-weight: 900;
-        color: #714B67;
+        color: var(--sep-primary, #714B67);
       }
 
       .stat-sub {
         font-size: 11px;
         font-weight: 600;
-        color: #017E84;
+        color: var(--sep-action, #017e84);
       }
     }
 
     .stat-pipe {
       width: 1px;
-      height: 38px;
-      background: rgba(113, 75, 103, 0.12);
+      height: 36px;
+      background: var(--sep-line, #EADFE7);
     }
   }
 
   .modal-sub-heading {
     font-size: 13px;
     font-weight: 800;
-    color: #714B67;
-    margin: 14px 4px 8px;
+    color: var(--sep-primary, #714B67);
+    margin: 16px 0 8px 4px;
   }
 
   .envelopes-modal-list {
-    background: #FFFFFF;
-    border-radius: 14px;
-    border: 1px solid rgba(113, 75, 103, 0.1);
+    background: var(--sep-card, #ffffff);
+    border-radius: 16px;
+    border: 1px solid var(--sep-line, #EADFE7);
     overflow: hidden;
+    margin-bottom: 14px;
 
     .modal-env-item {
-      --background: #FFFFFF;
+      --background: var(--sep-card, #ffffff);
       --min-height: 50px;
 
       .env-icon {
-        color: #714B67;
+        color: var(--sep-primary, #714B67);
         font-size: 18px;
-        margin-right: 8px;
+        margin-right: 10px;
       }
 
       .env-name {
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 700;
-        color: #2D1A2B;
+        color: var(--sep-ink, #2B1F28);
       }
 
       .env-input-box {
@@ -510,193 +493,122 @@
         gap: 4px;
 
         .env-val-field {
-          width: 70px;
+          width: 72px;
+          text-align: right;
+          font-weight: 800;
+          font-size: 14px;
+          color: var(--sep-primary, #714B67);
+          --background: var(--sep-base, #F7F3F6);
+          --border-radius: 8px;
           --padding-start: 6px;
           --padding-end: 6px;
-          font-size: 13.5px;
-          font-weight: 800;
-          text-align: right;
-          background: #FAF7F9;
-          border-radius: 8px;
-          border: 1px solid rgba(113, 75, 103, 0.15);
         }
 
         .env-unit {
-          font-size: 11.5px;
-          font-weight: 700;
-          color: #714B67;
+          font-size: 11px;
+          font-weight: 800;
+          color: var(--sep-mut, #6B5966);
         }
       }
     }
   }
 
   .modal-actions-bar {
-    margin-top: 20px;
-    padding-bottom: 16px;
-
-    .modal-submit-btn {
-      --background: #714B67;
-      --border-radius: 14px;
-      font-size: 14px;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-      box-shadow: 0 4px 16px rgba(113, 75, 103, 0.28);
-    }
+    padding: 16px 0 8px;
   }
 
-  /* Link Account Modal */
+  /* Link account modal specifics */
   .modal-link-wrap {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     text-align: center;
-    padding: 10px 4px;
+    gap: 10px;
+    padding: 10px 0;
 
     .modal-hero-badge {
-      display: inline-flex;
+      width: 56px;
+      height: 56px;
+      border-radius: 18px;
+      background: var(--sep-primary-soft, #f4ecf2);
+      color: var(--sep-primary, #714B67);
+      display: flex;
       align-items: center;
       justify-content: center;
-      width: 58px;
-      height: 58px;
-      border-radius: 18px;
-      background: rgba(113, 75, 103, 0.12);
-      border: 1px solid rgba(113, 75, 103, 0.2);
-      margin-bottom: 12px;
-
-      ion-icon {
-        font-size: 28px;
-        color: #714B67;
-      }
+      font-size: 28px;
+      margin-bottom: 2px;
 
       &.otp-badge {
-        background: rgba(1, 126, 132, 0.12);
-        border-color: rgba(1, 126, 132, 0.25);
-
-        ion-icon {
-          color: #017E84;
-        }
+        background: var(--sep-action-soft, #e5f6f7);
+        color: var(--sep-action, #017e84);
       }
     }
 
     .link-heading {
       font-size: 18px;
       font-weight: 900;
-      color: #714B67;
-      margin: 0 0 6px;
+      color: var(--sep-primary, #714B67);
+      margin: 0;
     }
 
     .link-desc {
-      font-size: 13px;
-      color: #6B5966;
-      line-height: 1.5;
-      margin: 0 0 18px;
-
-      .text-highlight {
-        color: #017E84;
-        font-weight: 700;
-      }
+      font-size: 12.5px;
+      color: var(--sep-mut, #6B5966);
+      line-height: 1.45;
+      margin: 0 0 10px;
+      max-width: 320px;
     }
 
     .modal-input-item {
-      --background: #F7F3F6;
-      --border-radius: 14px;
-      --padding-start: 14px;
-      border: 1.5px solid #EADFE7;
-      border-radius: 14px;
-      margin-bottom: 16px;
+      width: 100%;
       text-align: left;
+    }
 
-      .field-icon {
-        font-size: 20px;
-        color: #714B67;
-        margin-right: 10px;
-      }
+    .modal-actions-bar {
+      width: 100%;
+    }
 
-      &.otp-item {
-        .otp-field-input {
-          font-size: 22px;
-          font-weight: 900;
-          letter-spacing: 6px;
-          text-align: center;
-          --color: #714B67;
-        }
-      }
+    .otp-field-input {
+      letter-spacing: 6px;
+      font-size: 20px;
+      font-weight: 900;
+      text-align: center;
+      color: var(--sep-primary, #714B67);
     }
 
     .otp-resend-row {
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
-      margin-top: 14px;
+      gap: 8px;
+      margin-top: 6px;
 
       .resend-text-btn {
+        background: none;
+        border: none;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--sep-action, #017e84);
+        cursor: pointer;
         display: inline-flex;
         align-items: center;
-        gap: 6px;
-        background: rgba(1, 126, 132, 0.08);
-        border: 1px solid rgba(1, 126, 132, 0.2);
-        color: #017E84;
-        font-size: 13px;
-        font-weight: 700;
-        padding: 8px 16px;
-        border-radius: 10px;
-        cursor: pointer;
+        gap: 4px;
 
         &:disabled {
-          opacity: 0.55;
+          color: var(--sep-mut, #6B5966);
           cursor: not-allowed;
+          opacity: 0.6;
         }
       }
 
       .change-email-btn {
-        background: transparent;
+        background: none;
         border: none;
-        color: #6B5966;
-        font-size: 12.5px;
+        font-size: 11.5px;
+        color: var(--sep-mut, #6B5966);
         text-decoration: underline;
         cursor: pointer;
       }
     }
   }
 }
-
-.link-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 11px;
-  font-weight: 800;
-  padding: 4px 8px;
-  border-radius: 8px;
-
-  ion-icon {
-    font-size: 13px;
-  }
-}
-
-.discovery-profile-info {
-  background: rgba(1, 126, 132, 0.08);
-  border: 1px solid rgba(1, 126, 132, 0.2);
-  border-radius: 14px;
-  padding: 14px;
-  margin: 10px 0 16px;
-
-  ion-badge {
-    --background: #017E84;
-    color: #FFFFFF;
-    font-size: 11px;
-    font-weight: 800;
-    padding: 4px 8px;
-    border-radius: 6px;
-    margin-bottom: 8px;
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-  }
-
-  p {
-    font-size: 12.5px;
-    color: var(--sep-ink, #2B1F28);
-    line-height: 1.5;
-    margin: 6px 0 0;
-  }
-}
-

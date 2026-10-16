@@ -1,25 +1,6 @@
-.capture-toolbar {
-  --background: var(--sep-base, #F7F3F6);
-  --color: var(--sep-primary, #714B67);
-  padding: 8px 14px 0;
-}
-
-.capture-title {
-  font-family: var(--ion-font-family);
-  font-size: 18px;
-  font-weight: 900;
-  color: var(--sep-primary, #714B67);
-}
-
-.network-badge {
-  font-size: 11px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 8px;
-}
+// =============================================================================
+// CAPTURE & VISION OCR PAGE STYLES (Modular & Lean)
+// =============================================================================
 
 .capture-content {
   --background: var(--sep-base, #F7F3F6);
@@ -27,28 +8,23 @@
 
 .capture-container {
   max-width: 540px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding-bottom: 30px;
 }
 
 .header-intro {
   .intro-text {
     font-size: 13px;
     font-weight: 500;
-    color: #6B5966;
+    color: var(--sep-mut, #6B5966);
     line-height: 1.45;
     margin: 0;
   }
 }
 
-/* ==========================================================================
-   1. Large Dashed Upload Dropzone (Story 3.1)
-   ========================================================================== */
+/* =============================================================================
+   1. Large Dashed Upload Dropzone
+   ============================================================================= */
 .upload-dropzone {
-  background: #FFFFFF;
+  background: var(--sep-card, #FFFFFF);
   border: 2px dashed rgba(113, 75, 103, 0.28);
   border-radius: 20px;
   padding: 26px 20px;
@@ -58,8 +34,8 @@
   box-shadow: 0 4px 14px rgba(113, 75, 103, 0.04);
 
   &:hover {
-    border-color: #714B67;
-    background: #FAF7F9;
+    border-color: var(--sep-primary, #714B67);
+    background: var(--sep-primary-soft, #f4ecf2);
     transform: translateY(-1px);
   }
 
@@ -73,8 +49,8 @@
       width: 56px;
       height: 56px;
       border-radius: 18px;
-      background: rgba(1, 126, 132, 0.1);
-      color: #017E84;
+      background: var(--sep-action-soft, #e5f6f7);
+      color: var(--sep-action, #017e84);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -85,13 +61,13 @@
     .dropzone-title {
       font-size: 16.5px;
       font-weight: 800;
-      color: #2D1A2B;
+      color: var(--sep-ink, #2B1F28);
       margin: 0;
     }
 
     .dropzone-desc {
       font-size: 12.5px;
-      color: #7A6975;
+      color: var(--sep-mut, #6B5966);
       font-weight: 500;
       margin: 0;
     }
@@ -99,7 +75,7 @@
     .dropzone-types {
       font-size: 10.5px;
       font-weight: 700;
-      color: #8C7588;
+      color: var(--sep-mut, #6B5966);
       background: rgba(113, 75, 103, 0.06);
       padding: 3px 8px;
       border-radius: 6px;
@@ -110,20 +86,13 @@
 
 .camera-btn-wrap {
   .camera-action-btn {
-    --color: #714B67;
-    --border-color: rgba(113, 75, 103, 0.3);
-    --border-radius: 14px;
-    font-size: 14px;
-    font-weight: 800;
-    height: 48px;
-    background: #FFFFFF;
-    box-shadow: 0 2px 8px rgba(113, 75, 103, 0.04);
+    width: 100%;
   }
 }
 
-/* ==========================================================================
+/* =============================================================================
    2. Sample Presets
-   ========================================================================== */
+   ============================================================================= */
 .presets-section {
   display: flex;
   flex-direction: column;
@@ -132,41 +101,29 @@
   .presets-title {
     font-size: 11px;
     font-weight: 800;
-    color: #8C7588;
+    color: var(--sep-mut, #6B5966);
     text-transform: uppercase;
     letter-spacing: 0.5px;
   }
 
-  .presets-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-
-    .preset-chip {
-      --background: #FFFFFF;
-      --color: #017E84;
-      border: 1px solid rgba(1, 126, 132, 0.2);
-      font-size: 11px;
-      font-weight: 700;
-
-      ion-icon {
-        color: #FFAC00;
-      }
+  .preset-chip {
+    ion-icon {
+      color: #d97706;
     }
   }
 }
 
-/* ==========================================================================
+/* =============================================================================
    3. Scanning Indicator
-   ========================================================================== */
+   ============================================================================= */
 .scanning-indicator-box {
-  background: #FFFFFF;
+  background: var(--sep-card, #FFFFFF);
   border-radius: 16px;
   padding: 16px;
   display: flex;
   align-items: center;
   gap: 14px;
-  border: 1px solid rgba(113, 75, 103, 0.15);
+  border: 1px solid var(--sep-line, #EADFE7);
   box-shadow: 0 4px 14px rgba(113, 75, 103, 0.06);
 
   .scanning-texts {
@@ -177,21 +134,21 @@
     .scan-title {
       font-size: 14px;
       font-weight: 800;
-      color: #714B67;
+      color: var(--sep-primary, #714B67);
       margin: 0;
     }
 
     .scan-sub {
       font-size: 11.5px;
-      color: #7A6975;
+      color: var(--sep-mut, #6B5966);
       margin: 0;
     }
   }
 }
 
-/* ==========================================================================
+/* =============================================================================
    4. Queue Section
-   ========================================================================== */
+   ============================================================================= */
 .queue-section {
   display: flex;
   flex-direction: column;
@@ -205,7 +162,7 @@
     .queue-title {
       font-size: 13px;
       font-weight: 800;
-      color: #714B67;
+      color: var(--sep-primary, #714B67);
       margin: 0;
       display: flex;
       align-items: center;
@@ -214,13 +171,13 @@
   }
 
   .queue-list {
-    background: #FFFFFF;
+    background: var(--sep-card, #FFFFFF);
     border-radius: 16px;
-    border: 1px solid rgba(113, 75, 103, 0.08);
+    border: 1px solid var(--sep-line, #EADFE7);
     overflow: hidden;
 
     .queue-item {
-      --background: #FFFFFF;
+      --background: var(--sep-card, #FFFFFF);
       --min-height: 54px;
 
       .thumb-avatar {
@@ -228,7 +185,7 @@
         height: 38px;
         border-radius: 10px;
         overflow: hidden;
-        border: 1px solid rgba(113, 75, 103, 0.15);
+        border: 1px solid var(--sep-line, #EADFE7);
 
         img {
           width: 100%;
@@ -240,13 +197,13 @@
       .cap-filename {
         font-size: 13.5px;
         font-weight: 700;
-        color: #2D1A2B;
+        color: var(--sep-ink, #2B1F28);
         margin: 0 0 2px;
       }
 
       .cap-meta {
         font-size: 11.5px;
-        color: #7A6975;
+        color: var(--sep-mut, #6B5966);
         margin: 0;
       }
 
@@ -265,50 +222,26 @@
   }
 }
 
-.privacy-note-card {
-  background: rgba(1, 126, 132, 0.06);
-  border: 1px solid rgba(1, 126, 132, 0.18);
-  border-radius: 14px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  ion-icon {
-    font-size: 20px;
-    color: #017E84;
-    flex-shrink: 0;
-  }
-
-  p {
-    font-size: 11.5px;
-    font-weight: 600;
-    color: #015B5F;
-    margin: 0;
-    line-height: 1.4;
-  }
-}
-
-/* ==========================================================================
-   5. OCR Preview Modal (Story 3.4 & 3.5)
-   ========================================================================== */
+/* =============================================================================
+   5. OCR Preview Modal
+   ============================================================================= */
 .ocr-preview-modal {
   --border-radius: 24px 24px 0 0;
 
   .modal-toolbar {
     --background: #FFFFFF;
-    --color: #2D1A2B;
-    border-bottom: 1px solid rgba(113, 75, 103, 0.08);
+    --color: var(--sep-primary, #714B67);
+    border-bottom: 1px solid var(--sep-line, #EADFE7);
 
     ion-title {
       font-size: 17px;
       font-weight: 800;
-      color: #714B67;
+      color: var(--sep-primary, #714B67);
     }
   }
 
   .modal-content {
-    --background: #FAF7F9;
+    --background: var(--sep-base, #F7F3F6);
   }
 
   .preview-inner-wrap {
@@ -320,38 +253,20 @@
     padding-bottom: 24px;
   }
 
-  /* Duplicate Alert (Story 3.5) */
   .duplicate-alert-card {
-    background: #FFF8EE;
-    border: 1.5px solid #FFAC00;
-    border-radius: 16px;
-    padding: 14px;
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-
-    .alert-icon-wrap {
-      color: #D35400;
-      font-size: 24px;
-      flex-shrink: 0;
-      margin-top: 2px;
-    }
-
     .alert-body {
       display: flex;
       flex-direction: column;
-      gap: 3px;
+      gap: 2px;
 
       .alert-title {
-        font-size: 14px;
+        font-size: 13.5px;
         font-weight: 800;
-        color: #D35400;
         margin: 0;
       }
 
       .alert-desc {
         font-size: 12px;
-        color: #2D1A2B;
         margin: 0;
         line-height: 1.4;
       }
@@ -359,7 +274,6 @@
       .alert-prompt {
         font-size: 11px;
         font-weight: 700;
-        color: #8C7588;
         margin-top: 4px;
       }
     }
@@ -370,7 +284,7 @@
     border-radius: 16px;
     overflow: hidden;
     max-height: 160px;
-    border: 1px solid rgba(113, 75, 103, 0.15);
+    border: 1px solid var(--sep-line, #EADFE7);
 
     img {
       width: 100%;
@@ -382,7 +296,7 @@
       position: absolute;
       bottom: 8px;
       left: 8px;
-      background: rgba(45, 26, 43, 0.85);
+      background: rgba(43, 31, 40, 0.85);
       backdrop-filter: blur(8px);
       color: #FFFFFF;
       font-size: 11px;
@@ -396,22 +310,11 @@
   }
 
   .preview-fields-list {
-    background: transparent;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-
     .preview-field-item {
-      --background: #FFFFFF;
-      --border-radius: 14px;
-      border: 1.5px solid rgba(113, 75, 103, 0.12);
-      border-radius: 14px;
-      box-shadow: 0 2px 6px rgba(113, 75, 103, 0.03);
-
       ion-label {
         font-size: 12px;
         font-weight: 700;
-        color: #714B67;
+        color: var(--sep-primary, #714B67);
         margin-bottom: 2px;
         display: flex;
         align-items: center;
@@ -421,12 +324,12 @@
       .field-input {
         font-size: 15px;
         font-weight: 700;
-        color: #2D1A2B;
+        color: var(--sep-ink, #2B1F28);
 
         &.amount-val {
           font-size: 20px;
           font-weight: 900;
-          color: #714B67;
+          color: var(--sep-primary, #714B67);
         }
       }
 
@@ -438,14 +341,14 @@
         .field-curr {
           font-size: 14px;
           font-weight: 800;
-          color: #017E84;
+          color: var(--sep-action, #017e84);
         }
       }
 
-      /* Uncertainty Highlighting (Story 3.4) */
+      /* Uncertainty Highlighting */
       &.field-uncertain {
-        border-color: #FFAC00;
-        background: #FFFBF3;
+        border-color: #d97706;
+        background: var(--sep-warn-soft, #fff6e0);
 
         .uncertain-badge {
           font-size: 10px;
@@ -462,15 +365,6 @@
     flex-direction: column;
     gap: 8px;
     margin-top: 8px;
-
-    .btn-validate-expense {
-      --background: #714B67;
-      --border-radius: 14px;
-      font-size: 14.5px;
-      font-weight: 800;
-      height: 50px;
-      box-shadow: 0 4px 16px rgba(113, 75, 103, 0.28);
-    }
 
     .btn-draft-cancel {
       font-size: 13px;

@@ -1,22 +1,6 @@
-.register-toolbar {
-  --background: var(--sep-base, #F7F3F6);
-  --color: var(--sep-primary, #714B67);
-  padding: 6px 12px 0;
-
-  .back-nav-btn {
-    --color: var(--sep-primary, #714B67);
-    font-size: 18px;
-    margin: 0;
-  }
-}
-
-.register-title {
-  font-family: var(--ion-font-family);
-  font-size: 15.5px;
-  font-weight: 900;
-  color: var(--sep-primary, #714B67);
-  text-align: center;
-}
+// =============================================================================
+// REGISTER PAGE STYLES (Modular & Lean)
+// =============================================================================
 
 .register-content {
   --background: var(--sep-base, #F7F3F6);
@@ -24,16 +8,11 @@
 
 .register-container {
   max-width: 520px;
-  margin: 0 auto;
-  padding-bottom: 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
 }
 
-/* ==========================================================================
+/* =============================================================================
    2-Step Progress Tracker Bar
-   ========================================================================== */
+   ============================================================================= */
 .steps-progress-bar {
   display: flex;
   align-items: center;
@@ -98,10 +77,7 @@
         box-shadow: 0 2px 8px rgba(113, 75, 103, 0.35);
       }
 
-      .step-text-meta .step-badge {
-        color: var(--sep-primary, #714B67);
-      }
-
+      .step-text-meta .step-badge,
       .step-text-meta .step-title {
         color: var(--sep-primary, #714B67);
       }
@@ -145,7 +121,6 @@
   }
 }
 
-/* Step transition animation */
 .step-fade-in {
   animation: stepFadeIn 0.28s ease-out forwards;
 }
@@ -165,7 +140,6 @@
   padding: 4px 4px 6px;
 
   .banner-heading {
-    font-family: var(--ion-font-family);
     font-size: 20px;
     font-weight: 900;
     color: var(--sep-primary, #714B67);
@@ -181,6 +155,7 @@
   }
 }
 
+/* Quick Restore Banner */
 .restore-banner-card {
   background: var(--sep-card, #FFFFFF);
   border: 1.5px dashed var(--sep-action, #017E84);
@@ -206,7 +181,7 @@
 
     .restore-desc {
       font-size: 12px;
-      color: var(--sep-ink, #2D1A2B);
+      color: var(--sep-ink, #2B1F28);
       font-weight: 600;
       margin: 0;
     }
@@ -231,91 +206,11 @@
         box-shadow: 0 2px 8px rgba(1, 126, 132, 0.25);
       }
 
-      &.cloud-btn {
-        --color: var(--sep-action, #017E84);
-        --border-color: var(--sep-action, #017E84);
-      }
-
       &.file-btn {
         --color: var(--sep-primary, #714B67);
         --border-color: var(--sep-primary, #714B67);
       }
     }
-  }
-}
-
-.form-card {
-  background: var(--sep-card, #FFFFFF);
-  border: 1px solid var(--sep-line, #EADFE7);
-  border-radius: 20px;
-  box-shadow: 0 4px 14px rgba(113, 75, 103, 0.05);
-
-  ion-card-header {
-    padding: 18px 16px 12px;
-  }
-
-  ion-card-content {
-    padding: 0 16px 18px;
-  }
-}
-
-.card-title-row {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 4px;
-
-  .title-icon {
-    font-size: 20px;
-    color: var(--sep-primary, #714B67);
-  }
-
-  .card-heading {
-    font-family: var(--ion-font-family);
-    font-size: 16px;
-    font-weight: 900;
-    color: var(--sep-primary, #714B67);
-  }
-}
-
-.card-subheading {
-  font-size: 11.5px;
-  font-weight: 500;
-  color: var(--sep-mut, #6B5966);
-  margin: 0;
-}
-
-.register-list {
-  background: transparent;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.custom-item {
-  --background: var(--sep-base, #F7F3F6);
-  --border-radius: 12px;
-  --padding-start: 12px;
-  --inner-padding-end: 12px;
-  border: 1px solid var(--sep-line, #EADFE7);
-
-  .input-icon {
-    font-size: 18px;
-    color: var(--sep-primary, #714B67);
-    margin-right: 8px;
-  }
-
-  ion-input, ion-select {
-    font-family: var(--ion-font-family);
-    font-size: 13.5px;
-    font-weight: 700;
-    color: var(--sep-ink, #2B1F28);
-  }
-
-  .field-spinner {
-    width: 20px;
-    height: 20px;
-    color: var(--sep-primary, #714B67);
   }
 }
 
@@ -331,209 +226,21 @@
     color: var(--sep-mut, #6B5966);
     margin-left: 2px;
   }
-
-  .chips-scroll {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 4px;
-  }
-
-  .campus-chip {
-    --background: var(--sep-base, #F7F3F6);
-    --color: var(--sep-ink, #2B1F28);
-    border: 1px solid var(--sep-line, #EADFE7);
-    font-size: 11px;
-    font-weight: 700;
-    border-radius: 10px;
-    height: 30px;
-    margin: 0;
-    transition: all 0.2s ease;
-
-    &.active {
-      --background: var(--sep-primary, #714B67);
-      --color: #FFFFFF;
-      border-color: var(--sep-primary, #714B67);
-      box-shadow: 0 2px 6px rgba(113, 75, 103, 0.25);
-    }
-  }
 }
 
-/* Live Rate Engine */
-.live-rate-box {
-  background: var(--sep-base, #F7F3F6);
-  border: 1.5px solid var(--sep-line, #EADFE7);
-  border-radius: 16px;
-  padding: 14px;
-  margin-bottom: 16px;
-
-  .rate-status-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  .rate-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-size: 10.5px;
-    font-weight: 800;
-    color: var(--sep-action, #017e84);
-    background: rgba(1, 126, 132, 0.10);
-    padding: 3px 8px;
-    border-radius: 8px;
-    margin-bottom: 2px;
-  }
-
-  .rate-status-text {
-    font-size: 12px;
-    font-weight: 700;
-    color: var(--sep-ink, #2B1F28);
-    margin: 0;
-  }
-
-  .refresh-rate-btn {
-    --color: var(--sep-action, #017e84);
-    --border-color: var(--sep-action, #017e84);
-    --border-radius: 10px;
-    font-size: 11px;
-    font-weight: 800;
-    height: 32px;
-    margin: 0;
-  }
-
-  .embedded-rate {
-    --background: #FFFFFF;
-    margin-bottom: 6px;
-  }
-
-  .rate-hint {
-    font-size: 11px;
-    font-weight: 500;
-    color: var(--sep-mut, #6B5966);
-    margin: 0;
-    line-height: 1.35;
-  }
+.field-spinner {
+  width: 20px;
+  height: 20px;
+  color: var(--sep-primary, #714B67);
 }
 
-.budget-ceiling-section {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.allowance-preview-card {
-  background: linear-gradient(135deg, var(--sep-primary-soft, #f4ecf2) 0%, #FFFFFF 100%);
-  border: 1px solid var(--sep-line, #EADFE7);
-  border-radius: 14px;
-  padding: 12px 14px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  .preview-item {
-    display: flex;
-    flex-direction: column;
-
-    .preview-label {
-      font-size: 10px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      color: var(--sep-mut, #6B5966);
-    }
-
-    .preview-val {
-      font-size: 13px;
-      font-weight: 900;
-      color: var(--sep-primary, #714B67);
-      margin: 1px 0;
-    }
-
-    .preview-sub {
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--sep-mut, #6B5966);
-    }
-  }
-
-  .preview-divider {
-    width: 1px;
-    height: 36px;
-    background: var(--sep-line, #EADFE7);
-  }
-}
-
-/* Action Wrappers */
 .register-action-wrap {
   margin-top: 16px;
-
-  .submit-register-btn {
-    --background: var(--sep-primary, #714B67);
-    --border-radius: 16px;
-    font-family: var(--ion-font-family);
-    font-weight: 900;
-    font-size: 15px;
-    min-height: 54px;
-    box-shadow: 0 6px 18px rgba(113, 75, 103, 0.32);
-    margin: 0;
-
-    ion-icon {
-      font-size: 20px;
-      margin-left: 6px;
-    }
-  }
 }
 
-/* Step 2 dual buttons (Back + Complete) */
-.step-two-actions {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-top: 16px;
-
-  .prev-step-btn {
-    --color: var(--sep-primary, #714B67);
-    --border-color: var(--sep-line, #EADFE7);
-    --border-radius: 16px;
-    font-family: var(--ion-font-family);
-    font-weight: 800;
-    font-size: 14px;
-    min-height: 54px;
-    min-width: 130px;
-    margin: 0;
-
-    ion-icon {
-      font-size: 18px;
-      margin-right: 4px;
-    }
-  }
-
-  .submit-register-btn {
-    flex: 1;
-    --background: linear-gradient(135deg, #FFAC00 0%, #E68A00 100%);
-    --color: #1A0D18;
-    --border-radius: 16px;
-    font-family: var(--ion-font-family);
-    font-weight: 900;
-    font-size: 15px;
-    min-height: 54px;
-    box-shadow: 0 6px 18px rgba(255, 172, 0, 0.35);
-    margin: 0;
-
-    ion-icon {
-      font-size: 20px;
-      margin-right: 6px;
-    }
-  }
-}
-
-/* ==========================================================================
-   Budget Strategy Selection Cards
-   ========================================================================== */
+/* =============================================================================
+   Strategy Selection Cards
+   ============================================================================= */
 .strategy-cards-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -660,54 +367,17 @@
   }
 }
 
-/* ==========================================================================
-   Cycle Reset Day Selection
-   ========================================================================== */
+/* Cycle Reset Day Selection */
 .cycle-card {
   .cycle-chips-wrapper {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    padding: 14px 16px 16px;
-
-    .cycle-chip {
-      --background: var(--sep-base, #F7F3F6);
-      --color: var(--sep-ink, #2B1F28);
-      border: 1px solid var(--sep-line, #EADFE7);
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 6px 10px;
-      margin: 0;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      ion-icon {
-        color: var(--sep-primary, #714B67);
-        font-size: 15px;
-      }
-
-      &.active {
-        --background: var(--sep-primary, #714B67);
-        --color: #FFFFFF;
-        border-color: var(--sep-primary, #714B67);
-        box-shadow: 0 3px 10px rgba(113, 75, 103, 0.25);
-
-        ion-icon {
-          color: #FFFFFF;
-        }
-      }
-
-      &.custom-chip.active {
-        --background: #017e84;
-        border-color: #017e84;
-        box-shadow: 0 3px 10px rgba(1, 126, 132, 0.25);
-      }
-    }
+    padding: 6px 0 10px;
   }
 
   .custom-cycle-picker-box {
-    padding: 0 16px 16px;
+    padding: 4px 0 8px;
 
     .apply-cycle-btn {
       --background: #017e84;
@@ -720,9 +390,7 @@
   }
 }
 
-/* ==========================================================================
-   Discovery Mode Highlight Banner
-   ========================================================================== */
+/* Discovery Mode Highlight Banner */
 .discovery-info-banner {
   padding: 16px;
   background: linear-gradient(135deg, rgba(1, 126, 132, 0.08) 0%, rgba(113, 75, 103, 0.05) 100%);
@@ -733,18 +401,6 @@
     align-items: center;
     justify-content: space-between;
     margin-bottom: 10px;
-
-    .discovery-active-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      padding: 5px 10px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 800;
-      --background: #017e84;
-      color: #FFFFFF;
-    }
 
     .reset-date-tag {
       font-size: 11.5px;
@@ -787,3 +443,83 @@
   }
 }
 
+/* Live Rate Engine Box */
+.live-rate-box {
+  background: var(--sep-base, #F7F3F6);
+  border: 1.5px solid var(--sep-line, #EADFE7);
+  border-radius: 16px;
+  padding: 14px;
+  margin-top: 14px;
+
+  .rate-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .rate-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--sep-action, #017e84);
+    background: rgba(1, 126, 132, 0.10);
+    padding: 3px 8px;
+    border-radius: 8px;
+    margin-bottom: 2px;
+  }
+
+  .rate-status-text {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sep-ink, #2B1F28);
+    margin: 0;
+  }
+
+  .refresh-rate-btn {
+    --color: var(--sep-action, #017e84);
+    --border-color: var(--sep-action, #017e84);
+    --border-radius: 10px;
+    font-size: 11px;
+    font-weight: 800;
+    height: 32px;
+    margin: 0;
+  }
+
+  .embedded-rate {
+    --background: #FFFFFF;
+    margin-bottom: 6px;
+  }
+
+  .rate-hint {
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--sep-mut, #6B5966);
+    margin: 0;
+    line-height: 1.35;
+  }
+}
+
+.budget-ceiling-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.step-two-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 16px;
+
+  .prev-step-btn {
+    min-width: 130px;
+  }
+
+  .flex-grow {
+    flex: 1;
+  }
+}

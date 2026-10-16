@@ -1,17 +1,17 @@
 <ion-header class="ion-no-border">
-  <ion-toolbar class="budget-toolbar">
-    <ion-title class="page-title">Budget Envelopes</ion-title>
+  <ion-toolbar class="sep-toolbar">
+    <ion-title class="sep-page-title">Budget Envelopes</ion-title>
   </ion-toolbar>
 </ion-header>
 
 <ion-content [fullscreen]="true" class="budget-content ion-padding">
-  <div class="page-container has-bottom-bars">
+  <div class="sep-page-container has-bottom-bars">
 
     <!-- =========================================================================
          1. M. POGNON AI COACH BANNER
          ========================================================================= -->
-    <ion-card class="pognon-coach-card ion-no-margin" (click)="openPognonChat()" id="btn-talk-to-pognon">
-      <ion-card-content class="pognon-coach-card-content">
+    <div class="sep-card interactive pognon-coach-card" (click)="openPognonChat()" id="btn-talk-to-pognon">
+      <div class="pognon-coach-card-content">
         <div class="coach-avatar-wrap">
           <ion-avatar class="coach-avatar">
             <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
@@ -22,12 +22,10 @@
         <div class="coach-info">
           <div class="coach-title-row">
             <h4 class="coach-title">M. Pognon Financial Coach</h4>
-            <ion-badge
-              [color]="coachAdvice().status === 'safe' ? 'success' : (coachAdvice().status === 'warning' ? 'warning' : 'danger')"
-              class="coach-badge">
+            <span class="sep-badge" [ngClass]="coachAdvice().status === 'safe' ? 'safe' : (coachAdvice().status === 'warning' ? 'warn' : 'danger')">
               <ion-icon name="sparkles-outline"></ion-icon>
               <span>{{ coachAdvice().badge }}</span>
-            </ion-badge>
+            </span>
           </div>
           <p class="coach-quote">"{{ coachAdvice().quote }}"</p>
         </div>
@@ -35,8 +33,8 @@
         <div class="coach-action-icon">
           <ion-icon name="chatbubbles-outline"></ion-icon>
         </div>
-      </ion-card-content>
-    </ion-card>
+      </div>
+    </div>
 
     <!-- =========================================================================
          2. ENVELOPE CARDS GRID
@@ -56,9 +54,9 @@
 
       <!-- Envelope Cards Grid -->
       <div class="envelopes-grid" *ngIf="envelopes().length > 0">
-        <ion-card *ngFor="let env of envelopes()" class="sep-card interactive envelope-card ion-no-margin"
+        <div *ngFor="let env of envelopes()" class="sep-card interactive envelope-card"
           (click)="goToCategoryDetail(env)">
-          <ion-card-content class="envelope-card-content">
+          <div class="envelope-card-content">
             <div class="env-top">
               <div class="env-label-group">
                 <div class="env-icon-box" [style.background-color]="getCategoryColor(env.category.id) + '20'"
@@ -76,11 +74,9 @@
 
               <div class="env-badge-group">
                 <div class="env-badge-subgroup">
-                  <ion-badge
-                    [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')"
-                    class="env-badge">
+                  <span class="sep-badge" [ngClass]="env.status === 'safe' ? 'safe' : (env.status === 'warning' ? 'warn' : 'danger')">
                     {{ env.percentage }}%
-                  </ion-badge>
+                  </span>
                   <span class="env-diff-text"
                     [ngClass]="(env.allocatedGhs - env.spentGhs) >= 0 ? 'text-positive' : 'text-negative'">
                     {{ (env.allocatedGhs - env.spentGhs) >= 0 ? '+' + (env.allocatedGhs - env.spentGhs).toFixed(0) + ' GHS' : (env.spentGhs - env.allocatedGhs).toFixed(0) + ' GHS' }}
@@ -93,8 +89,8 @@
             <ion-progress-bar class="env-progress" [value]="env.percentage / 100"
               [color]="env.status === 'safe' ? 'secondary' : (env.status === 'warning' ? 'warning' : 'danger')">
             </ion-progress-bar>
-          </ion-card-content>
-        </ion-card>
+          </div>
+        </div>
 
         <!-- Manage Envelopes Button -->
         <ion-button expand="block" fill="outline" class="btn-manage-envelopes" (click)="openBudgetConfigModal()">

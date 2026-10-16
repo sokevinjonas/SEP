@@ -1,86 +1,96 @@
 // =============================================================================
-// BUDGET & ENVELOPES PAGE STYLES (SEP - M. Pognon Student Savings Coach)
+// BUDGET & ENVELOPES PAGE STYLES (Modular & Lean)
 // =============================================================================
-
-.budget-toolbar {
-  --background: #F7F3F6;
-  --color: #714B67;
-  padding: 8px 16px 4px;
-
-  .page-title {
-    font-size: 19px;
-    font-weight: 900;
-    color: #714B67;
-    margin: 0;
-    letter-spacing: -0.02em;
-    text-align: center;
-  }
-}
 
 .budget-content {
-  --background: #F7F3F6;
-}
-
-.page-container {
-  padding: 12px 14px 140px;
-  max-width: 540px;
-  margin: 0 auto;
+  --background: var(--sep-base, #F7F3F6);
 }
 
 // =============================================================================
-// 1. CATEGORY ENVELOPES SECTION
+// 1. M. POGNON AI COACH CARD
 // =============================================================================
+.pognon-coach-card {
+  margin-bottom: 20px;
 
-.section-wrapper {
-  margin-bottom: 22px;
-}
-
-.section-header-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 0 2px 10px;
-  gap: 10px;
-
-  .header-text-col {
-    .section-title {
-      font-size: 12px;
-      font-weight: 900;
-      color: #714B67;
-      letter-spacing: 0.05em;
-      margin: 0;
-    }
-
-    .section-sub-desc {
-      font-size: 11px;
-      font-weight: 500;
-      color: #7A6975;
-      margin: 2px 0 0;
-    }
-  }
-
-  .header-action-group {
+  .pognon-coach-card-content {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 12px;
+  }
 
-    .allocation-total-chip {
-      font-size: 11px;
-      font-weight: 800;
-      color: #017E84;
-      background: rgba(1, 126, 132, 0.1);
-      padding: 3px 8px;
-      border-radius: 8px;
+  .coach-avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+
+    .coach-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 14px;
+      border: 1.5px solid var(--sep-line, #EADFE7);
+      overflow: hidden;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
     }
 
-    .btn-quick-adjust {
-      --color: #714B67;
-      font-size: 11.5px;
-      font-weight: 800;
-      margin: 0;
-      height: 28px;
+    .coach-sparkle-dot {
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--sep-action, #017e84);
+      border: 2px solid #FFFFFF;
     }
   }
+
+  .coach-info {
+    flex: 1;
+    min-width: 0;
+
+    .coach-title-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 3px;
+
+      .coach-title {
+        font-size: 13.5px;
+        font-weight: 900;
+        color: var(--sep-primary, #714B67);
+        margin: 0;
+      }
+    }
+
+    .coach-quote {
+      font-size: 11.5px;
+      font-style: italic;
+      color: var(--sep-ink, #2B1F28);
+      margin: 0;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  }
+
+  .coach-action-icon {
+    font-size: 20px;
+    color: var(--sep-primary, #714B67);
+    flex-shrink: 0;
+  }
+}
+
+// =============================================================================
+// 2. ENVELOPE CARDS GRID
+// =============================================================================
+.section-wrapper {
+  margin-bottom: 22px;
 }
 
 .envelopes-grid {
@@ -91,7 +101,8 @@
 
 .envelope-card {
   .envelope-card-content {
-    padding: 13px 15px;
+    display: flex;
+    flex-direction: column;
   }
 
   .env-top {
@@ -126,7 +137,7 @@
       .env-name {
         font-size: 14px;
         font-weight: 800;
-        color: #2B1F28;
+        color: var(--sep-ink, #2B1F28);
         margin: 0;
         white-space: nowrap;
         overflow: hidden;
@@ -136,11 +147,11 @@
       .env-sub {
         font-size: 11px;
         font-weight: 600;
-        color: #7A6975;
+        color: var(--sep-mut, #6B5966);
         margin: 2px 0 0;
 
         .env-xof {
-          color: #017E84;
+          color: var(--sep-action, #017e84);
           font-weight: 500;
         }
       }
@@ -160,28 +171,14 @@
       gap: 2px;
     }
 
-    .env-badge {
-      font-size: 11px;
-      font-weight: 800;
-      padding: 3px 8px;
-      border-radius: 9999px;
-    }
-
     .env-diff-text {
       font-size: 10px;
       font-weight: 700;
-
-      &.text-positive {
-        color: #27AE60;
-      }
-      &.text-negative {
-        color: #C0392B;
-      }
     }
 
     .env-chevron {
       font-size: 16px;
-      color: #A3929F;
+      color: var(--sep-mut, #6B5966);
       transition: transform 0.2s ease;
     }
   }
@@ -193,115 +190,13 @@
   .env-progress {
     height: 7px;
     border-radius: 9999px;
-    --background: #F4ECF2;
-  }
-}
-
-// =============================================================================
-// 3. M. POGNON AI COACH CARD
-// =============================================================================
-
-.pognon-coach-card {
-  background: linear-gradient(135deg, #FFFFFF 0%, #FAF4F8 100%);
-  border: 1.5px solid rgba(113, 75, 103, 0.14);
-  border-radius: 20px;
-  box-shadow: 0 4px 14px rgba(113, 75, 103, 0.07);
-  margin-bottom: 24px;
-  cursor: pointer;
-  transition: transform 0.15s ease;
-
-  &:active {
-    transform: scale(0.98);
-  }
-
-  .pognon-coach-card-content {
-    padding: 14px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .coach-avatar-wrap {
-    position: relative;
-    flex-shrink: 0;
-
-    .coach-avatar {
-      width: 44px;
-      height: 44px;
-      border-radius: 14px;
-      border: 2px solid #FFD700;
-      overflow: hidden;
-
-      img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-      }
-    }
-
-    .coach-sparkle-dot {
-      position: absolute;
-      bottom: -2px;
-      right: -2px;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      background: #27AE60;
-      border: 2px solid #FFFFFF;
-    }
-  }
-
-  .coach-info {
-    flex: 1;
-    min-width: 0;
-
-    .coach-title-row {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      margin-bottom: 3px;
-
-      .coach-title {
-        font-size: 13.5px;
-        font-weight: 900;
-        color: #714B67;
-        margin: 0;
-      }
-
-      .coach-badge {
-        font-size: 9.5px;
-        font-weight: 800;
-        padding: 2px 6px;
-        border-radius: 6px;
-        display: inline-flex;
-        align-items: center;
-        gap: 3px;
-      }
-    }
-
-    .coach-quote {
-      font-size: 11.5px;
-      font-style: italic;
-      color: #554452;
-      margin: 0;
-      line-height: 1.35;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-  }
-
-  .coach-action-icon {
-    font-size: 20px;
-    color: #714B67;
-    flex-shrink: 0;
+    --background: var(--sep-primary-soft, #f4ecf2);
   }
 }
 
 .btn-manage-envelopes {
-  --color: #714B67;
-  --border-color: rgba(113, 75, 103, 0.3);
+  --color: var(--sep-primary, #714B67);
+  --border-color: var(--sep-line, #EADFE7);
   --border-radius: 14px;
   margin-top: 14px;
   font-size: 13px;
@@ -310,25 +205,24 @@
 }
 
 // =============================================================================
-// 5. BUDGET & ENVELOPES CONFIGURATION MODAL SHEET
+// 3. BUDGET & ENVELOPES CONFIGURATION MODAL SHEET
 // =============================================================================
-
 .budget-modal-sheet {
   --border-radius: 24px 24px 0 0;
 
   .modal-header {
     background: #FFFFFF;
-    border-bottom: 1px solid #EADFE7;
+    border-bottom: 1px solid var(--sep-line, #EADFE7);
 
     .modal-toolbar {
       --background: #FFFFFF;
-      --color: #714B67;
+      --color: var(--sep-primary, #714B67);
       font-weight: 900;
     }
   }
 
   .modal-content {
-    --background: #FDFBFC;
+    --background: var(--sep-base, #F7F3F6);
     padding-bottom: 40px;
   }
 }
@@ -336,7 +230,7 @@
 .modal-section-title {
   font-size: 11.5px;
   font-weight: 900;
-  color: #714B67;
+  color: var(--sep-primary, #714B67);
   letter-spacing: 0.05em;
   margin: 14px 2px 8px;
 }
@@ -351,20 +245,20 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    background: #FFFFFF;
-    border: 1.5px solid #EADFE7;
+    background: var(--sep-card, #FFFFFF);
+    border: 1.5px solid var(--sep-line, #EADFE7);
     border-radius: 16px;
     padding: 12px 14px;
     cursor: pointer;
     transition: all 0.15s ease;
 
     &.selected {
-      border-color: #714B67;
-      background: #FDF9FC;
+      border-color: var(--sep-primary, #714B67);
+      background: var(--sep-primary-soft, #f4ecf2);
       box-shadow: 0 2px 8px rgba(113, 75, 103, 0.08);
 
       .strategy-radio {
-        color: #714B67;
+        color: var(--sep-primary, #714B67);
       }
     }
 
@@ -372,8 +266,8 @@
       width: 36px;
       height: 36px;
       border-radius: 10px;
-      background: #F4ECF2;
-      color: #714B67;
+      background: var(--sep-primary-soft, #f4ecf2);
+      color: var(--sep-primary, #714B67);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -381,8 +275,8 @@
       flex-shrink: 0;
 
       &.discovery-box {
-        background: rgba(1, 126, 132, 0.12);
-        color: #017E84;
+        background: var(--sep-action-soft, #e5f6f7);
+        color: var(--sep-action, #017e84);
       }
     }
 
@@ -392,13 +286,13 @@
       h4 {
         font-size: 13.5px;
         font-weight: 800;
-        color: #2B1F28;
+        color: var(--sep-ink, #2B1F28);
         margin: 0;
       }
 
       p {
         font-size: 11px;
-        color: #7A6975;
+        color: var(--sep-mut, #6B5966);
         margin: 2px 0 0;
         line-height: 1.3;
       }
@@ -406,22 +300,22 @@
 
     .strategy-radio {
       font-size: 20px;
-      color: #C8BAC4;
+      color: var(--sep-mut, #6B5966);
       flex-shrink: 0;
     }
   }
 }
 
 .modal-input-item {
-  --background: #FFFFFF;
+  --background: var(--sep-card, #FFFFFF);
   --border-radius: 14px;
-  border: 1.5px solid #EADFE7;
+  border: 1.5px solid var(--sep-line, #EADFE7);
   border-radius: 14px;
   margin-bottom: 12px;
   font-weight: 600;
 
   .field-icon {
-    color: #714B67;
+    color: var(--sep-primary, #714B67);
     font-size: 18px;
     margin-right: 6px;
   }
@@ -429,7 +323,7 @@
 
 .cycle-tip-desc {
   font-size: 11.5px;
-  color: #7A6975;
+  color: var(--sep-mut, #6B5966);
   margin: 0 2px 8px;
 }
 
@@ -440,19 +334,19 @@
 
   .cycle-chip-btn {
     flex: 1;
-    background: #FFFFFF;
-    border: 1.5px solid #EADFE7;
+    background: var(--sep-card, #FFFFFF);
+    border: 1.5px solid var(--sep-line, #EADFE7);
     border-radius: 10px;
     padding: 8px 4px;
     font-size: 11.5px;
     font-weight: 700;
-    color: #554452;
+    color: var(--sep-ink, #2B1F28);
     cursor: pointer;
     transition: all 0.15s ease;
 
     &.active {
-      background: #714B67;
-      border-color: #714B67;
+      background: var(--sep-primary, #714B67);
+      border-color: var(--sep-primary, #714B67);
       color: #FFFFFF;
     }
   }
@@ -470,10 +364,10 @@
     .envelopes-sum {
       font-size: 11.5px;
       font-weight: 800;
-      color: #017E84;
+      color: var(--sep-action, #017e84);
 
       &.over-budget {
-        color: #C0392B;
+        color: var(--sep-danger, #c0392b);
       }
     }
   }
@@ -487,8 +381,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: #FFFFFF;
-      border: 1.5px solid #EADFE7;
+      background: var(--sep-card, #FFFFFF);
+      border: 1.5px solid var(--sep-line, #EADFE7);
       border-radius: 14px;
       padding: 8px 12px;
 
@@ -498,7 +392,7 @@
         gap: 8px;
         font-size: 13px;
         font-weight: 800;
-        color: #2B1F28;
+        color: var(--sep-ink, #2B1F28);
 
         .cat-icon-dot {
           width: 10px;
@@ -519,14 +413,14 @@
           text-align: right;
           --padding-start: 4px;
           --padding-end: 4px;
-          background: #F7F3F6;
+          background: var(--sep-base, #F7F3F6);
           border-radius: 8px;
         }
 
         .currency-label {
           font-size: 11px;
           font-weight: 800;
-          color: #714B67;
+          color: var(--sep-primary, #714B67);
         }
       }
     }
@@ -537,7 +431,7 @@
   margin-top: 20px;
 
   .modal-submit-btn {
-    --background: #714B67;
+    --background: var(--sep-primary, #714B67);
     --border-radius: 14px;
     font-size: 14px;
     font-weight: 800;
