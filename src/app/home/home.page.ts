@@ -39,7 +39,9 @@ import {
   trashOutline,
   calendarOutline,
   compassOutline,
-  arrowForwardOutline
+  arrowForwardOutline,
+  receiptOutline,
+  chevronForwardOutline
 } from 'ionicons/icons';
 import { Expense } from '../core/models/financial.models';
 import { ExpensesFacade } from '../features/expenses/facade/expenses.facade';
@@ -117,7 +119,9 @@ export class HomePage implements OnInit {
       trashOutline,
       calendarOutline,
       compassOutline,
-      arrowForwardOutline
+      arrowForwardOutline,
+      receiptOutline,
+      chevronForwardOutline
     });
   }
 

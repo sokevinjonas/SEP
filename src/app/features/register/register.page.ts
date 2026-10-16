@@ -41,7 +41,8 @@ import {
   compassOutline,
   calendarOutline,
   helpCircleOutline,
-  checkmarkOutline
+  checkmarkOutline,
+  timeOutline
 } from 'ionicons/icons';
 import { ProfileFacade } from '../profile/facade/profile.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
@@ -148,7 +149,8 @@ export class RegisterPage implements OnInit {
       compassOutline,
       calendarOutline,
       helpCircleOutline,
-      checkmarkOutline
+      checkmarkOutline,
+      timeOutline
     });
   }
 

@@ -67,7 +67,8 @@ import {
   keyOutline,
   logOutOutline,
   alertCircleOutline,
-  arrowForwardOutline
+  arrowForwardOutline,
+  calendarOutline
 } from 'ionicons/icons';
 import { ProfileFacade } from './facade/profile.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
@@ -215,7 +216,8 @@ export class ProfilePage implements OnInit, OnDestroy {
       keyOutline,
       logOutOutline,
       alertCircleOutline,
-      arrowForwardOutline
+      arrowForwardOutline,
+      calendarOutline
     });
   }
 

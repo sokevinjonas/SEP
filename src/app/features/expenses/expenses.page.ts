@@ -35,7 +35,14 @@ import {
   timeOutline,
   swapHorizontalOutline,
   arrowBackOutline,
-  sparklesOutline
+  sparklesOutline,
+  chatbubbleEllipsesOutline,
+  restaurantOutline,
+  busOutline,
+  bookOutline,
+  peopleOutline,
+  flashOutline,
+  ellipsisHorizontalCircleOutline
 } from 'ionicons/icons';
 import { ExpensesFacade } from './facade/expenses.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
@@ -102,7 +109,14 @@ export class ExpensesPage implements OnInit {
       timeOutline,
       swapHorizontalOutline,
       arrowBackOutline,
-      sparklesOutline
+      sparklesOutline,
+      chatbubbleEllipsesOutline,
+      restaurantOutline,
+      busOutline,
+      bookOutline,
+      peopleOutline,
+      flashOutline,
+      ellipsisHorizontalCircleOutline
     });
   }
 
