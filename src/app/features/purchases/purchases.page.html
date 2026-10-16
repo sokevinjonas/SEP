@@ -8,7 +8,7 @@
 
   <!-- Segment Filters -->
   <div class="segment-wrap">
-    <ion-segment [value]="activeSegment()" (ionChange)="setSegment($any($event).detail.value)" class="sep-segment">
+    <ion-segment mode="ios" [value]="activeSegment()" (ionChange)="setSegment($any($event).detail.value)" class="sep-segment">
       <ion-segment-button value="pending">
         <ion-label>
           Pending
@@ -79,7 +79,7 @@
 
     <!-- Purchases List -->
     <div class="purchases-list" *ngIf="displayedPurchases.length > 0">
-      <div *ngFor="let item of displayedPurchases" class="sep-card purchase-card" [class.pending-card]="item.status === 'pending'">
+      <div *ngFor="let item of displayedPurchases" class="sep-card purchase-card">
 
         <div class="card-header-row">
           <div class="title-block">

@@ -20,30 +20,63 @@
 
   .sep-segment {
     --background: rgba(113, 75, 103, 0.08);
-    border-radius: 12px;
+    border-radius: 14px;
     padding: 3px;
 
     ion-segment-button {
       --color: #6B5B68;
       --color-checked: #FFFFFF;
       --indicator-color: var(--sep-primary, #714B67);
-      --border-radius: 10px;
-      min-height: 38px;
+      --indicator-box-shadow: 0 2px 8px rgba(113, 75, 103, 0.25);
+      --border-radius: 11px;
+      min-height: 40px;
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+
+      ion-label {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        font-weight: 700;
+      }
 
       .count-pill {
-        display: inline-block;
-        padding: 1px 6px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2px 7px;
         border-radius: 10px;
         font-size: 11px;
-        font-weight: 700;
-        margin-left: 4px;
-        background: rgba(0, 0, 0, 0.08);
+        font-weight: 800;
+        background: rgba(113, 75, 103, 0.12);
+        color: #6B5B68;
+        line-height: 1.2;
 
         &.trophy-pill {
           background: rgba(1, 126, 132, 0.15);
           color: var(--sep-teal, #017e84);
+        }
+      }
+
+      &.segment-button-checked,
+      &[aria-selected="true"] {
+        --color: #FFFFFF;
+        color: #FFFFFF;
+
+        ion-label {
+          color: #FFFFFF !important;
+        }
+
+        .count-pill {
+          background: rgba(255, 255, 255, 0.3) !important;
+          color: #FFFFFF !important;
+
+          &.trophy-pill {
+            background: #017e84 !important;
+            color: #FFFFFF !important;
+          }
         }
       }
     }
@@ -120,10 +153,6 @@
   padding: 16px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1px solid var(--sep-hairline, #EADFE7);
-
-  &.pending-card {
-    border-left: 4px solid var(--sep-teal, #017e84);
-  }
 
   .card-header-row {
     display: flex;
