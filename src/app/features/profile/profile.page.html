@@ -46,39 +46,7 @@
       </ion-button>
     </div>
 
-    <!-- 2. Section: Profile & Campus (Official ion-list inset) -->
-    <div class="settings-section">
-      <div class="section-title-label">IDENTITY &amp; CAMPUS</div>
-      <ion-list [inset]="true" lines="full" class="settings-group-list">
-
-        <!-- Update Profile Item -->
-        <ion-item [button]="true" [detail]="true" (click)="openModal('profile')" class="settings-list-item">
-          <div slot="start" class="item-icon-box primary-bg">
-            <ion-icon name="person-outline"></ion-icon>
-          </div>
-          <ion-label>
-            <h3 class="item-title">Personal Information</h3>
-            <p class="item-desc">{{ userProfile.name || 'Set my name' }}</p>
-          </ion-label>
-          <ion-note slot="end" class="item-value-note">Edit</ion-note>
-        </ion-item>
-
-        <!-- Campus Item -->
-        <ion-item [button]="true" [detail]="true" (click)="openModal('profile')" class="settings-list-item">
-          <div slot="start" class="item-icon-box purple-bg">
-            <ion-icon name="school-outline"></ion-icon>
-          </div>
-          <ion-label>
-            <h3 class="item-title">Campus &amp; University</h3>
-            <p class="item-desc">{{ userProfile.campus || 'Select a campus' }}</p>
-          </ion-label>
-          <ion-note slot="end" class="item-value-note">{{ userProfile.city }}</ion-note>
-        </ion-item>
-
-      </ion-list>
-    </div>
-
-    <!-- 3. Section: Finances & Currencies (Official ion-list inset) -->
+    <!-- 2. Section: Finances & Currencies (Official ion-list inset) -->
     <div class="settings-section">
       <div class="section-title-label">FINANCES &amp; CURRENCIES</div>
       <ion-list [inset]="true" lines="full" class="settings-group-list">
@@ -128,7 +96,7 @@
       </ion-list>
     </div>
 
-    <!-- 4. Section: Cloud Sync & Backup -->
+    <!-- 3. Section: Cloud Sync & Backup -->
     <div class="settings-section">
       <div class="section-title-label">CLOUD SYNC &amp; BACKUP</div>
       <ion-list [inset]="true" lines="full" class="settings-group-list">
@@ -165,7 +133,7 @@
       </ion-list>
     </div>
 
-    <!-- 5. Section: Security & Local Storage -->
+    <!-- 4. Section: Security & Local Storage -->
     <div class="settings-section">
       <div class="section-title-label">SECURITY &amp; LOCAL STORAGE</div>
       <ion-list [inset]="true" lines="full" class="settings-group-list">
