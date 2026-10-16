@@ -25,7 +25,6 @@ import {
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
-  cameraOutline,
   cloudUploadOutline,
   cloudDoneOutline,
   warningOutline,
@@ -41,8 +40,7 @@ import {
   sparklesOutline,
   saveOutline,
   helpCircleOutline,
-  flashOutline,
-  clipboardOutline
+  flashOutline
 } from 'ionicons/icons';
 import { ExpensesFacade } from '../expenses/facade/expenses.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
@@ -107,7 +105,6 @@ export class CapturePage implements OnInit, OnDestroy {
     private toastCtrl: ToastController
   ) {
     addIcons({
-      cameraOutline,
       cloudUploadOutline,
       cloudDoneOutline,
       warningOutline,
@@ -123,8 +120,7 @@ export class CapturePage implements OnInit, OnDestroy {
       sparklesOutline,
       saveOutline,
       helpCircleOutline,
-      flashOutline,
-      clipboardOutline
+      flashOutline
     });
   }
 
@@ -330,119 +326,5 @@ export class CapturePage implements OnInit, OnDestroy {
     await toast.present();
   }
 
-  /**
-   * Quick MoMo / Telecel SMS parse:
-   * Direct text paste from Ghana mobile money SMS confirmation without image file upload
-   */
-  async openPasteSmsModal(): Promise<void> {
-    let clipboardText = '';
-    try {
-      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.readText) {
-        clipboardText = await navigator.clipboard.readText();
-      }
-    } catch {
-      // Permission not granted or browser sandbox
-    }
 
-    const alert = await this.alertCtrl.create({
-      header: 'Paste MoMo / Telecel SMS',
-      subHeader: 'Instant extraction without screenshot',
-      message: 'Paste your payment confirmation message from MTN Mobile Money or Telecel Cash:',
-      inputs: [
-        {
-          name: 'smsText',
-          type: 'textarea',
-          value: (clipboardText && (clipboardText.includes('GHS') || clipboardText.includes('Payment') || clipboardText.includes('sent'))) ? clipboardText : '',
-          placeholder: 'e.g. Payment made for GHS 25.00 to Mama Kiki Eatery. Transaction ID: 19827391. Current Balance: GHS 140.'
-        }
-      ],
-      buttons: [
-        {
-          text: 'Cancel',
-          role: 'cancel'
-        },
-        {
-          text: 'Extract & Review',
-          handler: (data) => {
-            const text = (data.smsText || '').trim();
-            if (!text) {
-              return false;
-            }
-            this.parseAndOpenSmsExtraction(text);
-            return true;
-          }
-        }
-      ]
-    });
-
-    await alert.present();
-  }
-
-  private parseAndOpenSmsExtraction(sms: string): void {
-    // 1. Amount: look for GHS 25.00, GH¢ 25, 25.00 GHS
-    let amount = 15;
-    const amountMatch = sms.match(/(?:GHS|GH¢|GHC)\s*([0-9]+(?:\.[0-9]{1,2})?)/i) ||
-                        sms.match(/([0-9]+(?:\.[0-9]{1,2})?)\s*(?:GHS|GH¢|GHC)/i);
-    if (amountMatch) {
-      amount = parseFloat(amountMatch[1]);
-    }
-
-    // 2. Merchant: look for "to [Merchant]" or "at [Merchant]"
-    let merchant = 'Mobile Money Merchant';
-    const merchantMatch = sms.match(/(?:to|at|paid to)\s+([A-Za-z0-9\s&'-]+?)(?:\.|\s+on|\s+ref|\s+trans|\s+current|$)/i);
-    if (merchantMatch && merchantMatch[1]) {
-      merchant = merchantMatch[1].trim();
-    }
-
-    // 3. Transaction Reference: ID: 12345 or Ref: 12345
-    let ref = `MOMO-${Math.floor(100000000 + Math.random() * 900000000)}`;
-    const refMatch = sms.match(/(?:Transaction ID|Trans ID|Reference|Ref\.?)\s*[:\s]?\s*([A-Za-z0-9]+)/i);
-    if (refMatch && refMatch[1]) {
-      ref = refMatch[1].trim();
-    }
-
-    // 4. Auto Category heuristic
-    let categoryId = 'cat-food';
-    let categoryName = 'Food & Chop';
-    const lowerSms = sms.toLowerCase();
-    if (lowerSms.includes('trotro') || lowerSms.includes('uber') || lowerSms.includes('bolt') || lowerSms.includes('ride')) {
-      categoryId = 'cat-transport';
-      categoryName = 'Transport & Trotro';
-    } else if (lowerSms.includes('book') || lowerSms.includes('copy') || lowerSms.includes('print')) {
-      categoryId = 'cat-books';
-      categoryName = 'Books & Copies';
-    }
-
-    const extracted: ExtractedTransaction = {
-      amount,
-      currency: 'GHS',
-      categoryId,
-      categoryName,
-      merchant,
-      date: new Date().toISOString(),
-      transactionReference: ref,
-      source: 'ocr_momo',
-      confidence: {
-        amount: true,
-        merchant: true,
-        category: true,
-        reference: true
-      },
-      fileName: 'Pasted MoMo SMS'
-    };
-
-    const capture: QueuedCapture = {
-      id: `cap-sms-${Date.now()}`,
-      fileName: 'MoMo SMS',
-      fileSizeKb: 1,
-      previewUrl: 'assets/images/m_pognon_coin_logo.jpg',
-      createdAt: new Date().toISOString(),
-      status: 'ready',
-      extractedData: extracted
-    };
-
-    this.queuedCaptures.unshift(capture);
-    this.saveQueuedCaptures();
-    this.openExistingPreview(capture);
-  }
 }

@@ -20,19 +20,11 @@
       </p>
     </div>
 
-    <!-- Hidden file inputs -->
+    <!-- Hidden file input -->
     <input
       type="file"
       #galleryInput
       accept="image/*"
-      style="display: none;"
-      (change)="onFileSelected($event)">
-
-    <input
-      type="file"
-      #cameraInput
-      accept="image/*"
-      capture="environment"
       style="display: none;"
       (change)="onFileSelected($event)">
 
@@ -42,33 +34,10 @@
         <div class="dropzone-icon-wrap">
           <ion-icon name="cloud-upload-outline"></ion-icon>
         </div>
-        <h3 class="dropzone-title">Import Receipt or MoMo Screenshot</h3>
+        <h3 class="dropzone-title">Import Receipt or Screenshot</h3>
         <p class="dropzone-desc">Tap to choose from your Android gallery or files</p>
-        <span class="dropzone-types">PNG, JPG, MTN MoMo screenshots, paper receipts</span>
+        <span class="dropzone-types">PNG, JPG, MoMo screenshots, paper receipts</span>
       </div>
-    </div>
-
-    <!-- 2. Camera Button Trigger or Paste MoMo SMS (Pilier 5) -->
-    <div class="camera-btn-wrap dual-actions-grid">
-      <ion-button
-        fill="outline"
-        size="large"
-        class="sep-btn-outline camera-action-btn"
-        (click)="triggerFileInput(cameraInput)"
-        id="btn-take-photo">
-        <ion-icon slot="start" name="camera-outline"></ion-icon>
-        <span>Take Photo</span>
-      </ion-button>
-
-      <ion-button
-        fill="solid"
-        size="large"
-        class="sep-btn paste-sms-btn"
-        (click)="openPasteSmsModal()"
-        id="btn-paste-sms">
-        <ion-icon slot="start" name="clipboard-outline"></ion-icon>
-        <span>Paste MoMo SMS</span>
-      </ion-button>
     </div>
 
     <!-- 3. Sample Presets for Easy Browser Demo -->

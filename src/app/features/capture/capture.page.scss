@@ -84,34 +84,6 @@
   }
 }
 
-.camera-btn-wrap {
-  &.dual-actions-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-
-    .camera-action-btn {
-      width: 100%;
-      --border-radius: 12px;
-      font-size: 13px;
-      font-weight: 700;
-    }
-
-    .paste-sms-btn {
-      --background: var(--sep-action, #017e84);
-      --border-radius: 12px;
-      font-size: 13px;
-      font-weight: 700;
-      color: #FFFFFF;
-      height: 48px;
-    }
-  }
-
-  .camera-action-btn {
-    width: 100%;
-  }
-}
-
 /* =============================================================================
    2. Sample Presets
    ============================================================================= */
