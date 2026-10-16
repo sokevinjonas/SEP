@@ -38,21 +38,47 @@ body {
    ========================================================================== */
 
 .sep-page-container {
-  padding: 18px 16px 140px;
-  max-width: 520px;
+  padding: 12px 14px 120px;
+  max-width: 560px;
+  width: 100%;
   margin: 0 auto;
+  box-sizing: border-box;
 
   &.no-bottom-bars {
-    padding-bottom: 36px;
+    padding-bottom: 24px;
   }
 }
 
 .has-bottom-bars {
-  --padding-bottom: 140px;
+  --padding-bottom: 120px;
 }
 
 .no-bottom-bars {
-  --padding-bottom: 36px;
+  --padding-bottom: 24px;
+}
+
+// Responsive Tablet & Desktop Expansion
+@media (min-width: 768px) {
+  .sep-page-container,
+  .page-container,
+  .settings-container,
+  .capture-container {
+    max-width: 860px !important;
+    padding-left: 20px !important;
+    padding-right: 20px !important;
+    padding-top: 16px !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .sep-page-container,
+  .page-container,
+  .settings-container,
+  .capture-container {
+    max-width: 1080px !important;
+    padding-left: 28px !important;
+    padding-right: 28px !important;
+  }
 }
 
 .sep-page-header {

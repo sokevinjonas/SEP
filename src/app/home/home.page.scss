@@ -62,12 +62,27 @@
 }
 
 .page-container {
-  padding: 12px 16px 140px;
-  max-width: 500px;
+  padding: 10px 14px 120px;
+  max-width: 560px;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 10px;
+  box-sizing: border-box;
+
+  @media (min-width: 768px) {
+    max-width: 860px;
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 12px;
+  }
+
+  @media (min-width: 1024px) {
+    max-width: 1080px;
+    padding-left: 28px;
+    padding-right: 28px;
+  }
 }
 
 /* =============================================================================

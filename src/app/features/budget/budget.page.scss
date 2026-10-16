@@ -10,7 +10,7 @@
 // 1. M. POGNON AI COACH CARD
 // =============================================================================
 .pognon-coach-card {
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 
   .pognon-coach-card-content {
     display: flex;
@@ -90,13 +90,24 @@
 // 2. ENVELOPE CARDS GRID
 // =============================================================================
 .section-wrapper {
-  margin-bottom: 22px;
+  margin-bottom: 12px;
 }
 
 .envelopes-grid {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 8px;
+
+  @media (min-width: 768px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
 }
 
 .envelope-card {
@@ -109,7 +120,7 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-    margin-bottom: 9px;
+    margin-bottom: 6px;
   }
 
   .env-label-group {

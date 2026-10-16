@@ -22,11 +22,26 @@
 
 .settings-container {
   max-width: 560px;
+  width: 100%;
   margin: 0 auto;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  padding-bottom: 34px;
+  gap: 12px;
+  padding-bottom: 28px;
+  box-sizing: border-box;
+
+  @media (min-width: 768px) {
+    max-width: 860px;
+    padding-left: 20px;
+    padding-right: 20px;
+    gap: 14px;
+  }
+
+  @media (min-width: 1024px) {
+    max-width: 1080px;
+    padding-left: 28px;
+    padding-right: 28px;
+  }
 }
 
 /* =============================================================================

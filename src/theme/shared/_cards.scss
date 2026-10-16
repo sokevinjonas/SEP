@@ -5,7 +5,7 @@
 
 .sep-card {
   @include sep-card-base;
-  padding: 16px;
+  padding: 12px 14px;
   margin: 0;
 
   &.interactive {
@@ -15,7 +15,7 @@
 
 .sep-card-hero {
   @include sep-card-hero-base;
-  padding: 18px;
+  padding: 14px 16px;
   margin: 0;
 }
 
@@ -27,7 +27,7 @@
   background: var(--sep-base, #F7F3F6);
   border: 1px solid var(--sep-line, #EADFE7);
   border-radius: 14px;
-  padding: 12px 14px;
+  padding: 10px 12px;
 
   .stat-cell {
     display: flex;

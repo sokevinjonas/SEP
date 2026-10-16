@@ -81,9 +81,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 16px 18px;
-  margin-top: 14px;
-  margin-bottom: 20px;
+  padding: 12px 14px;
+  margin-top: 8px;
+  margin-bottom: 12px;
 
   .hero-left {
     .hero-label {
@@ -147,7 +147,7 @@
 /* Timeline Day Groups */
 .expenses-timeline {
   .day-group {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
 
     .day-header-row {
       display: flex;
