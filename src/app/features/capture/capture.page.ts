@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -99,7 +99,8 @@ export class CapturePage implements OnInit, OnDestroy {
     public currencyService: CurrencyService,
     private ocrService: OcrService,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private cdr: ChangeDetectorRef
   ) {
     addIcons({
       cloudUploadOutline,
@@ -147,7 +148,60 @@ export class CapturePage implements OnInit, OnDestroy {
   }
 
   private saveQueuedCaptures(): void {
-    localStorage.setItem('sep_queued_captures', JSON.stringify(this.queuedCaptures));
+    try {
+      localStorage.setItem('sep_queued_captures', JSON.stringify(this.queuedCaptures));
+    } catch (e) {
+      console.warn('[CapturePage] LocalStorage quota exceeded, storing lean metadata', e);
+      try {
+        const lean = this.queuedCaptures.map(c => ({
+          ...c,
+          // Strip oversized data urls from localStorage to prevent QuotaExceededError
+          previewUrl: c.previewUrl && c.previewUrl.length > 50000 ? '' : c.previewUrl
+        }));
+        localStorage.setItem('sep_queued_captures', JSON.stringify(lean));
+      } catch (inner) {
+        console.error('[CapturePage] Failed to persist queue to localStorage', inner);
+      }
+    }
+  }
+
+  // Generates a lightweight, sharp thumbnail (~15KB) for responsive UI and safe offline storage
+  private createThumbnail(file: File, maxDim: number = 320): Promise<string> {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+          if (width > height) {
+            if (width > maxDim) {
+              height = Math.round((height * maxDim) / width);
+              width = maxDim;
+            }
+          } else {
+            if (height > maxDim) {
+              width = Math.round((width * maxDim) / height);
+              height = maxDim;
+            }
+          }
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            resolve(canvas.toDataURL('image/jpeg', 0.72));
+          } else {
+            resolve((e.target?.result as string) || '');
+          }
+        };
+        img.onerror = () => resolve((e.target?.result as string) || '');
+        img.src = (e.target?.result as string) || '';
+      };
+      reader.onerror = () => resolve('');
+      reader.readAsDataURL(file);
+    });
   }
 
   // File Picker Trigger
@@ -161,39 +215,40 @@ export class CapturePage implements OnInit, OnDestroy {
     if (!input.files || input.files.length === 0) return;
 
     const file = input.files[0];
-    const reader = new FileReader();
+    // Reset file input so re-selecting the same file also triggers
+    input.value = '';
 
-    reader.onload = async () => {
-      const dataUrl = reader.result as string;
-      const capture: QueuedCapture = {
-        id: `cap-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
-        fileName: file.name,
-        fileSizeKb: Math.round(file.size / 1024),
-        previewUrl: dataUrl,
-        createdAt: new Date().toISOString(),
-        status: 'queued'
-      };
+    // Generate lightweight thumbnail for instant display in queue
+    const thumbnailDataUrl = await this.createThumbnail(file);
 
-      this.queuedCaptures.unshift(capture);
-      this.saveQueuedCaptures();
-
-      // Launch automated OCR extraction
-      await this.processCapture(capture);
+    const capture: QueuedCapture = {
+      id: `cap-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      fileName: file.name,
+      fileSizeKb: Math.round(file.size / 1024),
+      previewUrl: thumbnailDataUrl,
+      createdAt: new Date().toISOString(),
+      status: 'queued'
     };
 
-    reader.readAsDataURL(file);
-    // Reset file input
-    input.value = '';
+    // 1. Immediately insert into queue and force Angular re-render
+    this.queuedCaptures.unshift(capture);
+    this.saveQueuedCaptures();
+    this.cdr.detectChanges();
+
+    // 2. Launch OCR extraction with original File object
+    await this.processCapture(capture, file);
   }
 
-
   // Story 3.3 & 3.4: Vision extraction & preview opening
-  async processCapture(capture: QueuedCapture): Promise<void> {
+  async processCapture(capture: QueuedCapture, fileObj?: File): Promise<void> {
     this.isScanning = true;
     capture.status = 'extracting';
+    this.cdr.detectChanges();
 
     try {
-      const extracted = await this.ocrService.extractFromImage(capture.fileName, capture.fileName);
+      // Pass the original File object if available, otherwise dataUrl or filename
+      const targetPayload = fileObj || capture.previewUrl || capture.fileName;
+      const extracted = await this.ocrService.extractFromImage(targetPayload, capture.fileName);
       extracted.imageDataUrl = capture.previewUrl;
       capture.extractedData = extracted;
       capture.status = 'ready';
@@ -206,10 +261,12 @@ export class CapturePage implements OnInit, OnDestroy {
       this.activeExtraction = extracted;
       this.isPreviewOpen = true;
     } catch (err) {
+      console.error('[CapturePage processCapture Error]', err);
       capture.status = 'failed';
-      this.showToast('Échec de l\'extraction vision. Vous pouvez saisir les détails manuellement.', 'danger');
+      await this.showToast('Échec de l\'extraction vision. Vous pouvez saisir les détails manuellement.', 'danger');
     } finally {
       this.isScanning = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -242,6 +299,7 @@ export class CapturePage implements OnInit, OnDestroy {
     this.isPreviewOpen = false;
     this.activeCapture = null;
     this.activeExtraction = null;
+    this.cdr.detectChanges();
   }
 
   // Story 3.4: Validate & Commit Expense to Local Database
@@ -287,12 +345,14 @@ export class CapturePage implements OnInit, OnDestroy {
     event.stopPropagation();
     this.queuedCaptures = this.queuedCaptures.filter(c => c.id !== id);
     this.saveQueuedCaptures();
+    this.cdr.detectChanges();
     this.showToast('Capture removed from queue.', 'warning');
   }
 
   clearQueue(): void {
     this.queuedCaptures = [];
     this.saveQueuedCaptures();
+    this.cdr.detectChanges();
     this.showToast('Capture queue cleared successfully.', 'success');
   }
 
