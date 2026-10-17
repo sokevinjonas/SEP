@@ -7,17 +7,17 @@
       <div class="coach-header-info">
         <h3 class="coach-name">M. Pognon</h3>
         <p class="coach-status">
-          <span class="status-dot" [class.online]="isOnline"></span>
-          <span>{{ isOnline ? 'Online · Relentless Coach' : 'Offline' }}</span>
+          <span class="status-dot" [class.online]="isOnline()"></span>
+          <span>{{ isOnline() ? 'En ligne · Session du jour (24h)' : 'Hors-ligne' }}</span>
         </p>
       </div>
     </div>
 
     <ion-buttons slot="end">
-      <ion-button (click)="clearChat()" fill="clear" color="medium" title="Clear chat history" *ngIf="messages.length > 1">
+      <ion-button (click)="clearChat()" fill="clear" color="medium" title="Réinitialiser la session du jour" *ngIf="messages().length > 1">
         <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
       </ion-button>
-      <ion-button (click)="dismiss()" fill="clear" color="medium" id="btn-close-chat" aria-label="Close">
+      <ion-button (click)="dismiss()" fill="clear" color="medium" id="btn-close-chat" aria-label="Fermer">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -26,16 +26,16 @@
 
 <ion-content class="chat-content ion-padding">
 
-  <!-- Offline Warning Banner (Story 4.1 AC) -->
-  <div class="offline-alert-banner" *ngIf="!isOnline">
+  <!-- Offline Warning Banner -->
+  <div class="offline-alert-banner" *ngIf="!isOnline()">
     <ion-icon name="cloud-offline-outline"></ion-icon>
-    <p>No connection. M. Pognon is resting until you reconnect.</p>
+    <p>Aucune connexion. M. Pognon se repose jusqu'à votre reconnexion.</p>
   </div>
 
   <!-- Messages List -->
   <div class="chat-messages-container">
     <div
-      *ngFor="let msg of messages"
+      *ngFor="let msg of messages()"
       class="message-row"
       [class.is-user]="msg.sender === 'user'"
       [class.is-pognon]="msg.sender === 'pognon'">
@@ -53,7 +53,7 @@
     </div>
 
     <!-- Typing indicator -->
-    <div class="message-row is-pognon typing-row" *ngIf="isTyping">
+    <div class="message-row is-pognon typing-row" *ngIf="isTyping()">
       <ion-avatar class="msg-avatar">
         <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
       </ion-avatar>
@@ -67,7 +67,7 @@
 
 <ion-footer class="ion-no-border chat-footer">
   <!-- Quick Suggestion Chips -->
-  <div class="suggestions-scroll" *ngIf="isOnline && messages.length <= 3">
+  <div class="suggestions-scroll" *ngIf="isOnline() && messages().length <= 3">
     <ion-chip
       *ngFor="let sug of quickSuggestions"
       class="sug-chip"
@@ -81,15 +81,15 @@
     <ion-input
       [(ngModel)]="userInput"
       (keyup.enter)="sendMessage()"
-      placeholder="Ask M. Pognon for financial advice..."
-      [disabled]="!isOnline"
+      placeholder="Demande conseil à M. Pognon..."
+      [disabled]="!isOnline()"
       class="chat-input-field"
       id="input-chat-pognon">
     </ion-input>
 
     <ion-button
       (click)="sendMessage()"
-      [disabled]="!userInput.trim() || isTyping || !isOnline"
+      [disabled]="!userInput.trim() || isTyping() || !isOnline()"
       class="btn-send-chat"
       id="btn-send-message">
       <ion-icon slot="icon-only" name="send-outline"></ion-icon>

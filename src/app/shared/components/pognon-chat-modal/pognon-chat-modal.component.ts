@@ -1,17 +1,15 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
+import { Component, OnInit, ViewChild, signal, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   IonHeader,
   IonToolbar,
-  IonTitle,
   IonButtons,
   IonButton,
   IonContent,
   IonFooter,
   IonInput,
   IonIcon,
-  IonBadge,
   ModalController,
   IonChip,
   IonAvatar,
@@ -45,7 +43,15 @@ export interface ChatMessage {
   time: string;
 }
 
-const CHAT_STORAGE_KEY = 'student_savings_pognon_chat_history';
+export interface DailyChatSession {
+  dateKey: string;      // 'YYYY-MM-DD'
+  createdAt: number;    // timestamp ms
+  lastActiveAt: number; // timestamp ms
+  messages: ChatMessage[];
+}
+
+const CHAT_STORAGE_KEY = 'student_savings_pognon_chat_daily_session';
+const LEGACY_STORAGE_KEY = 'student_savings_pognon_chat_history';
 
 @Component({
   selector: 'app-pognon-chat-modal',
@@ -72,11 +78,20 @@ const CHAT_STORAGE_KEY = 'student_savings_pognon_chat_history';
 export class PognonChatModalComponent implements OnInit {
   @ViewChild(IonContent, { static: false }) content?: IonContent;
 
-  isOnline = typeof navigator !== 'undefined' ? navigator.onLine : true;
-  userInput = '';
-  isTyping = false;
+  private readonly cdr = inject(ChangeDetectorRef);
+  private readonly modalCtrl = inject(ModalController);
+  private readonly profileFacade = inject(ProfileFacade);
+  private readonly budgetFacade = inject(BudgetFacade);
+  private readonly expensesFacade = inject(ExpensesFacade);
+  private readonly purchasesFacade = inject(PurchasesFacade);
+  public readonly currencyService = inject(CurrencyService);
 
-  messages: ChatMessage[] = [];
+  readonly isOnline = signal(typeof navigator !== 'undefined' ? navigator.onLine : true);
+  readonly isTyping = signal(false);
+  readonly messages = signal<ChatMessage[]>([]);
+  userInput = '';
+
+  private sessionCreatedAt = Date.now();
 
   userProfile: UserProfile | null = null;
   monthlyBudget: MonthlyBudget | null = null;
@@ -85,19 +100,12 @@ export class PognonChatModalComponent implements OnInit {
   allExpenses: Expense[] = [];
 
   quickSuggestions = [
-    'Can I afford sneakers this weekend?',
-    'Give me a plan to finish the month',
-    'How do I cut my cafeteria food budget?'
+    'Puis-je me payer des baskets ce weekend ?',
+    'Donne-moi un plan pour finir le mois',
+    'Comment réduire mon budget nourriture ?'
   ];
 
-  constructor(
-    private modalCtrl: ModalController,
-    private profileFacade: ProfileFacade,
-    private budgetFacade: BudgetFacade,
-    private expensesFacade: ExpensesFacade,
-    private purchasesFacade: PurchasesFacade,
-    public currencyService: CurrencyService
-  ) {
+  constructor() {
     addIcons({
       closeOutline,
       sendOutline,
@@ -130,51 +138,89 @@ export class PognonChatModalComponent implements OnInit {
     this.pendingPurchases = [...this.purchasesFacade.pendingPurchases()];
   }
 
+  private getTodayDateKey(): string {
+    const now = new Date();
+    const y = now.getFullYear();
+    const m = String(now.getMonth() + 1).padStart(2, '0');
+    const d = String(now.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
   private restoreOrInitMessages(): void {
+    const todayKey = this.getTodayDateKey();
+    const now = Date.now();
+    const ONE_DAY_MS = 24 * 60 * 60 * 1000;
+
+    // Purge legacy storage from previous builds
+    try {
+      localStorage.removeItem(LEGACY_STORAGE_KEY);
+    } catch {}
+
     const saved = localStorage.getItem(CHAT_STORAGE_KEY);
     if (saved) {
       try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          this.messages = parsed;
+        const session: DailyChatSession = JSON.parse(saved);
+        const isSameDay = session && session.dateKey === todayKey;
+        const isWithin24Hours = session && (now - (session.createdAt || 0)) < ONE_DAY_MS;
+
+        if (isSameDay && isWithin24Hours && Array.isArray(session.messages) && session.messages.length > 0) {
+          this.sessionCreatedAt = session.createdAt || now;
+          this.messages.set(session.messages);
+          this.cdr.detectChanges();
           setTimeout(() => this.scrollToBottom(), 200);
           return;
+        } else {
+          // Session expired or from a previous day: delete it completely!
+          console.info(`[PognonChat] Previous day's session (${session?.dateKey}) deleted. Starting fresh 24h daily session.`);
+          localStorage.removeItem(CHAT_STORAGE_KEY);
         }
-      } catch {
-        // Fallback to init
+      } catch (err) {
+        console.warn('[PognonChat] Failed to parse previous daily session, resetting.', err);
+        localStorage.removeItem(CHAT_STORAGE_KEY);
       }
     }
+
+    this.sessionCreatedAt = now;
     this.initWelcomeMessage();
   }
 
   private initWelcomeMessage(): void {
-    const studentName = this.userProfile?.name ? this.userProfile.name : 'friend';
+    const studentName = this.userProfile?.name ? this.userProfile.name : 'ami';
     const balance = this.consumption ? this.consumption.balanceGhs.toFixed(2) : '600.00';
     const curr = this.currencyService.activeCurrency();
 
-    this.messages = [
-      {
-        id: 'msg-init-1',
-        sender: 'pognon',
-        text: `Hey ${studentName}! My eyes are glued to your ledger. You have ${balance} ${curr} of breathing room left this month. What desire is tempting you or what do you want to audit?`,
-        time: this.formatNow()
-      }
-    ];
+    const welcomeMsg: ChatMessage = {
+      id: `pog-init-${Date.now()}`,
+      sender: 'pognon',
+      text: `Salut ${studentName} ! J'ai les yeux rivés sur ton grand livre. Il te reste ${balance} ${curr} de marge pour ce cycle. Quelle envie te tente ou quelle dépense veux-tu auditer ?`,
+      time: this.formatNow()
+    };
+
+    this.messages.set([welcomeMsg]);
     this.saveChatHistory();
+    this.cdr.detectChanges();
     setTimeout(() => this.scrollToBottom(), 200);
   }
 
   private saveChatHistory(): void {
     try {
-      const recent = this.messages.slice(-50);
-      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(recent));
+      const todayKey = this.getTodayDateKey();
+      const recent = this.messages().slice(-50);
+      const session: DailyChatSession = {
+        dateKey: todayKey,
+        createdAt: this.sessionCreatedAt,
+        lastActiveAt: Date.now(),
+        messages: recent
+      };
+      localStorage.setItem(CHAT_STORAGE_KEY, JSON.stringify(session));
     } catch (e) {
-      console.warn('[PognonChat] Could not save chat history to storage', e);
+      console.warn('[PognonChat] Could not save daily chat session to storage', e);
     }
   }
 
   clearChat(): void {
     localStorage.removeItem(CHAT_STORAGE_KEY);
+    this.sessionCreatedAt = Date.now();
     this.initWelcomeMessage();
   }
 
@@ -185,20 +231,22 @@ export class PognonChatModalComponent implements OnInit {
 
   async sendMessage(): Promise<void> {
     const text = this.userInput.trim();
-    if (!text || this.isTyping) return;
+    if (!text || this.isTyping()) return;
 
     // 1. Add user message
-    this.messages.push({
+    const userMsg: ChatMessage = {
       id: `usr-${Date.now()}`,
       sender: 'user',
       text,
       time: this.formatNow()
-    });
-    this.saveChatHistory();
-    this.scrollToBottom();
+    };
 
+    this.messages.update(msgs => [...msgs, userMsg]);
+    this.saveChatHistory();
     this.userInput = '';
-    this.isTyping = true;
+    this.isTyping.set(true);
+    this.cdr.detectChanges();
+    this.scrollToBottom();
 
     // 2. Attempt online backend call to /api/chat (AI LLM)
     if (typeof navigator !== 'undefined' && navigator.onLine) {
@@ -212,7 +260,14 @@ export class PognonChatModalComponent implements OnInit {
             'Authorization': `Bearer ${environment.appSecretToken}`,
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ message: text }),
+          body: JSON.stringify({
+            message: text,
+            context: {
+              studentName: this.userProfile?.name || 'Student',
+              balance: this.consumption?.balanceGhs || 600,
+              currency: this.currencyService.activeCurrency()
+            }
+          }),
           signal: controller.signal
         });
         clearTimeout(timeoutId);
@@ -220,57 +275,66 @@ export class PognonChatModalComponent implements OnInit {
         if (res.ok) {
           const data: any = await res.json();
           if (data && data.reply) {
-            this.messages.push({
-              id: `pog-${Date.now()}`,
-              sender: 'pognon',
-              text: data.reply,
-              time: this.formatNow()
-            });
+            this.messages.update(msgs => [
+              ...msgs,
+              {
+                id: `pog-${Date.now()}`,
+                sender: 'pognon',
+                text: data.reply,
+                time: this.formatNow()
+              }
+            ]);
             this.saveChatHistory();
-            this.isTyping = false;
+            this.isTyping.set(false);
+            this.cdr.detectChanges();
             this.scrollToBottom();
             return;
           }
         }
       } catch (err) {
-        console.warn('[PognonChat] Online worker chat unavailable, using local coach heuristics.', err);
+        console.warn('[PognonChat] Online worker chat unavailable or timed out, using local coach heuristics.', err);
       }
     }
 
     // 3. Graceful offline fallback with local heuristics
     setTimeout(() => {
       this.generatePognonResponse(text);
-      this.isTyping = false;
+      this.isTyping.set(false);
+      this.cdr.detectChanges();
       this.scrollToBottom();
-    }, 600);
+    }, 400);
   }
 
   private generatePognonResponse(query: string): void {
     const lower = query.toLowerCase();
     const balance = this.consumption?.balanceGhs || 600;
     const curr = this.currencyService.activeCurrency();
-    const name = this.userProfile?.name || 'Student';
+    const name = this.userProfile?.name || 'ami';
 
     let reply = '';
 
-    if (lower.includes('sneaker') || lower.includes('shoe') || lower.includes('basket') || lower.includes('buy') || lower.includes('weekend')) {
+    if (lower.includes('sneaker') || lower.includes('shoe') || lower.includes('basket') || lower.includes('buy') || lower.includes('weekend') || lower.includes('achat') || lower.includes('acheter')) {
       const daily = (balance / 30).toFixed(0);
-      reply = `Let's look at cold facts, ${name}: with ${balance.toFixed(0)} ${curr} in your pocket, your daily allowance is around ${daily} ${curr}/day. Dropping 200 or 300 ${curr} on sneakers amputates 2 full weeks of cafeteria meals! My verdict: tap "I want to buy", let it simmer for 48h. If you still crave it in 2 days, we'll talk.`;
-    } else if (lower.includes('plan') || lower.includes('finish') || lower.includes('month') || lower.includes('emergency')) {
-      reply = `Here is your campus battle plan: 1) Zero restaurant outings off-campus until Friday. 2) Stick to the 15 ${curr} campus cafeteria meals. 3) Take Trotros or shared shuttles. You have ${balance.toFixed(0)} ${curr}, that's plenty if you don't surrender to impulse!`;
-    } else if (lower.includes('food') || lower.includes('meal') || lower.includes('cafeteria') || lower.includes('eat') || lower.includes('waakye')) {
-      reply = `Food is the number one spending trap for students in Accra and on campus. For every waakye or meal, ask yourself if you have groceries in your dorm. Cooking or pooling bulk groceries with roommates cuts food bills by 40% starting this week.`;
+      reply = `Regardons les faits froids, ${name} : avec environ ${balance.toFixed(0)} ${curr} restants, ton allocation quotidienne est d'environ ${daily} ${curr}/jour. Débourser pour cette dépense ampute 2 semaines de repas au campus ! Mon verdict : place cet article en temporisation 48h dans tes achats réfléchis. Si l'envie persiste après 2 jours, nous ferons le bilan.`;
+    } else if (lower.includes('plan') || lower.includes('finish') || lower.includes('month') || lower.includes('mois') || lower.includes('finir') || lower.includes('urgence')) {
+      reply = `Voici ton plan de combat pour le campus : 1) Zéro sortie restaurant hors-campus jusqu'à vendredi. 2) Privilégie les repas économiques du campus ou la cuisine partagée. 3) Prends le trotro ou les navettes partagées. Tu as ${balance.toFixed(0)} ${curr}, c'est largement suffisant si tu ne cèdes pas aux impulsions !`;
+    } else if (lower.includes('food') || lower.includes('meal') || lower.includes('cafeteria') || lower.includes('eat') || lower.includes('manger') || lower.includes('repas') || lower.includes('nourriture') || lower.includes('waakye') || lower.includes('faim')) {
+      reply = `L'alimentation est le piège numéro 1 des étudiants à Accra et sur le campus. Pour chaque repas, demande-toi si tu as déjà des provisions. Cuisiner ou mutualiser les courses avec des colocataires réduit la facture de 40% dès cette semaine.`;
     } else {
-      reply = `I hear you, ${name}. Remember my motto: every cedi or CFA saved today is a day of freedom and peace of mind during your end-of-semester exams. What do you want to audit next?`;
+      reply = `Je t'entends bien, ${name}. N'oublie pas ma devise : chaque cedi ou franc CFA préservé aujourd'hui est une bouffée d'oxygène pendant les examens de fin de semestre. Que souhaites-tu auditer ensuite ?`;
     }
 
-    this.messages.push({
-      id: `pog-${Date.now()}`,
-      sender: 'pognon',
-      text: reply,
-      time: this.formatNow()
-    });
+    this.messages.update(msgs => [
+      ...msgs,
+      {
+        id: `pog-${Date.now()}`,
+        sender: 'pognon',
+        text: reply,
+        time: this.formatNow()
+      }
+    ]);
     this.saveChatHistory();
+    this.cdr.detectChanges();
   }
 
   private scrollToBottom(): void {
