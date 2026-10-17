@@ -16,6 +16,84 @@ const upload = multer({
 
 const resend = config.resendApiKey ? new Resend(config.resendApiKey) : null;
 
+let cachedWorker: any = null;
+async function getTesseractWorker() {
+  if (!cachedWorker) {
+    cachedWorker = await createWorker('eng');
+  }
+  return cachedWorker;
+}
+
+async function extractWithGemini(buffer: Buffer, mimeType: string, fileName: string): Promise<any | null> {
+  if (!config.geminiApiKey) return null;
+  try {
+    console.log('[AI Vision] Calling Gemini Vision API for receipt analysis...');
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${config.geminiApiKey}`;
+    const prompt = `Analyze this receipt or Mobile Money screenshot image. Extract structured data in JSON with fields:
+- merchant (string): Merchant or store name
+- amount (number): Total amount to pay
+- currency (string): "GHS" or "XOF"
+- date (ISO string): Date on receipt or current ISO string
+- transactionReference (string): Receipt or MoMo transaction ID
+- amountPaid (number or null): Cash or amount given
+- change (number or null): Change returned to customer
+- itemQty (number): Total quantity of items bought
+- items (array of objects): Each product/item with:
+  - id (string, e.g. "item-1")
+  - name (string)
+  - quantity (number)
+  - unitPrice (number)
+  - totalPrice (number)
+  - categoryId (one of: "cat-food", "cat-transport", "cat-academic", "cat-personal", "cat-housing", "cat-other")
+  - categoryName (string)
+  - selected (boolean, default true)
+- confidence: { amount: boolean, merchant: boolean, category: boolean, reference: boolean }
+
+Return ONLY valid raw JSON without markdown markers.`;
+
+    const payload = {
+      contents: [{
+        parts: [
+          { text: prompt },
+          {
+            inline_data: {
+              mime_type: mimeType || 'image/jpeg',
+              data: buffer.toString('base64')
+            }
+          }
+        ]
+      }],
+      generationConfig: {
+        responseMimeType: 'application/json'
+      }
+    };
+
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+
+    if (res.ok) {
+      const data: any = await res.json();
+      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+      if (rawText) {
+        const parsed = JSON.parse(rawText);
+        if (parsed.amount) {
+          console.log(`[AI Vision] Gemini successfully analyzed receipt: ${parsed.merchant} - ${parsed.amount} ${parsed.currency}`);
+          return parsed;
+        }
+      }
+    } else {
+      const errTxt = await res.text();
+      console.warn('[AI Vision] Gemini API error:', res.status, errTxt);
+    }
+  } catch (err) {
+    console.warn('[AI Vision] Gemini extraction failed:', err);
+  }
+  return null;
+}
+
 /**
  * POST /api/captures
  * Intelligent Receipt and MoMo screenshot vision extraction
@@ -24,14 +102,24 @@ capturesRouter.post('/captures', authMiddleware, upload.single('file'), async (r
   try {
     const file = req.file;
     const fileName = (req.body?.fileName || file?.originalname || 'capture.jpg').toLowerCase();
+    const mimeType = file?.mimetype || 'image/jpeg';
 
-    // 1. Real OCR extraction via Tesseract on the uploaded image buffer
     if (file && file.buffer) {
+      // 1. Try Gemini Vision AI if API key is provided
+      const geminiResult = await extractWithGemini(file.buffer, mimeType, fileName);
+      if (geminiResult) {
+        return res.json({
+          success: true,
+          extracted: geminiResult,
+          engine: 'gemini-ai'
+        });
+      }
+
+      // 2. High performance local OCR via Tesseract (with reusable worker)
       try {
-        console.log(`[OCR] Analyzing receipt image: ${file.originalname || fileName} (${Math.round(file.size / 1024)} KB)`);
-        const worker = await createWorker('eng');
+        console.log(`[OCR] Analyzing receipt image with local engine: ${file.originalname || fileName} (${Math.round(file.size / 1024)} KB)`);
+        const worker = await getTesseractWorker();
         const ret = await worker.recognize(file.buffer);
-        await worker.terminate();
 
         const ocrText = ret.data.text;
         if (ocrText && ocrText.trim().length > 10) {
@@ -39,11 +127,18 @@ capturesRouter.post('/captures', authMiddleware, upload.single('file'), async (r
           console.log(`[OCR] Successfully parsed receipt: ${parsed.merchant} | Total: ${parsed.amount} GHS | Items: ${parsed.items.length}`);
           return res.json({
             success: true,
-            extracted: parsed
+            extracted: parsed,
+            engine: 'tesseract-ocr'
           });
         }
       } catch (ocrErr) {
-        console.warn('[OCR Worker Error, trying secondary methods]', ocrErr);
+        console.warn('[OCR Worker Error, resetting worker]', ocrErr);
+        try {
+          if (cachedWorker) {
+            await cachedWorker.terminate();
+            cachedWorker = null;
+          }
+        } catch {}
       }
     }
 
