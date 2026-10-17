@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="fr">
+
 <head>
   <meta charset="utf-8">
   <title>Student Savings (SEP) — Comparatif des Logos M. Pognon</title>
@@ -18,7 +19,13 @@
       --mut: #6B5966;
       --line: #EADFE7;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Nunito', system-ui, sans-serif;
       background: var(--base);
@@ -28,22 +35,26 @@
       flex-direction: column;
       align-items: center;
     }
+
     header {
       text-align: center;
       max-width: 680px;
       margin-bottom: 36px;
     }
+
     h1 {
       font-size: 28px;
       font-weight: 900;
       color: var(--primary);
       margin-bottom: 8px;
     }
+
     p.subtitle {
       color: var(--mut);
       font-size: 16px;
       font-weight: 600;
     }
+
     .comparison-grid {
       display: flex;
       flex-wrap: wrap;
@@ -52,6 +63,7 @@
       max-width: 1000px;
       width: 100%;
     }
+
     .option-card {
       background: var(--card);
       border-radius: 28px;
@@ -65,10 +77,12 @@
       align-items: center;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
+
     .option-card:hover {
       transform: translateY(-4px);
       box-shadow: 0 8px 30px rgba(113, 75, 103, 0.14);
     }
+
     .badge {
       align-self: flex-start;
       background: #eadfe7;
@@ -79,6 +93,7 @@
       border-radius: 9999px;
       margin-bottom: 16px;
     }
+
     .img-container {
       width: 260px;
       height: 260px;
@@ -88,12 +103,14 @@
       box-shadow: 0 6px 24px rgba(113, 75, 103, 0.16);
       background: #fff;
     }
+
     .img-container img {
       width: 100%;
       height: 100%;
       object-fit: cover;
       display: block;
     }
+
     h2 {
       font-size: 22px;
       font-weight: 800;
@@ -101,6 +118,7 @@
       margin-bottom: 10px;
       text-align: center;
     }
+
     p.desc {
       font-size: 15px;
       color: var(--mut);
@@ -108,6 +126,7 @@
       line-height: 1.5;
       margin-bottom: 20px;
     }
+
     .use-cases {
       width: 100%;
       background: var(--base);
@@ -117,12 +136,14 @@
       font-weight: 700;
       color: var(--ink);
     }
+
     .use-cases ul {
       margin-left: 20px;
       margin-top: 6px;
       font-weight: 600;
       color: var(--mut);
     }
+
     .preview-bar {
       margin-top: 24px;
       width: 100%;
@@ -132,24 +153,28 @@
       padding-top: 18px;
       border-top: 1px dashed var(--line);
     }
+
     .mock-app-icon {
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 6px;
     }
+
     .mock-app-icon .mini-icon {
       width: 56px;
       height: 56px;
       border-radius: 14px;
       overflow: hidden;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
+
     .mock-app-icon .mini-icon img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .mock-app-icon span {
       font-size: 11px;
       font-weight: 700;
@@ -157,10 +182,12 @@
     }
   </style>
 </head>
+
 <body>
   <header>
     <h1>Identité Visuelle — M. Pognon</h1>
-    <p class="subtitle">Comparatif grandeur nature des deux directions de logo créées pour l'application <strong>Student Savings (SEP)</strong>.</p>
+    <p class="subtitle">Comparatif grandeur nature des deux directions de logo créées pour l'application <strong>Student
+        Savings (SEP)</strong>.</p>
   </header>
 
   <div class="comparison-grid">
@@ -168,11 +195,12 @@
     <div class="option-card">
       <span class="badge">Option 1</span>
       <div class="img-container">
-        <img src="imports/m_pognon_logo.jpg" alt="M. Pognon - Portrait Mascotte">
+        <img src="imports/app_logo_final.jpg" alt="M. Pognon - Portrait Mascotte">
       </div>
       <h2>Le Portrait Mascotte</h2>
       <p class="desc">
-        Un visage vectoriel élégant et tranchant. Moustache guidon, monocle doré à chaînette et chapeau melon prune <code>#714B67</code>.
+        Un visage vectoriel élégant et tranchant. Moustache guidon, monocle doré à chaînette et chapeau melon prune
+        <code>#714B67</code>.
         Il incarne le coach rigoureux mais taquin.
       </p>
       <div class="use-cases">
@@ -187,7 +215,7 @@
       <div class="preview-bar">
         <div class="mock-app-icon">
           <div class="mini-icon">
-            <img src="imports/m_pognon_logo.jpg" alt="Icone">
+            <img src="imports/app_logo_final.jpg" alt="Icone">
           </div>
           <span>Format Écran d'accueil</span>
         </div>
@@ -202,7 +230,8 @@
       </div>
       <h2>La Pièce d'Or Stylisée</h2>
       <p class="desc">
-        M. Pognon réinventé sous forme de pièce d'or dynamique. Symbole monétaire immédiat avec un clin d'œil complice, monocle et moustache.
+        M. Pognon réinventé sous forme de pièce d'or dynamique. Symbole monétaire immédiat avec un clin d'œil complice,
+        monocle et moustache.
       </p>
       <div class="use-cases">
         <strong>Atouts principaux :</strong>
@@ -224,4 +253,5 @@
     </div>
   </div>
 </body>
+
 </html>
