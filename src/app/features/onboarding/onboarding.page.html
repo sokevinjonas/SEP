@@ -1,76 +1,95 @@
-<ion-content [fullscreen]="true" class="single-onboarding-content">
-  <!-- Dynamic Background Layer with African Student at Market -->
-  <div class="onboarding-bg-layer">
-    <div class="bg-gradient-scrim"></div>
-  </div>
-
-  <div class="onboarding-hero-wrapper">
-    <!-- Top Spacing (replaces brand pill, keeps status area clean) -->
-    <div class="top-spacer">
-      <div class="market-vibe-tag">
-        <ion-icon name="time-outline"></ion-icon>
-        <span>48h Anti-Impulse Rule</span>
-      </div>
-    </div>
-
-    <!-- Floating Concept Chip (The Student's Dilemma) -->
-    <div class="reflection-bubble-anchor">
-      <div class="reflection-bubble">
-        <ion-icon name="help-circle-outline"></ion-icon>
-        <span>"Do I really need this today?"</span>
-      </div>
-    </div>
-
-    <!-- Bottom Glassmorphic Card containing Value Prop & CTA -->
-    <div class="bottom-glass-card">
-      <div class="mascot-badge-row">
-        <ion-avatar class="coach-mini-avatar">
+<ion-content [fullscreen]="true" class="onboarding-content">
+  <div class="onboarding-layout" (touchstart)="onTouchStart($event)" (touchend)="onTouchEnd($event)">
+    <!-- Top Bar: Mascot brand on left, Skip button on right -->
+    <header class="top-nav-bar">
+      <div class="brand-badge">
+        <ion-avatar class="brand-avatar">
           <img src="assets/images/m_pognon_coin_logo.jpg" alt="M. Pognon" />
         </ion-avatar>
-        <div class="coach-meta">
-          <span class="coach-title">M. POGNON</span>
-          <span class="coach-subtitle">Campus Financial Guard</span>
+        <div class="brand-meta">
+          <span class="brand-name">M. POGNON</span>
+          <span class="brand-role">Campus Financial Guard</span>
         </div>
       </div>
 
-      <h1 class="hero-title">
-        Master Your <br />
-        <span class="gradient-text">Student Allowance</span>
-      </h1>
+      <button *ngIf="currentStep() < slides.length - 1" type="button" class="skip-action-btn" (click)="skip()"
+        id="btn-skip-onboarding">
+        Skip
+      </button>
+    </header>
 
-      <p class="hero-description">
-        Say goodbye to month-end broke anxiety. Pause spontaneous buys, track multi-currency daily expenses, and keep your budget in check.
-      </p>
+    <!-- Carousel Slide Track Viewport -->
+    <main class="slider-viewport">
+      <div class="slider-track" [style.transform]="'translateX(-' + (currentStep() * 100) + '%)'">
+        <section *ngFor="let slide of slides; let i = index" class="onboarding-slide"
+          [attr.aria-hidden]="currentStep() !== i">
 
-      <!-- Key Value Badges -->
-      <div class="benefits-row">
-        <div class="benefit-item">
-          <ion-icon name="shield-checkmark-outline"></ion-icon>
-          <span>Anti-Impulse</span>
-        </div>
-        <div class="benefit-item">
-          <ion-icon name="cash-outline"></ion-icon>
-          <span>Live FX Rates</span>
-        </div>
-        <div class="benefit-item">
-          <ion-icon name="flash-outline"></ion-icon>
-          <span>100% Offline</span>
-        </div>
+          <!-- Framed Top Illustration Card -->
+          <div class="illustration-frame">
+            <div class="illustration-badge">
+              <ion-icon [name]="slide.badgeIcon"></ion-icon>
+              <span>{{ slide.tag }}</span>
+            </div>
+            <img [src]="slide.imageSrc" [alt]="slide.imageAlt" class="slide-illustration-img" loading="eager" />
+          </div>
+
+          <!-- Slide Content & Value Prop -->
+          <div class="slide-body">
+            <div class="step-pill">
+              <ion-icon [name]="slide.badgeIcon"></ion-icon>
+              <span>{{ slide.badge }}</span>
+            </div>
+
+            <h1 class="slide-title">
+              {{ slide.title }} <br />
+              <span class="highlight">{{ slide.titleHighlight }}</span>
+            </h1>
+
+            <p class="slide-description">
+              {{ slide.description }}
+            </p>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <!-- Bottom Controls (Dots + Navigation Buttons) -->
+    <footer class="bottom-controls">
+      <!-- Pagination Dots Indicator -->
+      <div class="dots-indicator" role="tablist" aria-label="Slide navigation">
+        <button *ngFor="let slide of slides; let i = index" type="button" class="dot"
+          [class.active]="currentStep() === i" (click)="goToStep(i)" [attr.aria-label]="'Go to slide ' + (i + 1)"
+          [attr.aria-selected]="currentStep() === i">
+        </button>
       </div>
 
-      <!-- Action Button -->
-      <div class="bottom-action-container">
-        <ion-button
-          expand="block"
-          size="large"
-          class="get-started-btn"
-          (click)="startRegistration()"
-          id="btn-get-started">
-          <span>Get Started</span>
-          <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
-        </ion-button>
-        <p class="terms-note">Zero trackers · Free · Offline-first local database</p>
+      <!-- Action Row: Steps 0 & 1 -> Back/Next; Step 2 -> Full Get Started -->
+      <div class="nav-action-row" *ngIf="currentStep() < slides.length - 1; else getStartedBlock">
+        <button *ngIf="currentStep() > 0; else leftSpacer" type="button" class="btn-nav-secondary" (click)="prevStep()"
+          id="btn-prev-step" aria-label="Previous slide">
+          <ion-icon name="arrow-back-outline"></ion-icon>
+          <span>Back</span>
+        </button>
+        <ng-template #leftSpacer>
+          <div class="nav-spacer"></div>
+        </ng-template>
+
+        <button type="button" class="btn-nav-primary" (click)="nextStep()" id="btn-next-step" aria-label="Next slide">
+          <span>Next</span>
+          <ion-icon name="arrow-forward-outline"></ion-icon>
+        </button>
       </div>
-    </div>
+
+      <ng-template #getStartedBlock>
+        <div class="get-started-wrapper">
+          <ion-button expand="block" size="large" class="btn-get-started" (click)="startRegistration()"
+            id="btn-get-started">
+            <span>Get Started</span>
+            <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
+          </ion-button>
+          <p class="micro-guarantee">Free · Offline-first · Zero data tracking</p>
+        </div>
+      </ng-template>
+    </footer>
   </div>
 </ion-content>

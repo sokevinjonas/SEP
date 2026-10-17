@@ -30,6 +30,7 @@
 @mixin sep-interactive-tap {
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
+
   &:active {
     transform: scale(0.985);
   }
