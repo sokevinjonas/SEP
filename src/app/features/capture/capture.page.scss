@@ -93,28 +93,6 @@
   }
 }
 
-/* =============================================================================
-   2. Sample Presets
-   ============================================================================= */
-.presets-section {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-
-  .presets-title {
-    font-size: 11px;
-    font-weight: 800;
-    color: var(--sep-mut, #6B5966);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-
-  .preset-chip {
-    ion-icon {
-      color: #d97706;
-    }
-  }
-}
 
 /* =============================================================================
    3. Scanning Indicator

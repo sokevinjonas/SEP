@@ -40,20 +40,6 @@
       </div>
     </div>
 
-    <!-- 3. Sample Presets for Easy Browser Demo -->
-    <div class="presets-section">
-      <span class="presets-title">Instant demo examples:</span>
-      <div class="sep-chip-row">
-        <ion-chip
-          *ngFor="let preset of samplePresets"
-          class="sep-chip preset-chip"
-          (click)="loadPreset(preset)">
-          <ion-icon name="sparkles-outline"></ion-icon>
-          <ion-label>{{ preset.label }}</ion-label>
-        </ion-chip>
-      </div>
-    </div>
-
     <!-- 4. Active Scanning Spinner -->
     <div class="scanning-indicator-box" *ngIf="isScanning">
       <ion-spinner name="crescent" color="primary"></ion-spinner>

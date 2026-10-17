@@ -67,7 +67,6 @@ import { Category, Expense } from '../../core/models/financial.models';
     IonSelect,
     IonSelectOption,
     IonIcon,
-    IonChip,
     IonBadge,
     IonAvatar,
     IonSpinner,
@@ -90,8 +89,6 @@ export class CapturePage implements OnInit, OnDestroy {
 
   isDuplicateDetected = false;
   existingDuplicateExpense: Expense | null = null;
-
-  samplePresets: ReturnType<OcrService['getSamplePresets']> = [];
 
   private onlineListener = () => { this.isOnline = true; };
   private offlineListener = () => { this.isOnline = false; };
@@ -127,7 +124,6 @@ export class CapturePage implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     await this.budgetFacade.load();
     this.categories = this.budgetFacade.categories();
-    this.samplePresets = this.ocrService.getSamplePresets();
     this.loadQueuedCaptures();
 
     window.addEventListener('online', this.onlineListener);
@@ -190,22 +186,6 @@ export class CapturePage implements OnInit, OnDestroy {
     input.value = '';
   }
 
-  // Test with preset sample
-  async loadPreset(preset: typeof this.samplePresets[0]): Promise<void> {
-    const capture: QueuedCapture = {
-      id: `cap-preset-${Date.now()}`,
-      fileName: preset.filename,
-      fileSizeKb: 142,
-      previewUrl: 'assets/images/m_pognon_coin_logo.jpg',
-      createdAt: new Date().toISOString(),
-      status: 'queued'
-    };
-
-    this.queuedCaptures.unshift(capture);
-    this.saveQueuedCaptures();
-
-    await this.processCapture(capture);
-  }
 
   // Story 3.3 & 3.4: Vision extraction & preview opening
   async processCapture(capture: QueuedCapture): Promise<void> {
