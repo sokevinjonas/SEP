@@ -3,6 +3,8 @@ import multer from 'multer';
 import { config } from '../config.js';
 import { authMiddleware } from './sync.routes.js';
 import { Resend } from 'resend';
+import { createWorker } from 'tesseract.js';
+import { parseReceiptText } from '../services/receipt-parser.service.js';
 
 export const capturesRouter = Router();
 
@@ -23,69 +25,25 @@ capturesRouter.post('/captures', authMiddleware, upload.single('file'), async (r
     const file = req.file;
     const fileName = (req.body?.fileName || file?.originalname || 'capture.jpg').toLowerCase();
 
-    // 1. If OpenAI API key is configured, use GPT-4o-mini Vision
-    if (config.openaiApiKey && file && file.buffer) {
+    // 1. Real OCR extraction via Tesseract on the uploaded image buffer
+    if (file && file.buffer) {
       try {
-        const base64Image = file.buffer.toString('base64');
-        const mimeType = file.mimetype || 'image/jpeg';
-        const dataUrl = `data:${mimeType};base64,${base64Image}`;
+        console.log(`[OCR] Analyzing receipt image: ${file.originalname || fileName} (${Math.round(file.size / 1024)} KB)`);
+        const worker = await createWorker('eng');
+        const ret = await worker.recognize(file.buffer);
+        await worker.terminate();
 
-        const prompt = `Analyze this Ghanaian student receipt or Mobile Money (MTN MoMo, Telecel Cash) screenshot.
-Extract JSON with this exact structure:
-{
-  "amount": number,
-  "currency": "GHS" or "XOF",
-  "merchant": "merchant or recipient name",
-  "categoryName": "Food & Chop" | "Transport & Trotro" | "Books & Copies" | "Campus Outings" | "Other",
-  "categoryId": "cat-food" | "cat-transport" | "cat-books" | "cat-outings" | "cat-other",
-  "transactionReference": "transaction ID or receipt number",
-  "date": "ISO string date",
-  "confidence": {
-    "amount": boolean,
-    "merchant": boolean,
-    "category": boolean,
-    "reference": boolean
-  },
-  "uncertainNote": "optional reason if anything was blurry or uncertain"
-}
-Only output valid JSON without markdown wrapping.`;
-
-        const openAiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${config.openaiApiKey}`,
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-            model: 'gpt-4o-mini',
-            messages: [
-              {
-                role: 'user',
-                content: [
-                  { type: 'text', text: prompt },
-                  {
-                    type: 'image_url',
-                    image_url: { url: dataUrl }
-                  }
-                ]
-              }
-            ],
-            temperature: 0.2,
-            max_tokens: 300
-          })
-        });
-
-        if (openAiRes.ok) {
-          const aiData: any = await openAiRes.json();
-          const content = aiData.choices?.[0]?.message?.content?.trim();
-          if (content) {
-            const cleanJson = content.replace(/```json/g, '').replace(/```/g, '').trim();
-            const extracted = JSON.parse(cleanJson);
-            return res.json({ success: true, extracted });
-          }
+        const ocrText = ret.data.text;
+        if (ocrText && ocrText.trim().length > 10) {
+          const parsed = parseReceiptText(ocrText, fileName);
+          console.log(`[OCR] Successfully parsed receipt: ${parsed.merchant} | Total: ${parsed.amount} GHS | Items: ${parsed.items.length}`);
+          return res.json({
+            success: true,
+            extracted: parsed
+          });
         }
-      } catch (err) {
-        console.warn('[Captures Vision OCR Error, using fallback heuristics]', err);
+      } catch (ocrErr) {
+        console.warn('[OCR Worker Error, trying secondary methods]', ocrErr);
       }
     }
 

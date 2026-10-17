@@ -9,6 +9,8 @@ const multer_1 = __importDefault(require("multer"));
 const config_js_1 = require("../config.js");
 const sync_routes_js_1 = require("./sync.routes.js");
 const resend_1 = require("resend");
+const tesseract_js_1 = require("tesseract.js");
+const receipt_parser_service_js_1 = require("../services/receipt-parser.service.js");
 exports.capturesRouter = (0, express_1.Router)();
 // In-memory file storage for instant analysis
 const upload = (0, multer_1.default)({
@@ -24,67 +26,25 @@ exports.capturesRouter.post('/captures', sync_routes_js_1.authMiddleware, upload
     try {
         const file = req.file;
         const fileName = (req.body?.fileName || file?.originalname || 'capture.jpg').toLowerCase();
-        // 1. If OpenAI API key is configured, use GPT-4o-mini Vision
-        if (config_js_1.config.openaiApiKey && file && file.buffer) {
+        // 1. Real OCR extraction via Tesseract on the uploaded image buffer
+        if (file && file.buffer) {
             try {
-                const base64Image = file.buffer.toString('base64');
-                const mimeType = file.mimetype || 'image/jpeg';
-                const dataUrl = `data:${mimeType};base64,${base64Image}`;
-                const prompt = `Analyze this Ghanaian student receipt or Mobile Money (MTN MoMo, Telecel Cash) screenshot.
-Extract JSON with this exact structure:
-{
-  "amount": number,
-  "currency": "GHS" or "XOF",
-  "merchant": "merchant or recipient name",
-  "categoryName": "Food & Chop" | "Transport & Trotro" | "Books & Copies" | "Campus Outings" | "Other",
-  "categoryId": "cat-food" | "cat-transport" | "cat-books" | "cat-outings" | "cat-other",
-  "transactionReference": "transaction ID or receipt number",
-  "date": "ISO string date",
-  "confidence": {
-    "amount": boolean,
-    "merchant": boolean,
-    "category": boolean,
-    "reference": boolean
-  },
-  "uncertainNote": "optional reason if anything was blurry or uncertain"
-}
-Only output valid JSON without markdown wrapping.`;
-                const openAiRes = await fetch('https://api.openai.com/v1/chat/completions', {
-                    method: 'POST',
-                    headers: {
-                        'Authorization': `Bearer ${config_js_1.config.openaiApiKey}`,
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        model: 'gpt-4o-mini',
-                        messages: [
-                            {
-                                role: 'user',
-                                content: [
-                                    { type: 'text', text: prompt },
-                                    {
-                                        type: 'image_url',
-                                        image_url: { url: dataUrl }
-                                    }
-                                ]
-                            }
-                        ],
-                        temperature: 0.2,
-                        max_tokens: 300
-                    })
-                });
-                if (openAiRes.ok) {
-                    const aiData = await openAiRes.json();
-                    const content = aiData.choices?.[0]?.message?.content?.trim();
-                    if (content) {
-                        const cleanJson = content.replace(/```json/g, '').replace(/```/g, '').trim();
-                        const extracted = JSON.parse(cleanJson);
-                        return res.json({ success: true, extracted });
-                    }
+                console.log(`[OCR] Analyzing receipt image: ${file.originalname || fileName} (${Math.round(file.size / 1024)} KB)`);
+                const worker = await (0, tesseract_js_1.createWorker)('eng');
+                const ret = await worker.recognize(file.buffer);
+                await worker.terminate();
+                const ocrText = ret.data.text;
+                if (ocrText && ocrText.trim().length > 10) {
+                    const parsed = (0, receipt_parser_service_js_1.parseReceiptText)(ocrText, fileName);
+                    console.log(`[OCR] Successfully parsed receipt: ${parsed.merchant} | Total: ${parsed.amount} GHS | Items: ${parsed.items.length}`);
+                    return res.json({
+                        success: true,
+                        extracted: parsed
+                    });
                 }
             }
-            catch (err) {
-                console.warn('[Captures Vision OCR Error, using fallback heuristics]', err);
+            catch (ocrErr) {
+                console.warn('[OCR Worker Error, trying secondary methods]', ocrErr);
             }
         }
         // 2. Intelligent local fallback heuristic

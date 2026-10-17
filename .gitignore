@@ -80,3 +80,5 @@ backend/node_modules/
 # Local Netlify folder
 .netlify
 backend/data
+*.traineddata
+backend/dist/

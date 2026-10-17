@@ -15,11 +15,11 @@ import {
   IonSelect,
   IonSelectOption,
   IonIcon,
-  IonChip,
   IonBadge,
   IonAvatar,
   IonSpinner,
   IonModal,
+  IonCheckbox,
   AlertController,
   ToastController
 } from '@ionic/angular';
@@ -40,12 +40,16 @@ import {
   sparklesOutline,
   saveOutline,
   helpCircleOutline,
-  flashOutline
+  flashOutline,
+  cartOutline,
+  receiptOutline,
+  layersOutline,
+  pricetagOutline
 } from 'ionicons/icons';
 import { ExpensesFacade } from '../expenses/facade/expenses.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
 import { CurrencyService } from '../../core/services/currency.service';
-import { OcrService, ExtractedTransaction, QueuedCapture } from '../../core/services/ocr.service';
+import { OcrService, ExtractedTransaction, QueuedCapture, ExtractedReceiptItem } from '../../core/services/ocr.service';
 import { Category, Expense } from '../../core/models/financial.models';
 
 @Component({
@@ -70,7 +74,8 @@ import { Category, Expense } from '../../core/models/financial.models';
     IonBadge,
     IonAvatar,
     IonSpinner,
-    IonModal
+    IonModal,
+    IonCheckbox
   ],
   templateUrl: './capture.page.html',
   styleUrls: ['./capture.page.scss']
@@ -118,7 +123,11 @@ export class CapturePage implements OnInit, OnDestroy {
       sparklesOutline,
       saveOutline,
       helpCircleOutline,
-      flashOutline
+      flashOutline,
+      cartOutline,
+      receiptOutline,
+      layersOutline,
+      pricetagOutline
     });
   }
 
@@ -302,14 +311,92 @@ export class CapturePage implements OnInit, OnDestroy {
     this.cdr.detectChanges();
   }
 
-  // Story 3.4: Validate & Commit Expense to Local Database
-  async validateAndSaveExpense(): Promise<void> {
+  // Items Helpers & Multi-Expense Registration
+  getSelectedItems(): ExtractedReceiptItem[] {
+    return this.activeExtraction?.items?.filter(it => it.selected) || [];
+  }
+
+  getSelectedItemsCount(): number {
+    return this.getSelectedItems().length;
+  }
+
+  getSelectedItemsTotal(): number {
+    return this.getSelectedItems().reduce((sum, it) => sum + (it.totalPrice || 0), 0);
+  }
+
+  areAllItemsSelected(): boolean {
+    if (!this.activeExtraction?.items || this.activeExtraction.items.length === 0) return false;
+    return this.activeExtraction.items.every(it => it.selected);
+  }
+
+  toggleSelectAllItems(): void {
+    if (!this.activeExtraction?.items) return;
+    const shouldSelect = !this.areAllItemsSelected();
+    this.activeExtraction.items.forEach(it => (it.selected = shouldSelect));
+    this.cdr.detectChanges();
+  }
+
+  onItemSelectionChanged(): void {
+    this.cdr.detectChanges();
+  }
+
+  // Save selected items as separate individual expenses
+  async validateAndSaveItemExpenses(): Promise<void> {
+    if (!this.activeExtraction) return;
+    const selected = this.getSelectedItems();
+
+    if (selected.length === 0) {
+      await this.showToast('Veuillez sélectionner au moins un article à enregistrer.', 'warning');
+      return;
+    }
+
+    const baseRef = this.activeExtraction.transactionReference || `REC-${Date.now().toString().slice(-6)}`;
+    const store = this.activeExtraction.merchant || 'Campus Store';
+    const dateStr = this.activeExtraction.date || new Date().toISOString();
+
+    for (let i = 0; i < selected.length; i++) {
+      const item = selected[i];
+      const catId = item.categoryId || this.activeExtraction.categoryId || 'cat-food';
+      const expense: Expense = {
+        id: `exp-ocr-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`,
+        amount: item.totalPrice,
+        currency: this.activeExtraction.currency,
+        categoryId: catId,
+        categoryName: this.getCategoryName(catId),
+        merchant: `${store} · ${item.name}`,
+        note: `Article: ${item.name} (Qté: ${item.quantity} x ${item.unitPrice}) - Reçu: ${baseRef}`,
+        date: dateStr,
+        source: 'ocr_receipt',
+        transactionRef: `${baseRef}-${i + 1}`,
+        createdAt: new Date().toISOString()
+      };
+      await this.expensesFacade.addExpense(expense);
+    }
+
+    if (this.activeCapture) {
+      this.activeCapture.status = 'synced';
+      this.saveQueuedCaptures();
+    }
+
+    this.closePreview();
+    await this.showToast(
+      `${selected.length} article(s) enregistré(s) avec succès comme dépenses séparées !`,
+      'success'
+    );
+  }
+
+  // Save entire receipt as a single expense
+  async validateAndSaveGlobalExpense(): Promise<void> {
     if (!this.activeExtraction) return;
 
     if (this.activeExtraction.amount <= 0) {
-      this.showToast('Le montant extrait doit être supérieur à zéro.', 'warning');
+      await this.showToast('Le montant extrait doit être supérieur à zéro.', 'warning');
       return;
     }
+
+    const itemsSummary = this.activeExtraction.items && this.activeExtraction.items.length > 0
+      ? ` (${this.activeExtraction.items.map(it => `${it.quantity}x ${it.name}`).join(', ')})`
+      : '';
 
     const expense: Expense = {
       id: `exp-ocr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -318,7 +405,7 @@ export class CapturePage implements OnInit, OnDestroy {
       categoryId: this.activeExtraction.categoryId,
       categoryName: this.getCategoryName(this.activeExtraction.categoryId),
       merchant: this.activeExtraction.merchant.trim(),
-      note: `OCR Capture (${this.activeExtraction.source === 'ocr_momo' ? 'Mobile Money' : 'Paper Receipt'})`,
+      note: `OCR Capture (${this.activeExtraction.source === 'ocr_momo' ? 'Mobile Money' : 'Paper Receipt'})${itemsSummary}`,
       date: this.activeExtraction.date || new Date().toISOString(),
       source: this.activeExtraction.source,
       transactionRef: this.activeExtraction.transactionReference || undefined,
@@ -333,7 +420,16 @@ export class CapturePage implements OnInit, OnDestroy {
     }
 
     this.closePreview();
-    await this.showToast(`Expense of ${expense.amount} ${expense.currency} recorded successfully!`, 'success');
+    await this.showToast(`Dépense globale de ${expense.amount} ${expense.currency} enregistrée avec succès !`, 'success');
+  }
+
+  // Default button fallback
+  async validateAndSaveExpense(): Promise<void> {
+    if (this.activeExtraction?.items && this.activeExtraction.items.length > 0) {
+      await this.validateAndSaveItemExpenses();
+    } else {
+      await this.validateAndSaveGlobalExpense();
+    }
   }
 
   getCategoryName(catId: string): string {

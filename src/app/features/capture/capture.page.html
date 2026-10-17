@@ -149,15 +149,99 @@
             </span>
           </div>
 
+          <!-- Receipt Financial Breakdown (Total, Paid, Change) -->
+          <div class="receipt-breakdown-card" *ngIf="activeExtraction.amountPaid || activeExtraction.change || (activeExtraction.items && activeExtraction.items.length > 0)">
+            <div class="breakdown-header">
+              <div class="header-left">
+                <ion-icon name="receipt-outline"></ion-icon>
+                <span class="breakdown-title">Synthèse de la Caisse</span>
+              </div>
+              <span class="breakdown-qty-badge" *ngIf="activeExtraction.itemQty">
+                {{ activeExtraction.itemQty }} article(s) au total
+              </span>
+            </div>
+
+            <div class="breakdown-stats-grid">
+              <div class="stat-cell total-cell">
+                <span class="stat-label">Total Dépensé</span>
+                <span class="stat-value total-val">{{ activeExtraction.amount | number:'1.2-2' }} <small>{{ activeExtraction.currency }}</small></span>
+              </div>
+              <div class="stat-cell" *ngIf="activeExtraction.amountPaid">
+                <span class="stat-label">Montant Donné</span>
+                <span class="stat-value paid-val">{{ activeExtraction.amountPaid | number:'1.2-2' }} <small>{{ activeExtraction.currency }}</small></span>
+              </div>
+              <div class="stat-cell" *ngIf="activeExtraction.change">
+                <span class="stat-label">Monnaie Rendue</span>
+                <span class="stat-value change-val">{{ activeExtraction.change | number:'1.2-2' }} <small>{{ activeExtraction.currency }}</small></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: Itemized Products / Lignes d'articles détectées -->
+          <div class="receipt-items-section" *ngIf="activeExtraction.items && activeExtraction.items.length > 0">
+            <div class="items-section-header">
+              <div class="title-wrap">
+                <ion-icon name="cart-outline"></ion-icon>
+                <h4 class="section-title">Articles détectés ({{ activeExtraction.items.length }} lignes)</h4>
+              </div>
+              <button type="button" class="select-all-btn" (click)="toggleSelectAllItems()">
+                {{ areAllItemsSelected() ? 'Tout désélectionner' : 'Tout sélectionner' }}
+              </button>
+            </div>
+
+            <p class="section-hint">
+              Cochez les articles pour les enregistrer comme dépenses séparées avec leur propre catégorie.
+            </p>
+
+            <div class="itemized-list">
+              <div
+                *ngFor="let item of activeExtraction.items; let i = index"
+                class="item-card"
+                [class.item-selected]="item.selected">
+                <div class="item-card-top">
+                  <ion-checkbox
+                    [(ngModel)]="item.selected"
+                    (ionChange)="onItemSelectionChanged()"
+                    class="item-check">
+                  </ion-checkbox>
+                  <ion-input
+                    [(ngModel)]="item.name"
+                    class="item-name-input"
+                    placeholder="Nom du produit">
+                  </ion-input>
+                  <span class="item-total-tag">
+                    {{ item.totalPrice | number:'1.2-2' }} {{ activeExtraction.currency }}
+                  </span>
+                </div>
+
+                <div class="item-card-meta">
+                  <span class="item-qty-tag">
+                    Qté: <strong>{{ item.quantity }}</strong> × {{ item.unitPrice | number:'1.2-2' }} {{ activeExtraction.currency }}
+                  </span>
+                  <div class="item-category-select">
+                    <ion-select
+                      [(ngModel)]="item.categoryId"
+                      interface="popover"
+                      placeholder="Catégorie">
+                      <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
+                        {{ cat.name }}
+                      </ion-select-option>
+                    </ion-select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Form Fields with Uncertainty Highlighting (Story 3.4) -->
           <ion-list lines="none" class="sep-input-list preview-fields-list">
 
-            <!-- Amount -->
+            <!-- Total Amount (editable if needed) -->
             <ion-item class="sep-input-item preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.amount">
               <ion-label position="stacked">
-                Extracted Amount
+                Montant Total Reçu
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.amount" class="uncertain-badge">
-                  Unsure?
+                  À vérifier
                 </ion-badge>
               </ion-label>
               <div class="field-row">
@@ -174,21 +258,21 @@
             <!-- Merchant / Store -->
             <ion-item class="sep-input-item preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.merchant">
               <ion-label position="stacked">
-                Merchant / Store
+                Commerce / Enseigne
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.merchant" class="uncertain-badge">
-                  Handwritten merchant uncertain
+                  Incertain
                 </ion-badge>
               </ion-label>
               <ion-input
                 [(ngModel)]="activeExtraction.merchant"
-                placeholder="e.g. Mama Ama Chop"
+                placeholder="e.g. ALL NEEDS LEGON"
                 class="field-input">
               </ion-input>
             </ion-item>
 
-            <!-- Category -->
+            <!-- Default Category for Global Save -->
             <ion-item class="sep-input-item preview-field-item select-item">
-              <ion-label position="stacked">Budget Category</ion-label>
+              <ion-label position="stacked">Catégorie par défaut</ion-label>
               <ion-select
                 [(ngModel)]="activeExtraction.categoryId"
                 interface="action-sheet">
@@ -201,31 +285,57 @@
             <!-- Transaction Reference -->
             <ion-item class="sep-input-item preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.reference">
               <ion-label position="stacked">
-                Transaction Reference
+                N° de Reçu / Référence
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.reference" class="uncertain-badge">
-                  To verify
+                  À vérifier
                 </ion-badge>
               </ion-label>
               <ion-input
                 [(ngModel)]="activeExtraction.transactionReference"
                 (ionChange)="checkDuplicate(activeExtraction.transactionReference)"
-                placeholder="e.g. MTN-84920492"
+                placeholder="e.g. TILL120261015-455504"
                 class="field-input">
               </ion-input>
             </ion-item>
 
           </ion-list>
 
-          <!-- Action Validation Buttons (Story 3.4) -->
+          <!-- Action Validation Buttons -->
           <div class="preview-actions-stack">
+            <!-- If items are detected -->
+            <ng-container *ngIf="activeExtraction.items && activeExtraction.items.length > 0">
+              <ion-button
+                expand="block"
+                size="large"
+                class="sep-btn-primary btn-validate-expense"
+                [disabled]="getSelectedItemsCount() === 0"
+                (click)="validateAndSaveItemExpenses()"
+                id="btn-confirm-item-expenses">
+                <ion-icon slot="start" name="layers-outline"></ion-icon>
+                <span>Enregistrer {{ getSelectedItemsCount() }} dépense(s) article par article</span>
+              </ion-button>
+
+              <ion-button
+                expand="block"
+                fill="outline"
+                class="sep-btn-outline btn-global-expense"
+                (click)="validateAndSaveGlobalExpense()"
+                id="btn-confirm-global-expense">
+                <ion-icon slot="start" name="receipt-outline"></ion-icon>
+                <span>Enregistrer le reçu complet ({{ activeExtraction.amount }} {{ activeExtraction.currency }})</span>
+              </ion-button>
+            </ng-container>
+
+            <!-- If no items (e.g. simple MoMo screenshot) -->
             <ion-button
+              *ngIf="!activeExtraction.items || activeExtraction.items.length === 0"
               expand="block"
               size="large"
               class="sep-btn-primary btn-validate-expense"
-              (click)="validateAndSaveExpense()"
+              (click)="validateAndSaveGlobalExpense()"
               id="btn-confirm-ocr-expense">
               <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
-              <span>Validate Expense ({{ activeExtraction.amount }} {{ activeExtraction.currency }})</span>
+              <span>Valider la dépense ({{ activeExtraction.amount }} {{ activeExtraction.currency }})</span>
             </ion-button>
 
             <ion-button
@@ -234,7 +344,7 @@
               color="medium"
               class="btn-draft-cancel"
               (click)="closePreview()">
-              <span>Keep as draft in queue</span>
+              <span>Garder en brouillon dans la file</span>
             </ion-button>
           </div>
 

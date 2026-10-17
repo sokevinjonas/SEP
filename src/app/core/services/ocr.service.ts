@@ -7,6 +7,17 @@ export interface ExtractedFieldConfidence {
   reason?: string;
 }
 
+export interface ExtractedReceiptItem {
+  id: string;
+  name: string;
+  quantity: number;
+  unitPrice: number;
+  totalPrice: number;
+  categoryId: string;
+  categoryName: string;
+  selected?: boolean;
+}
+
 export interface ExtractedTransaction {
   id?: string;
   amount: number;
@@ -26,6 +37,10 @@ export interface ExtractedTransaction {
   uncertainNote?: string;
   imageDataUrl?: string;
   fileName?: string;
+  amountPaid?: number;
+  change?: number;
+  itemQty?: number;
+  items?: ExtractedReceiptItem[];
 }
 
 export interface QueuedCapture {
@@ -91,7 +106,11 @@ export class OcrService {
               source: result.extracted.transactionReference?.includes('MTN') ? 'ocr_momo' : 'ocr_receipt',
               confidence: result.extracted.confidence || { amount: true, merchant: true, category: true, reference: true },
               uncertainNote: result.extracted.uncertainNote,
-              fileName: name
+              fileName: name,
+              amountPaid: result.extracted.amountPaid,
+              change: result.extracted.change,
+              itemQty: result.extracted.itemQty,
+              items: result.extracted.items || []
             };
           }
         }
