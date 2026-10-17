@@ -1,6 +1,6 @@
 [build]
-  command = "npm run build && cd backend && npm install && npm run build"
-  publish = "www"
+  command = "cd backend && npm install && npm run build"
+  publish = "backend/public"
 
 [functions]
   directory = "backend/dist"
@@ -12,5 +12,5 @@
 
 [[redirects]]
   from = "/*"
-  to = "/index.html"
+  to = "/.netlify/functions/serverless/:splat"
   status = 200
