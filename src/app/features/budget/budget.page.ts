@@ -37,13 +37,11 @@ import {
   cashOutline,
   checkmarkCircle,
   ellipseOutline,
-  chevronForwardOutline,
-  shieldCheckmarkOutline
+  chevronForwardOutline
 } from 'ionicons/icons';
 import { PognonChatModalComponent } from '../../shared/components/pognon-chat-modal/pognon-chat-modal.component';
 import { BudgetFacade } from './facade/budget.facade';
 import { ExpensesFacade } from '../expenses/facade/expenses.facade';
-import { PurchasesFacade } from '../purchases/facade/purchases.facade';
 import { CurrencyService } from '../../core/services/currency.service';
 import {
   Category,
@@ -80,7 +78,6 @@ export class BudgetPage implements OnInit {
   private readonly router = inject(Router);
   public readonly budgetFacade = inject(BudgetFacade);
   public readonly expensesFacade = inject(ExpensesFacade);
-  public readonly purchasesFacade = inject(PurchasesFacade);
   public readonly currencyService = inject(CurrencyService);
   private readonly modalCtrl = inject(ModalController);
   private readonly alertCtrl = inject(AlertController);
@@ -122,8 +119,7 @@ export class BudgetPage implements OnInit {
       cashOutline,
       checkmarkCircle,
       ellipseOutline,
-      chevronForwardOutline,
-      shieldCheckmarkOutline
+      chevronForwardOutline
     });
   }
 
@@ -139,7 +135,6 @@ export class BudgetPage implements OnInit {
     await Promise.all([
       this.budgetFacade.load(),
       this.expensesFacade.load(),
-      this.purchasesFacade.load(),
       this.currencyService.initFromDb()
     ]);
   }
@@ -149,10 +144,6 @@ export class BudgetPage implements OnInit {
    */
   goToCategoryDetail(env: CategoryEnvelopeView): void {
     this.router.navigate(['/tabs/budget/category', env.category.id]);
-  }
-
-  goToPurchases(): void {
-    this.router.navigate(['/tabs/purchases']);
   }
 
   async openPognonChat(): Promise<void> {

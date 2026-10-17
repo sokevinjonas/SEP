@@ -4,7 +4,7 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" class="budget-content ion-padding">
+<ion-content [fullscreen]="true" class="budget-content">
   <div class="sep-page-container has-bottom-bars">
 
     <!-- =========================================================================
@@ -97,29 +97,6 @@
           <ion-icon slot="start" name="options-outline"></ion-icon>
           <span>Adjust Budget &amp; Envelopes</span>
         </ion-button>
-
-        <!-- Considered Purchases (Anti-Impulse) Card (UX-DR8) -->
-        <div class="sep-card interactive considered-purchases-card" (click)="goToPurchases()" id="btn-budget-purchases">
-          <div class="considered-card-content">
-            <div class="considered-left">
-              <div class="considered-icon-box">
-                <ion-icon name="shield-checkmark-outline"></ion-icon>
-              </div>
-              <div class="considered-text">
-                <h4 class="considered-title">Considered Purchases</h4>
-                <p class="considered-sub">
-                  {{ purchasesFacade.pendingCount() }} pending · {{ currencyService.formatAmount(purchasesFacade.avoidedTotal()) }} saved
-                </p>
-              </div>
-            </div>
-            <div class="considered-right">
-              <span class="sep-badge safe" *ngIf="purchasesFacade.pendingCount() > 0">
-                {{ purchasesFacade.pendingCount() }} to review
-              </span>
-              <ion-icon name="chevron-forward-outline" class="considered-chevron"></ion-icon>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
 
