@@ -34,7 +34,8 @@ exports.authRouter.post('/send-otp', async (req, res) => {
             message: isNew
                 ? 'Welcome! An email with your 6-digit activation code has been sent.'
                 : 'Verification code sent to your email address.',
-            email: normEmail
+            email: normEmail,
+            ...(config_js_1.config.nodeEnv !== 'production' ? { devCode: code } : {})
         });
     }
     catch (err) {

@@ -79,3 +79,4 @@ backend/node_modules/
 
 # Local Netlify folder
 .netlify
+backend/data

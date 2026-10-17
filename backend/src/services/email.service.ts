@@ -72,11 +72,20 @@ export class EmailService {
 
       if (error) {
         console.error('[Resend Error]', error);
+        // In development mode, if Resend API key is invalid or unverified, don't block testing
+        if (config.nodeEnv !== 'production') {
+          console.warn(`\n[DEV FALLBACK] Resend error: "${error.message}". Permitting flow so you can test with OTP: ${otpCode}\n`);
+          return true;
+        }
         return false;
       }
       return true;
-    } catch (err) {
+    } catch (err: any) {
       console.error('[EmailService Exception]', err);
+      if (config.nodeEnv !== 'production') {
+        console.warn(`\n[DEV FALLBACK] Resend exception: "${err.message}". Permitting flow with OTP: ${otpCode}\n`);
+        return true;
+      }
       return false;
     }
   }
