@@ -35,6 +35,7 @@ import { ExpensesFacade } from '../../../features/expenses/facade/expenses.facad
 import { BudgetFacade } from '../../../features/budget/facade/budget.facade';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { Category, Expense } from '../../../core/models/financial.models';
+import { generateUuidV7 } from '../../../core/utils/uuid';
 
 @Component({
   selector: 'app-quick-log-modal',
@@ -207,7 +208,7 @@ export class QuickLogModalComponent implements OnInit {
     }
 
     const newExpense: Expense = {
-      id: 'exp-' + Date.now() + '-' + Math.random().toString(36).substring(2, 6),
+      id: generateUuidV7(),
       amount: amountGhs,
       currency: 'GHS',
       categoryId: this.selectedCategory.id,

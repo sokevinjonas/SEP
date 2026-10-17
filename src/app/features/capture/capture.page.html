@@ -154,24 +154,24 @@
             <div class="breakdown-header">
               <div class="header-left">
                 <ion-icon name="receipt-outline"></ion-icon>
-                <span class="breakdown-title">Synthèse de la Caisse</span>
+                <span class="breakdown-title">Checkout Summary</span>
               </div>
               <span class="breakdown-qty-badge" *ngIf="activeExtraction.itemQty">
-                {{ activeExtraction.itemQty }} article(s) au total
+                {{ activeExtraction.itemQty }} item(s) total
               </span>
             </div>
 
             <div class="breakdown-stats-grid">
               <div class="stat-cell total-cell">
-                <span class="stat-label">Total Dépensé</span>
+                <span class="stat-label">Total Spent</span>
                 <span class="stat-value total-val">{{ activeExtraction.amount | number:'1.2-2' }} <small>{{ activeExtraction.currency }}</small></span>
               </div>
               <div class="stat-cell" *ngIf="activeExtraction.amountPaid">
-                <span class="stat-label">Montant Donné</span>
+                <span class="stat-label">Amount Paid</span>
                 <span class="stat-value paid-val">{{ activeExtraction.amountPaid | number:'1.2-2' }} <small>{{ activeExtraction.currency }}</small></span>
               </div>
               <div class="stat-cell" *ngIf="activeExtraction.change">
-                <span class="stat-label">Monnaie Rendue</span>
+                <span class="stat-label">Change Returned</span>
                 <span class="stat-value change-val">{{ activeExtraction.change | number:'1.2-2' }} <small>{{ activeExtraction.currency }}</small></span>
               </div>
             </div>
@@ -182,15 +182,15 @@
             <div class="items-section-header">
               <div class="title-wrap">
                 <ion-icon name="cart-outline"></ion-icon>
-                <h4 class="section-title">Articles détectés ({{ activeExtraction.items.length }} lignes)</h4>
+                <h4 class="section-title">Detected Items ({{ activeExtraction.items.length }} lines)</h4>
               </div>
               <button type="button" class="select-all-btn" (click)="toggleSelectAllItems()">
-                {{ areAllItemsSelected() ? 'Tout désélectionner' : 'Tout sélectionner' }}
+                {{ areAllItemsSelected() ? 'Deselect All' : 'Select All' }}
               </button>
             </div>
 
             <p class="section-hint">
-              Cochez les articles pour les enregistrer comme dépenses séparées avec leur propre catégorie.
+              Select items to log them as individual expenses with their own category.
             </p>
 
             <div class="itemized-list">
@@ -207,7 +207,7 @@
                   <ion-input
                     [(ngModel)]="item.name"
                     class="item-name-input"
-                    placeholder="Nom du produit">
+                    placeholder="Product name">
                   </ion-input>
                   <span class="item-total-tag">
                     {{ item.totalPrice | number:'1.2-2' }} {{ activeExtraction.currency }}
@@ -216,13 +216,13 @@
 
                 <div class="item-card-meta">
                   <span class="item-qty-tag">
-                    Qté: <strong>{{ item.quantity }}</strong> × {{ item.unitPrice | number:'1.2-2' }} {{ activeExtraction.currency }}
+                    Qty: <strong>{{ item.quantity }}</strong> × {{ item.unitPrice | number:'1.2-2' }} {{ activeExtraction.currency }}
                   </span>
                   <div class="item-category-select">
                     <ion-select
                       [(ngModel)]="item.categoryId"
                       interface="popover"
-                      placeholder="Catégorie">
+                      placeholder="Category">
                       <ion-select-option *ngFor="let cat of categories" [value]="cat.id">
                         {{ cat.name }}
                       </ion-select-option>
@@ -239,9 +239,9 @@
             <!-- Total Amount (editable if needed) -->
             <ion-item class="sep-input-item preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.amount">
               <ion-label position="stacked">
-                Montant Total Reçu
+                Total Extracted Amount
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.amount" class="uncertain-badge">
-                  À vérifier
+                  Review Needed
                 </ion-badge>
               </ion-label>
               <div class="field-row">
@@ -258,9 +258,9 @@
             <!-- Merchant / Store -->
             <ion-item class="sep-input-item preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.merchant">
               <ion-label position="stacked">
-                Commerce / Enseigne
+                Merchant / Store
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.merchant" class="uncertain-badge">
-                  Incertain
+                  Uncertain
                 </ion-badge>
               </ion-label>
               <ion-input
@@ -272,7 +272,7 @@
 
             <!-- Default Category for Global Save -->
             <ion-item class="sep-input-item preview-field-item select-item">
-              <ion-label position="stacked">Catégorie par défaut</ion-label>
+              <ion-label position="stacked">Default Category</ion-label>
               <ion-select
                 [(ngModel)]="activeExtraction.categoryId"
                 interface="action-sheet">
@@ -285,9 +285,9 @@
             <!-- Transaction Reference -->
             <ion-item class="sep-input-item preview-field-item" [class.field-uncertain]="!activeExtraction.confidence.reference">
               <ion-label position="stacked">
-                N° de Reçu / Référence
+                Receipt / Transaction Reference
                 <ion-badge color="warning" *ngIf="!activeExtraction.confidence.reference" class="uncertain-badge">
-                  À vérifier
+                  Review Needed
                 </ion-badge>
               </ion-label>
               <ion-input
@@ -312,7 +312,7 @@
                 (click)="validateAndSaveItemExpenses()"
                 id="btn-confirm-item-expenses">
                 <ion-icon slot="start" name="layers-outline"></ion-icon>
-                <span>Enregistrer {{ getSelectedItemsCount() }} dépense(s) article par article</span>
+                <span>Log {{ getSelectedItemsCount() }} itemized expense(s)</span>
               </ion-button>
 
               <ion-button
@@ -322,7 +322,7 @@
                 (click)="validateAndSaveGlobalExpense()"
                 id="btn-confirm-global-expense">
                 <ion-icon slot="start" name="receipt-outline"></ion-icon>
-                <span>Enregistrer le reçu complet ({{ activeExtraction.amount }} {{ activeExtraction.currency }})</span>
+                <span>Log Full Receipt ({{ activeExtraction.amount }} {{ activeExtraction.currency }})</span>
               </ion-button>
             </ng-container>
 
@@ -335,7 +335,7 @@
               (click)="validateAndSaveGlobalExpense()"
               id="btn-confirm-ocr-expense">
               <ion-icon slot="start" name="checkmark-circle-outline"></ion-icon>
-              <span>Valider la dépense ({{ activeExtraction.amount }} {{ activeExtraction.currency }})</span>
+              <span>Validate Expense ({{ activeExtraction.amount }} {{ activeExtraction.currency }})</span>
             </ion-button>
 
             <ion-button
@@ -344,7 +344,7 @@
               color="medium"
               class="btn-draft-cancel"
               (click)="closePreview()">
-              <span>Garder en brouillon dans la file</span>
+              <span>Keep as Draft in Queue</span>
             </ion-button>
           </div>
 

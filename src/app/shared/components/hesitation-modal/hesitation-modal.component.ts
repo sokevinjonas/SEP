@@ -49,6 +49,7 @@ import { ProfileFacade } from '../../../features/profile/facade/profile.facade';
 import { CurrencyService } from '../../../core/services/currency.service';
 import { BudgetCalculatorService } from '../../../core/services/budget-calculator.service';
 import { Category, Purchase, Expense, UserProfile, MonthlyBudget } from '../../../core/models/financial.models';
+import { generateUuidV7 } from '../../../core/utils/uuid';
 
 @Component({
   selector: 'app-hesitation-modal',
@@ -190,7 +191,7 @@ export class HesitationModalComponent implements OnInit {
     const expiresAt = new Date(now.getTime() + 48 * 3600 * 1000).toISOString();
 
     const purchase: Purchase = {
-      id: `pur-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: generateUuidV7(),
       title: this.itemTitle.trim(),
       amountGhs: this.amountNumber,
       costInBudgetDays: this.computedCostDays,
@@ -220,7 +221,7 @@ export class HesitationModalComponent implements OnInit {
 
     // 1. Create immediate expense (reflects in ExpensesState signal immediately)
     const expense: Expense = {
-      id: `exp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: generateUuidV7(),
       amount: this.amountNumber,
       currency: 'GHS',
       categoryId: this.selectedCategory ? this.selectedCategory.id : 'cat-other',
@@ -235,7 +236,7 @@ export class HesitationModalComponent implements OnInit {
 
     // 2. Track in purchases as bought
     const purchase: Purchase = {
-      id: `pur-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: generateUuidV7(),
       title: this.itemTitle.trim(),
       amountGhs: this.amountNumber,
       costInBudgetDays: this.computedCostDays,

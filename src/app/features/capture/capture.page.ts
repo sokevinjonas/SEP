@@ -51,6 +51,7 @@ import { BudgetFacade } from '../budget/facade/budget.facade';
 import { CurrencyService } from '../../core/services/currency.service';
 import { OcrService, ExtractedTransaction, QueuedCapture, ExtractedReceiptItem } from '../../core/services/ocr.service';
 import { Category, Expense } from '../../core/models/financial.models';
+import { generateUuidV7 } from '../../core/utils/uuid';
 
 @Component({
   selector: 'app-capture',
@@ -275,7 +276,7 @@ export class CapturePage implements OnInit, OnDestroy {
     const thumbnailDataUrl = await this.createThumbnail(file);
 
     const capture: QueuedCapture = {
-      id: `cap-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: generateUuidV7(),
       fileName: file.name,
       fileSizeKb: Math.round(file.size / 1024),
       previewUrl: thumbnailDataUrl,
@@ -392,7 +393,7 @@ export class CapturePage implements OnInit, OnDestroy {
     const selected = this.getSelectedItems();
 
     if (selected.length === 0) {
-      await this.showToast('Veuillez sélectionner au moins un article à enregistrer.', 'warning');
+      await this.showToast('Please select at least one item to log.', 'warning');
       return;
     }
 
@@ -404,13 +405,13 @@ export class CapturePage implements OnInit, OnDestroy {
       const item = selected[i];
       const catId = item.categoryId || this.activeExtraction.categoryId || 'cat-food';
       const expense: Expense = {
-        id: `exp-ocr-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 6)}`,
+        id: generateUuidV7(),
         amount: item.totalPrice,
         currency: this.activeExtraction.currency,
         categoryId: catId,
         categoryName: this.getCategoryName(catId),
         merchant: `${store} · ${item.name}`,
-        note: `Article: ${item.name} (Qté: ${item.quantity} x ${item.unitPrice}) - Reçu: ${baseRef}`,
+        note: `Item: ${item.name} (Qty: ${item.quantity} x ${item.unitPrice}) - Receipt: ${baseRef}`,
         date: dateStr,
         source: 'ocr_receipt',
         transactionRef: `${baseRef}-${i + 1}`,
@@ -426,7 +427,7 @@ export class CapturePage implements OnInit, OnDestroy {
 
     this.closePreview();
     await this.showToast(
-      `${selected.length} article(s) enregistré(s) avec succès comme dépenses séparées !`,
+      `${selected.length} item(s) logged successfully as separate expenses!`,
       'success'
     );
   }
@@ -436,7 +437,7 @@ export class CapturePage implements OnInit, OnDestroy {
     if (!this.activeExtraction) return;
 
     if (this.activeExtraction.amount <= 0) {
-      await this.showToast('Le montant extrait doit être supérieur à zéro.', 'warning');
+      await this.showToast('The extracted amount must be greater than zero.', 'warning');
       return;
     }
 
@@ -445,7 +446,7 @@ export class CapturePage implements OnInit, OnDestroy {
       : '';
 
     const expense: Expense = {
-      id: `exp-ocr-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      id: generateUuidV7(),
       amount: this.activeExtraction.amount,
       currency: this.activeExtraction.currency,
       categoryId: this.activeExtraction.categoryId,
@@ -466,7 +467,7 @@ export class CapturePage implements OnInit, OnDestroy {
     }
 
     this.closePreview();
-    await this.showToast(`Dépense globale de ${expense.amount} ${expense.currency} enregistrée avec succès !`, 'success');
+    await this.showToast(`Full receipt expense of ${expense.amount} ${expense.currency} logged successfully!`, 'success');
   }
 
   // Default button fallback

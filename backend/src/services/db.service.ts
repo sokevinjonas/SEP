@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 
+import { generateUuidV7 } from '../utils/uuid.js';
+
 export interface User {
   id: string;
   email: string;
@@ -109,7 +111,7 @@ class DbService {
     }
 
     const newUser: User = {
-      id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+      id: generateUuidV7(),
       email: normEmail,
       createdAt: now,
       lastLoginAt: now

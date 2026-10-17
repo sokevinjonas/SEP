@@ -40,6 +40,7 @@ import { BudgetFacade } from '../budget/facade/budget.facade';
 import { ProfileFacade } from '../profile/facade/profile.facade';
 import { CurrencyService } from '../../core/services/currency.service';
 import { Purchase, Expense } from '../../core/models/financial.models';
+import { generateUuidV7 } from '../../core/utils/uuid';
 
 @Component({
   selector: 'app-purchases',
@@ -190,7 +191,7 @@ export class PurchasesPage implements OnInit {
 
             // 1. Create immediate expense
             const expense: Expense = {
-              id: `exp-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+              id: generateUuidV7(),
               amount: purchase.amountGhs,
               currency: 'GHS',
               categoryId: chosenCategory ? chosenCategory.id : 'cat-other',
