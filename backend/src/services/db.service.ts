@@ -142,6 +142,10 @@ class DbService {
     const normEmail = email.toLowerCase().trim();
     return this.store.backups[normEmail];
   }
+
+  getAllBackups(): UserBackup[] {
+    return Object.values(this.store.backups);
+  }
 }
 
 export const dbService = new DbService();

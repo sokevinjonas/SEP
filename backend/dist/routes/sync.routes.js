@@ -110,3 +110,14 @@ exports.syncRouter.post('/sync', exports.authMiddleware, async (req, res) => {
         return res.status(500).json({ success: false, error: err.message });
     }
 });
+// POST or GET /api/cron/trigger (Manual or webhook trigger for scheduled tasks)
+exports.syncRouter.all('/cron/trigger', exports.authMiddleware, async (req, res) => {
+    try {
+        const { reminderService } = await import('../services/reminder.service.js');
+        const result = await reminderService.runScheduledTasks();
+        return res.json({ success: true, ...result });
+    }
+    catch (err) {
+        return res.status(500).json({ success: false, error: err.message });
+    }
+});

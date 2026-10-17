@@ -5,6 +5,9 @@
 [functions]
   directory = "backend/dist"
 
+[functions."scheduled-reminders"]
+  schedule = "0 6,22 * * *"
+
 [[redirects]]
   from = "/api/*"
   to = "/.netlify/functions/serverless/api/:splat"
