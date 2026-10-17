@@ -417,12 +417,17 @@ export class PognonChatModalComponent implements OnInit {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 8000);
 
+        const headers: Record<string, string> = {
+          'Content-Type': 'application/json'
+        };
+        const authToken = typeof localStorage !== 'undefined' ? localStorage.getItem('student_savings_auth_token') : null;
+        if (authToken) {
+          headers['Authorization'] = `Bearer ${authToken}`;
+        }
+
         const res = await fetch(`${environment.workerUrl}/api/chat`, {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${environment.appSecretToken}`,
-            'Content-Type': 'application/json'
-          },
+          headers,
           body: JSON.stringify({
             message: text,
             context: {

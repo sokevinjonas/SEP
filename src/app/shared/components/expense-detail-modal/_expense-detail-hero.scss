@@ -1,0 +1,49 @@
+/* Receipt Hero Card extending shared hero card */
+.receipt-hero {
+  text-align: center;
+  padding: 24px 16px 20px;
+  margin-bottom: 16px;
+
+  .category-icon-halo {
+    width: 60px;
+    height: 60px;
+    border-radius: 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+
+    ion-icon {
+      font-size: 30px;
+    }
+  }
+
+  .merchant-name {
+    font-size: 19px;
+    font-weight: 900;
+    color: var(--sep-ink, #2B1F28);
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-amount-huge {
+    font-size: 34px;
+    font-weight: 900;
+    color: var(--sep-danger, #c0392b);
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+
+    .currency-label {
+      font-size: 20px;
+      font-weight: 700;
+      opacity: 0.85;
+    }
+  }
+
+  .hero-equiv {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--sep-mut, #6B5966);
+    margin-top: 6px;
+  }
+}

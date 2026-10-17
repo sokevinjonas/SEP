@@ -1,0 +1,172 @@
+// =============================================================================
+// 2. ENVELOPE CARDS GRID (14px separation like official Ionic items)
+// =============================================================================
+.section-wrapper {
+  margin: 0;
+}
+
+.section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  padding: 0 2px;
+
+  .section-title-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+  }
+
+  .section-title {
+    font-size: 12.5px;
+    font-weight: 900;
+    color: var(--sep-primary, #714B67);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin: 0;
+  }
+
+  .section-subtitle {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--sep-mut, #6B5966);
+  }
+
+  .section-budget-pill {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--sep-action, #017e84);
+    background: rgba(1, 126, 132, 0.1);
+    padding: 3px 9px;
+    border-radius: 9999px;
+  }
+}
+
+.envelopes-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+
+  @media (min-width: 768px) {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+  }
+
+  @media (min-width: 1024px) {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+  }
+}
+
+.envelope-card {
+  padding: 14px 16px;
+  border-radius: 16px;
+  margin: 0;
+
+  .envelope-card-content {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .env-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .env-label-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+    min-width: 0;
+
+    .env-icon-box {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 19px;
+      flex-shrink: 0;
+    }
+
+    .env-text-group {
+      flex: 1;
+      min-width: 0;
+
+      .env-name {
+        font-size: 14.5px;
+        font-weight: 800;
+        color: var(--sep-ink, #2B1F28);
+        margin: 0;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      .env-sub {
+        font-size: 11.5px;
+        font-weight: 600;
+        color: var(--sep-mut, #6B5966);
+        margin: 2px 0 0;
+
+        .env-xof {
+          color: var(--sep-action, #017e84);
+          font-weight: 500;
+        }
+      }
+    }
+  }
+
+  .env-badge-group {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    flex-shrink: 0;
+
+    .env-badge-subgroup {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 1px;
+    }
+
+    .env-diff-text {
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .env-chevron {
+      font-size: 16px;
+      color: var(--sep-mut, #6B5966);
+      transition: transform 0.2s ease;
+    }
+  }
+
+  &:active .env-chevron {
+    transform: translateX(2px);
+  }
+
+  .sep-progress-track {
+    height: 6px;
+    margin: 8px 0 0 0;
+    background: var(--sep-base, #F7F3F6);
+    border-radius: 9999px;
+    overflow: hidden;
+  }
+}
+
+.btn-manage-envelopes {
+  --color: var(--sep-primary, #714B67);
+  --border-color: var(--sep-line, #EADFE7);
+  --border-radius: 14px;
+  margin-top: 14px;
+  font-size: 13px;
+  font-weight: 800;
+  height: 42px;
+}

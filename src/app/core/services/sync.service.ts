@@ -94,17 +94,14 @@ export class SyncService {
     }
   }
 
-  private getBaseUrl(): string {
+  getBaseUrl(): string {
     const env = environment as any;
     return env.apiUrl !== undefined ? env.apiUrl : (env.workerUrl || '');
   }
 
-  private getAuthHeader(): string {
+  getAuthHeader(): string {
     const token = this.getAuthToken();
-    if (token) {
-      return `Bearer ${token}`;
-    }
-    return `Bearer ${environment.appSecretToken}`;
+    return token ? `Bearer ${token}` : '';
   }
 
   /**

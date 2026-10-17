@@ -1,0 +1,80 @@
+/* Edit Card & Edit Form Styles */
+.edit-toolbar-btn {
+  --color: var(--sep-primary, #714B67);
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.cancel-toolbar-btn {
+  --color: #8C7B89;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.edit-card {
+  padding: 16px;
+  margin-bottom: 20px;
+  border-radius: 16px;
+  background: #FFFFFF;
+  border: 1px solid var(--sep-line, #EADFE7);
+
+  .edit-section-title {
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.08em;
+    color: var(--sep-mut, #6B5966);
+    margin-bottom: 12px;
+  }
+
+  .edit-amount-currency-row {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 8px;
+
+    .flex-grow {
+      flex: 1;
+    }
+
+    .currency-item {
+      width: 100px;
+    }
+  }
+
+  .edit-input-item {
+    --background: var(--sep-base, #F7F3F6);
+    --border-radius: 12px;
+    --padding-start: 12px;
+    --padding-end: 12px;
+    margin-bottom: 12px;
+    border: 1px solid var(--sep-line, #EADFE7);
+    border-radius: 12px;
+
+    ion-label {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--sep-mut, #6B5966);
+      margin-bottom: 4px;
+    }
+
+    ion-input, ion-select, ion-textarea {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--sep-ink, #2B1F28);
+    }
+  }
+}
+
+.edit-actions-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  .save-edit-btn {
+    --background: var(--sep-primary, #714B67);
+    --border-radius: 14px;
+    font-size: 15px;
+    font-weight: 800;
+    height: 48px;
+    box-shadow: 0 4px 14px rgba(113, 75, 103, 0.25);
+  }
+}

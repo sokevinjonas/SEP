@@ -10,28 +10,31 @@ export interface AuthenticatedRequest extends Request {
 
 export const authMiddleware = (req: AuthenticatedRequest, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
-  if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    return res.status(401).json({ success: false, error: 'Unauthorized: Missing access token.' });
+
+  // 1. If Bearer token is provided, verify it (JWT or optional server secret)
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+
+    if (config.appSecretToken && token === config.appSecretToken) {
+      req.userEmail = (req.body?.profile?.email || req.query.email || 'current_user@studentsavings.app') as string;
+      req.userId = 'current_user';
+      return next();
+    }
+
+    try {
+      const decoded = jwt.verify(token, config.jwtSecret) as { id: string; email: string };
+      req.userEmail = decoded.email;
+      req.userId = decoded.id;
+      return next();
+    } catch {
+      return res.status(401).json({ success: false, error: 'Session expired or invalid token.' });
+    }
   }
 
-  const token = authHeader.split(' ')[1];
-
-  // 1. Check if it's the shared secret token
-  if (token === config.appSecretToken) {
-    req.userEmail = (req.body?.profile?.email || req.query.email || 'current_user@studentsavings.app') as string;
-    req.userId = 'current_user';
-    return next();
-  }
-
-  // 2. Otherwise verify JWT
-  try {
-    const decoded = jwt.verify(token, config.jwtSecret) as { id: string; email: string };
-    req.userEmail = decoded.email;
-    req.userId = decoded.id;
-    return next();
-  } catch (err) {
-    return res.status(401).json({ success: false, error: 'Session expired or invalid token.' });
-  }
+  // 2. Allow guest/discovery mode student requests (offline-first architecture)
+  req.userEmail = (req.body?.profile?.email || req.query.email || 'student@campus.app') as string;
+  req.userId = 'guest_user';
+  return next();
 };
 
 export const syncRouter = Router();

@@ -128,8 +128,8 @@ export class ProfilePage implements OnInit, OnDestroy {
   };
 
   monthlyBudget: MonthlyBudget = {
-    id: '2026-10',
-    monthYear: '2026-10',
+    id: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+    monthYear: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
     totalBudgetGhs: 600,
     plannedDailyBudgetGhs: 20,
     exchangeRateXof: 42.0
@@ -363,6 +363,10 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   onBudgetModeChange(mode: string): void {
+    if (this.monthlyBudget.discoveryCompleted || this.userProfile.discoveryCompleted) {
+      this.showToast('Discovery Mode has concluded and cannot be reactivated.', 'warning');
+      return;
+    }
     const isDiscovery = mode === 'discovery';
     this.monthlyBudget.isDiscoveryMode = isDiscovery;
     if (isDiscovery) {
@@ -373,7 +377,8 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   async saveBudget(): Promise<void> {
-    const isDiscovery = this.monthlyBudget.isDiscoveryMode;
+    const isCompleted = !!(this.monthlyBudget.discoveryCompleted || this.userProfile.discoveryCompleted);
+    const isDiscovery = !isCompleted && !!this.monthlyBudget.isDiscoveryMode;
     if (!isDiscovery && this.monthlyBudget.totalBudgetGhs <= 0) {
       this.showToast('Monthly budget must be greater than zero.', 'warning');
       return;
@@ -385,6 +390,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     await this.profileFacade.saveUserProfile(this.userProfile);
 
     this.monthlyBudget.cycleStartDay = safeCycle;
+    this.monthlyBudget.isDiscoveryMode = isDiscovery;
     this.monthlyBudget.plannedDailyBudgetGhs = isDiscovery ? 0 : Math.round(this.monthlyBudget.totalBudgetGhs / 30);
     await this.budgetFacade.saveMonthlyBudget(this.monthlyBudget);
 

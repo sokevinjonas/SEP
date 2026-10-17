@@ -44,7 +44,7 @@ export const DEFAULT_CATEGORIES: Category[] = [
   { id: 'cat-transport', name: 'Transport & Trotro', icon: 'bus-outline', monthlyAllocationGhs: 100, color: '#017e84' },
   { id: 'cat-books', name: 'Books & Copies', icon: 'book-outline', monthlyAllocationGhs: 80, color: '#58354f' },
   { id: 'cat-social', name: 'Campus & Social', icon: 'people-outline', monthlyAllocationGhs: 70, color: '#ffac00' },
-  { id: 'cat-utilities', name: 'Data & Utilities', icon: 'flash-outline', monthlyAllocationGhs: 50, color: '#c0392b' },
+  { id: 'cat-utilities', name: 'Data & Utilities', icon: 'flash-outline', monthlyAllocationGhs: 50, color: '#8d6482' },
   { id: 'cat-other', name: 'Other', icon: 'ellipsis-horizontal-circle-outline', monthlyAllocationGhs: 50, color: '#6B5966' },
 ];
 

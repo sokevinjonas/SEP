@@ -49,8 +49,8 @@
 
 ## 3. SCSS & Architecture Hygiene Rules
 
-1. **Strict SCSS Sizing Limit (Max 150-200 Lines per File)**:
-   - Any SCSS file approaching 200 lines **MUST be modularized**.
+1. **Strict SCSS Sizing Limit (Max 50-100 Lines per File)**:
+   - Any SCSS file approaching 100 lines **MUST be modularized**.
    - Modal sheets, complex multi-step forms, and reusable component blocks must be extracted into dedicated SCSS files (e.g., `budget-config-modal.scss`) and imported via `@use`.
    - Never pile hundreds of lines of modal, animation, or utility CSS inside a page-level SCSS file.
 

@@ -41,7 +41,7 @@
         ≈ {{ currencyService.formatEquiv(expense.amount) }}
       </div>
       <div class="hero-equiv" *ngIf="expense.currency === 'XOF'">
-        ≈ {{ (expense.amount / 42.0).toFixed(2) }} GHS
+        ≈ {{ currencyService.toGhs(expense.amount).toFixed(2) }} GHS
       </div>
     </div>
 

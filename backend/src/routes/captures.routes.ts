@@ -41,8 +41,8 @@ Analyze the provided receipt or invoice screenshot image and extract all financi
       "quantity": 2,
       "unitPrice": 22.80,
       "totalPrice": 45.60,
-      "categoryId": "cat-other", // 'cat-food', 'cat-transport', 'cat-academic', 'cat-personal', 'cat-housing', 'cat-other'
-      "categoryName": "Personal Care",
+      "categoryId": "cat-other", // Exactly one of: 'cat-food', 'cat-transport', 'cat-books', 'cat-social', 'cat-utilities', 'cat-other'
+      "categoryName": "Other",
       "selected": true
     }
   ],
@@ -58,6 +58,13 @@ Analyze the provided receipt or invoice screenshot image and extract all financi
 IMPORTANT RULES:
 - "amount": Must be the actual total purchase amount due. Never confuse cash given ("Paid") or change returned ("Change") with the purchase total.
 - "items": List EVERY distinct product item line on the receipt with its original name (keep original receipt language/spelling), quantity, unit price, and line subtotal.
+- "categoryId": Map each item accurately to ONE of the student's 6 campus envelopes:
+  * 'cat-food': meals, cafeteria, chops, snacks, waakye, groceries
+  * 'cat-transport': trotro, bolt, uber, campus shuttles, fuel
+  * 'cat-books': textbooks, handouts, photocopies, stationery, academic materials
+  * 'cat-social': campus events, hanging out, treats with friends
+  * 'cat-utilities': mobile airtime, MTN/Vodafone bundles, electricity, water
+  * 'cat-other': hygiene, toiletries, laundry, personal essentials
 - Return ONLY valid raw JSON without extra conversational text.`;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {

@@ -1,0 +1,144 @@
+/* =============================================================================
+   2-Step Progress Tracker Bar & Banners
+   ============================================================================= */
+.steps-progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--sep-card, #FFFFFF);
+  border: 1px solid var(--sep-line, #EADFE7);
+  border-radius: 18px;
+  padding: 12px 18px;
+  box-shadow: 0 4px 12px rgba(113, 75, 103, 0.04);
+  margin-bottom: 4px;
+
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    transition: all 0.25s ease;
+
+    .step-circle {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: var(--sep-base, #F7F3F6);
+      border: 2px solid var(--sep-line, #EADFE7);
+      color: var(--sep-mut, #6B5966);
+      font-size: 12px;
+      font-weight: 900;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.25s ease;
+
+      ion-icon {
+        font-size: 18px;
+        color: var(--sep-action, #017e84);
+      }
+    }
+
+    .step-text-meta {
+      display: flex;
+      flex-direction: column;
+
+      .step-badge {
+        font-size: 9px;
+        font-weight: 800;
+        letter-spacing: 0.6px;
+        color: var(--sep-mut, #6B5966);
+      }
+
+      .step-title {
+        font-size: 12.5px;
+        font-weight: 800;
+        color: var(--sep-ink, #2B1F28);
+      }
+    }
+
+    &.active {
+      .step-circle {
+        background: var(--sep-primary, #714B67);
+        border-color: var(--sep-primary, #714B67);
+        color: #FFFFFF;
+        box-shadow: 0 2px 8px rgba(113, 75, 103, 0.35);
+      }
+
+      .step-text-meta .step-badge,
+      .step-text-meta .step-title {
+        color: var(--sep-primary, #714B67);
+      }
+    }
+
+    &.completed {
+      .step-circle {
+        background: rgba(1, 126, 132, 0.12);
+        border-color: var(--sep-action, #017e84);
+        color: var(--sep-action, #017e84);
+      }
+
+      .step-text-meta .step-title {
+        color: var(--sep-action, #017e84);
+      }
+    }
+  }
+
+  .step-track {
+    flex: 1;
+    height: 3px;
+    background: var(--sep-line, #EADFE7);
+    margin: 0 14px;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+
+    .step-fill {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 0%;
+      background: var(--sep-primary, #714B67);
+      transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+
+      &.filled {
+        width: 100%;
+      }
+    }
+  }
+}
+
+.step-fade-in {
+  animation: stepFadeIn 0.28s ease-out forwards;
+}
+
+@keyframes stepFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.intro-banner {
+  padding: 4px 4px 6px;
+
+  .banner-heading {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--sep-primary, #714B67);
+    margin: 0 0 6px;
+  }
+
+  .banner-sub {
+    font-size: 12.5px;
+    font-weight: 500;
+    color: var(--sep-mut, #6B5966);
+    line-height: 1.4;
+    margin: 0;
+  }
+}

@@ -82,11 +82,15 @@ export class OcrService {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 45000);
 
+        const headers: Record<string, string> = {};
+        const authToken = typeof localStorage !== 'undefined' ? localStorage.getItem('student_savings_auth_token') : null;
+        if (authToken) {
+          headers['Authorization'] = `Bearer ${authToken}`;
+        }
+
         const response = await fetch(`${environment.workerUrl}/api/captures`, {
           method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${environment.appSecretToken}`
-          },
+          headers,
           body: formData,
           signal: controller.signal
         });

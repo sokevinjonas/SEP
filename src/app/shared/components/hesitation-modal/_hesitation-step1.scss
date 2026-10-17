@@ -1,0 +1,155 @@
+/* ==========================================================================
+   Step 1: Hesitation Input Step Form
+   ========================================================================== */
+.input-step-container {
+  max-width: 500px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 10px 0 30px;
+
+  .step-intro {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+
+    .flame-badge {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background: var(--sep-warn-soft, #fff6e0);
+      color: var(--sep-warn-text, #3a2a00);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 26px;
+      margin-bottom: 4px;
+    }
+
+    h2 {
+      font-size: 20px;
+      font-weight: 900;
+      color: #2D1A2B;
+      margin: 0;
+    }
+
+    p {
+      font-size: 13px;
+      color: #7A6975;
+      margin: 0;
+    }
+  }
+
+  .input-card {
+    background: #FFFFFF;
+    border-radius: 18px;
+    padding: 14px 16px;
+    border: 1px solid rgba(113, 75, 103, 0.1);
+    box-shadow: 0 4px 16px rgba(113, 75, 103, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+
+    .hesitation-input-item {
+      --background: #FAF7F9;
+      --border-radius: 12px;
+      border: 1px solid rgba(113, 75, 103, 0.12);
+      border-radius: 12px;
+
+      ion-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #714B67;
+        margin-bottom: 4px;
+      }
+
+      .title-field {
+        font-size: 15px;
+        font-weight: 700;
+        color: #2D1A2B;
+      }
+
+      &.amount-item {
+        .amount-input-row {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+
+          .amount-field {
+            font-size: 24px;
+            font-weight: 900;
+            color: #714B67;
+          }
+
+          .currency-tag {
+            font-size: 14px;
+            font-weight: 800;
+            color: #017E84;
+            background: rgba(1, 126, 132, 0.1);
+            padding: 4px 10px;
+            border-radius: 8px;
+          }
+        }
+
+        .equiv-note {
+          font-size: 12px;
+          font-weight: 600;
+          color: #8C7588;
+          margin: 4px 0 0;
+        }
+      }
+    }
+  }
+
+  .categories-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+
+    .categories-label {
+      font-size: 12px;
+      font-weight: 800;
+      color: #714B67;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .categories-chips-scroll {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+
+      .category-select-chip {
+        --background: #FFFFFF;
+        --color: #714B67;
+        border: 1px solid rgba(113, 75, 103, 0.18);
+        font-size: 12px;
+        font-weight: 700;
+        transition: all 0.15s ease;
+
+        &.selected {
+          --background: #714B67;
+          --color: #FFFFFF;
+          border-color: #714B67;
+          box-shadow: 0 4px 10px rgba(113, 75, 103, 0.25);
+        }
+      }
+    }
+  }
+
+  .action-wrap {
+    margin-top: 10px;
+
+    .proceed-friction-btn {
+      --background: #714B67;
+      --border-radius: 16px;
+      font-size: 15px;
+      font-weight: 800;
+      height: 52px;
+      box-shadow: 0 6px 20px rgba(113, 75, 103, 0.3);
+    }
+  }
+}

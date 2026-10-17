@@ -345,9 +345,11 @@ export class RegisterPage implements OnInit {
     // 2. Save Monthly Budget & Rates via BudgetFacade
     await this.budgetFacade.load();
     const existingBudget = this.budgetFacade.monthlyBudget();
+    const now = new Date();
+    const currentMonthKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
     const budget: MonthlyBudget = {
-      id: existingBudget?.id || '2026-10',
-      monthYear: existingBudget?.monthYear || '2026-10',
+      id: existingBudget?.id || currentMonthKey,
+      monthYear: existingBudget?.monthYear || currentMonthKey,
       totalBudgetGhs: 0,
       exchangeRateXof: this.exchangeRate,
       plannedDailyBudgetGhs: 0,

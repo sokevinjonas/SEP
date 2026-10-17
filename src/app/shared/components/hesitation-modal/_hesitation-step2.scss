@@ -1,0 +1,238 @@
+/* ==========================================================================
+   Step 2: Hesitation Shock Card & M. Pognon Bubble
+   ========================================================================== */
+.hesitation-step-container {
+  max-width: 520px;
+  margin: 0 auto;
+  padding: 6px 0 30px;
+
+  .hesitation-card {
+    background: #FFFFFF;
+    border-radius: 24px;
+    padding: 22px 20px;
+    border: 1px solid rgba(113, 75, 103, 0.12);
+    box-shadow: 0 10px 30px rgba(113, 75, 103, 0.08);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 14px;
+
+    .badge-subtitle {
+      font-size: 11px;
+      font-weight: 900;
+      color: #8C7588;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .hesitation-item-name {
+      font-size: 22px;
+      font-weight: 900;
+      color: #2D1A2B;
+      margin: 0;
+    }
+
+    .price-hero {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+
+      .main-price {
+        font-size: 32px;
+        font-weight: 900;
+        color: #714B67;
+        letter-spacing: -0.5px;
+      }
+
+      .secondary-price {
+        font-size: 13.5px;
+        font-weight: 700;
+        color: #017E84;
+      }
+    }
+
+    /* Shock Days Badge */
+    .shock-days-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      background: rgba(113, 75, 103, 0.06);
+      border-radius: 18px;
+      padding: 14px 24px;
+      width: 100%;
+      border: 1px dashed rgba(113, 75, 103, 0.25);
+
+      .shock-number-badge {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+
+        .shock-value {
+          font-size: 46px;
+          font-weight: 900;
+          color: #714B67;
+          line-height: 1;
+        }
+
+        .shock-unit {
+          font-size: 18px;
+          font-weight: 800;
+          color: #714B67;
+        }
+      }
+
+      .shock-meta {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+
+        .budget-pct-tag {
+          font-size: 12px;
+          font-weight: 800;
+          color: var(--sep-warn-text, #3a2a00);
+          background: var(--sep-warn-soft, #fff6e0);
+          padding: 2px 8px;
+          border-radius: 6px;
+        }
+
+        .basis-note {
+          font-size: 11px;
+          color: #8C7588;
+          font-weight: 500;
+        }
+      }
+    }
+
+    /* Reframing Alert */
+    .reframing-alert-card {
+      background: var(--sep-warn-soft, #fff6e0);
+      border: 1px solid rgba(255, 172, 0, 0.35);
+      border-radius: 14px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      text-align: left;
+      width: 100%;
+
+      .alert-icon-box {
+        color: var(--sep-warn, #ffac00);
+        font-size: 22px;
+        flex-shrink: 0;
+        margin-top: 1px;
+      }
+
+      .alert-text-body {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .alert-title {
+          font-size: 11.5px;
+          font-weight: 800;
+          color: var(--sep-warn-text, #3a2a00);
+          text-transform: uppercase;
+        }
+
+        .alert-desc {
+          font-size: 13px;
+          font-weight: 600;
+          color: #2D1A2B;
+          margin: 0;
+          line-height: 1.4;
+        }
+      }
+    }
+
+    /* Coach M. Pognon Bubble */
+    .coach-speech-bubble {
+      background: linear-gradient(135deg, #2D1A2B 0%, #170C16 100%);
+      border-radius: 16px;
+      padding: 14px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: #FFFFFF;
+      text-align: left;
+      width: 100%;
+      border: 1px solid rgba(255, 215, 0, 0.25);
+      box-shadow: 0 4px 16px rgba(45, 26, 43, 0.18);
+
+      .coach-bubble-avatar {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        border: 2px solid #FFD700;
+        overflow: hidden;
+        flex-shrink: 0;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+
+      .coach-speech-text {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+
+        .coach-quote-line {
+          font-size: 12.5px;
+          font-weight: 600;
+          color: rgba(255, 255, 255, 0.95);
+          margin: 0;
+          line-height: 1.4;
+          font-style: italic;
+        }
+
+        .coach-tag {
+          font-size: 10.5px;
+          font-weight: 800;
+          color: #FFD700;
+        }
+      }
+    }
+
+    /* Decision Buttons Stack */
+    .decision-buttons-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      width: 100%;
+      margin-top: 6px;
+
+      .btn-think {
+        --background: #714B67;
+        --border-radius: 16px;
+        font-size: 14px;
+        font-weight: 800;
+        height: 52px;
+        box-shadow: 0 6px 20px rgba(113, 75, 103, 0.3);
+      }
+
+      .btn-buy-anyway {
+        --color: #714B67;
+        --border-color: rgba(113, 75, 103, 0.25);
+        --border-radius: 16px;
+        font-size: 13.5px;
+        font-weight: 700;
+        height: 46px;
+        background: #FFFFFF;
+      }
+    }
+
+    .hesitation-footnote {
+      font-size: 11px;
+      font-weight: 500;
+      color: #8C7588;
+      margin: 2px 0 0;
+      line-height: 1.4;
+    }
+  }
+}

@@ -54,12 +54,12 @@ export function getCategoryIcon(catId: string): string {
  */
 export function getCategoryColor(catId: string): string {
   switch (catId) {
-    case 'cat-food': return '#E67E22';
-    case 'cat-transport': return '#2980B9';
-    case 'cat-books': return '#27AE60';
-    case 'cat-social': return '#8E44AD';
-    case 'cat-utilities': return '#D35400';
-    default: return '#714B67';
+    case 'cat-food': return '#714B67'; // Plum
+    case 'cat-transport': return '#017e84'; // Teal
+    case 'cat-books': return '#58354f'; // Dark Plum
+    case 'cat-social': return '#ffac00'; // Amber
+    case 'cat-utilities': return '#8d6482'; // Lavender Plum
+    default: return '#6B5966'; // Muted Ink
   }
 }
 

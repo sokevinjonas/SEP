@@ -62,8 +62,8 @@ class DbService {
         fs.mkdirSync(dataDir, { recursive: true });
       }
       fs.writeFileSync(this.filePath, JSON.stringify(this.store, null, 2), 'utf-8');
-    } catch (e) {
-      // In serverless / read-only filesystem environments, silence or log warning
+    } catch {
+      // In serverless / read-only filesystem environments, preserve memory state safely
     }
   }
 

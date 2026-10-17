@@ -1,0 +1,100 @@
+/* Detail Rows Breakdown Card */
+.detail-rows-card {
+  padding: 8px 16px;
+  margin-bottom: 20px;
+
+  .detail-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 13px 0;
+    border-bottom: 1px solid var(--sep-line, #EADFE7);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    .row-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--sep-mut, #6B5966);
+
+      ion-icon {
+        font-size: 16px;
+        opacity: 0.85;
+      }
+    }
+
+    .row-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--sep-ink, #2B1F28);
+      text-align: right;
+
+      .date-text {
+        display: block;
+        font-weight: 800;
+      }
+
+      .time-text {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--sep-mut, #6B5966);
+      }
+
+      .category-chip-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border-radius: 9999px;
+        border: 1.5px solid currentColor;
+        font-size: 12px;
+        font-weight: 800;
+        background: var(--sep-primary-soft, #f4ecf2);
+
+        ion-icon {
+          font-size: 14px;
+        }
+      }
+
+      .ref-code {
+        font-family: monospace;
+        font-size: 12px;
+        font-weight: 800;
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: var(--sep-base, #F7F3F6);
+        border: 1px solid var(--sep-line, #EADFE7);
+        color: var(--sep-ink, #2B1F28);
+      }
+    }
+
+    &.memo-row {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 8px;
+
+      .memo-box {
+        width: 100%;
+        text-align: left;
+        background: var(--sep-base, #F7F3F6);
+        padding: 10px 14px;
+        border-radius: 12px;
+        border: 1px solid var(--sep-line, #EADFE7);
+
+        p {
+          margin: 0;
+          font-size: 13px;
+          line-height: 1.4;
+          color: var(--sep-ink, #2B1F28);
+          font-weight: 600;
+        }
+      }
+    }
+  }
+}

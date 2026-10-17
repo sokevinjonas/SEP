@@ -1,0 +1,194 @@
+/* =============================================================================
+   Breathing Balance / Discovery Mode Card
+   ============================================================================= */
+.balance-card {
+  .balance-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 6px;
+  }
+
+  .month-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: var(--sep-mut, #6B5966);
+  }
+
+  .balance-hero {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin: 4px 0;
+
+    .balance-amount {
+      font-size: 38px;
+      font-weight: 900;
+      color: var(--sep-primary-dark, #58354f);
+      letter-spacing: -0.03em;
+      line-height: 1;
+    }
+
+    .balance-unit {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--sep-primary, #714B67);
+    }
+  }
+
+  .balance-secondary {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--sep-mut, #6B5966);
+    margin: 2px 0 0;
+  }
+
+  .budget-progress-bar {
+    height: 8px;
+    border-radius: 9999px;
+    --background: var(--sep-base, #F7F3F6);
+    margin-top: 10px;
+  }
+
+  .progress-label-row {
+    display: flex;
+    justify-content: space-between;
+    font-size: 10.5px;
+    font-weight: 800;
+    color: var(--sep-mut, #6B5966);
+    margin-top: 6px;
+  }
+
+  .budget-days-strip {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 12px;
+    margin-top: 10px;
+    border-top: 1px dashed var(--sep-line, #EADFE7);
+
+    .days-chip {
+      --background: var(--sep-primary, #714B67);
+      --color: #ffffff;
+      font-weight: 800;
+      font-size: 11px;
+      height: 28px;
+      margin: 0;
+
+      ion-icon {
+        color: #ffffff;
+        font-size: 13px;
+      }
+    }
+
+    .days-detail {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--sep-mut, #6B5966);
+    }
+
+    .topup-action-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 800;
+      background: rgba(1, 126, 132, 0.12);
+      color: var(--sep-action, #017e84);
+      border: 1px solid rgba(1, 126, 132, 0.3);
+      cursor: pointer;
+      transition: all 0.2s ease;
+
+      &:active {
+        transform: scale(0.96);
+        background: rgba(1, 126, 132, 0.22);
+      }
+
+      ion-icon {
+        font-size: 14px;
+      }
+    }
+  }
+
+  .rollover-pill-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 8px;
+    border-radius: 12px;
+    background: rgba(113, 75, 103, 0.08);
+    border: 1px solid rgba(113, 75, 103, 0.2);
+    color: var(--sep-primary, #714B67);
+    font-size: 10.5px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:active {
+      transform: scale(0.96);
+      background: rgba(113, 75, 103, 0.16);
+    }
+
+    ion-icon {
+      font-size: 12px;
+    }
+  }
+
+  /* Discovery Mode Variant */
+  &.discovery-balance-card {
+    background: linear-gradient(145deg, #FFFFFF 0%, #edf8f8 100%);
+    border-color: #017e84;
+
+    .discovery-hero .balance-amount {
+      color: #015f64;
+    }
+
+    .discovery-progress-bar {
+      --progress-background: #017e84;
+    }
+
+    .discovery-actions-strip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      margin-top: 10px;
+      border-top: 1px dashed var(--sep-line, #EADFE7);
+
+      .discovery-ai-chip {
+        --background: linear-gradient(135deg, #017e84 0%, #02a2a9 100%);
+        --color: #ffffff;
+        font-weight: 800;
+        font-size: 11px;
+        height: 30px;
+        margin: 0;
+        cursor: pointer;
+        box-shadow: 0 2px 8px rgba(1, 126, 132, 0.25);
+        transition: transform 0.2s ease;
+
+        &:active {
+          transform: scale(0.96);
+        }
+
+        ion-icon {
+          color: #ffffff;
+          font-size: 14px;
+        }
+      }
+
+      .switch-budget-text-btn {
+        background: transparent;
+        border: none;
+        font-family: inherit;
+        font-size: 11.5px;
+        font-weight: 800;
+        color: var(--sep-primary, #714B67);
+        text-decoration: underline;
+        cursor: pointer;
+        padding: 4px 6px;
+      }
+    }
+  }
+}
