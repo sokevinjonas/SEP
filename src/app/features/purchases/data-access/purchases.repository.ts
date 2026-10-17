@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { IdbService } from '../../../core/db/idb.service';
 import { Purchase } from '../domain/purchase.model';
+import { generateUuidV7 } from '../../../core/utils/uuid';
 
 @Injectable({ providedIn: 'root' })
 export class PurchasesRepository {
@@ -20,7 +21,7 @@ export class PurchasesRepository {
     const tx = db.transaction(['purchases', 'sync_queue'], 'readwrite');
     await tx.objectStore('purchases').put(purchase);
     await tx.objectStore('sync_queue').put({
-      id: `sync-pur-${purchase.id}`,
+      id: generateUuidV7(),
       entity: 'purchase',
       action: 'create',
       payload: purchase,
@@ -35,7 +36,7 @@ export class PurchasesRepository {
     const tx = db.transaction(['purchases', 'sync_queue'], 'readwrite');
     await tx.objectStore('purchases').put(purchase);
     await tx.objectStore('sync_queue').put({
-      id: `sync-pur-upd-${purchase.id}`,
+      id: generateUuidV7(),
       entity: 'purchase',
       action: 'update',
       payload: purchase,

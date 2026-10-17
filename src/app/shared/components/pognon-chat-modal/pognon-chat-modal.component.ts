@@ -35,6 +35,7 @@ import { CurrencyService } from '../../../core/services/currency.service';
 import { BudgetConsumption } from '../../../core/services/budget-calculator.service';
 import { UserProfile, MonthlyBudget, Purchase, Expense } from '../../../core/models/financial.models';
 import { environment } from '../../../../environments/environment';
+import { generateUuidV7 } from '../../../core/utils/uuid';
 
 export interface ChatMessage {
   id: string;
@@ -190,7 +191,7 @@ export class PognonChatModalComponent implements OnInit {
     const curr = this.currencyService.activeCurrency();
 
     const welcomeMsg: ChatMessage = {
-      id: `pog-init-${Date.now()}`,
+      id: generateUuidV7(),
       sender: 'pognon',
       text: `Hey ${studentName}! My eyes are glued to your ledger. You have ${balance} ${curr} of breathing room left this cycle. What desire is tempting you or what do you want to audit?`,
       time: this.formatNow()
@@ -235,7 +236,7 @@ export class PognonChatModalComponent implements OnInit {
 
     // 1. Add user message
     const userMsg: ChatMessage = {
-      id: `usr-${Date.now()}`,
+      id: generateUuidV7(),
       sender: 'user',
       text,
       time: this.formatNow()
@@ -278,7 +279,7 @@ export class PognonChatModalComponent implements OnInit {
             this.messages.update(msgs => [
               ...msgs,
               {
-                id: `pog-${Date.now()}`,
+                id: generateUuidV7(),
                 sender: 'pognon',
                 text: data.reply,
                 time: this.formatNow()
@@ -327,7 +328,7 @@ export class PognonChatModalComponent implements OnInit {
     this.messages.update(msgs => [
       ...msgs,
       {
-        id: `pog-${Date.now()}`,
+        id: generateUuidV7(),
         sender: 'pognon',
         text: reply,
         time: this.formatNow()

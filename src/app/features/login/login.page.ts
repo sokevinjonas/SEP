@@ -146,7 +146,7 @@ export class LoginPage implements OnInit, OnDestroy {
         this.startCountdown(60);
         await this.showToast(
           res.devCode 
-            ? `Code test (Dev): ${res.devCode} — Clé Resend inactive en local.`
+            ? `Test Code (Dev): ${res.devCode} — Resend key inactive in local dev.`
             : (res.message || 'Verification code sent to your email address.'),
           'success'
         );

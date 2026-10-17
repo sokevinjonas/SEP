@@ -16,24 +16,24 @@ const resend = config.resendApiKey ? new Resend(config.resendApiKey) : null;
 
 async function extractWithGPT4o(buffer: Buffer, mimeType: string, fileName: string): Promise<any> {
   if (!config.openaiApiKey) {
-    throw new Error('Clé API OpenAI non configurée. Veuillez définir OPENAI_API_KEY dans backend/.env.');
+    throw new Error('OpenAI API key not configured. Please define OPENAI_API_KEY in backend/.env.');
   }
 
   console.log(`[GPT-4o Vision] Analyzing receipt image: ${fileName} (${Math.round(buffer.length / 1024)} KB) with OpenAI GPT-4o...`);
   const base64Data = buffer.toString('base64');
   const imageUrl = `data:${mimeType || 'image/jpeg'};base64,${base64Data}`;
 
-  const systemPrompt = `Tu es un expert en analyse financière et extraction de reçus de caisse / captures de transfert Mobile Money (MTN MoMo, Telecel, Wave, etc.) pour étudiants.
-Tu dois analyser l'image fournie et extraire fidèlement TOUTES les informations financières au format JSON avec la structure exacte suivante :
+  const systemPrompt = `You are an expert financial ledger receipt and mobile money (MoMo) extraction engine.
+Analyze the provided receipt or invoice screenshot image and extract all financial data accurately into structured JSON matching this exact schema:
 {
-  "merchant": "Nom du commerce ou de l'expéditeur/destinataire",
-  "amount": 64.10,
-  "currency": "GHS",
-  "date": "2026-10-15T19:04:39.000Z",
-  "transactionReference": "TILL120261015-455504",
-  "amountPaid": 200.00,
-  "change": 135.90,
-  "itemQty": 3,
+  "merchant": "Store, vendor, or recipient/sender name",
+  "amount": 64.10, // Total final amount to pay (number, not string)
+  "currency": "GHS", // "GHS" or "XOF"
+  "date": "2026-10-15T19:04:39.000Z", // ISO date from receipt or current ISO date
+  "transactionReference": "TILL120261015-455504", // Receipt or transaction reference ID
+  "amountPaid": 200.00, // Cash or amount tendered by customer if present (or null)
+  "change": 135.90, // Change returned to customer if present (or null)
+  "itemQty": 3, // Total physical items purchased
   "items": [
     {
       "id": "item-1",
@@ -41,8 +41,8 @@ Tu dois analyser l'image fournie et extraire fidèlement TOUTES les informations
       "quantity": 2,
       "unitPrice": 22.80,
       "totalPrice": 45.60,
-      "categoryId": "cat-other",
-      "categoryName": "Hygiène & Soins",
+      "categoryId": "cat-other", // 'cat-food', 'cat-transport', 'cat-academic', 'cat-personal', 'cat-housing', 'cat-other'
+      "categoryName": "Personal Care",
       "selected": true
     }
   ],
@@ -55,12 +55,10 @@ Tu dois analyser l'image fournie et extraire fidèlement TOUTES les informations
   "uncertainNote": null
 }
 
-RÈGLES IMPORTANTES :
-- "amount" : correspond au montant TOTAL réel payé pour les achats (ex: 64.10).
-- "amountPaid" : correspond au montant remis en liquide par le client s'il figure sur le reçu (ex: 200.00).
-- "change" : correspond à la monnaie rendue au client (ex: 135.90). NE CONFONDS JAMAIS la monnaie rendue ("Change") avec le total des achats ("TOTAL").
-- "items" : liste CHAQUE ligne d'article achetée sur le reçu avec son libellé exact, sa quantité, son prix unitaire et son sous-total. Catégorise chaque article dans l'une des catégories : 'cat-food', 'cat-transport', 'cat-academic', 'cat-personal', 'cat-housing', 'cat-other'.
-- Réponds UNIQUEMENT avec l'objet JSON valide.`;
+IMPORTANT RULES:
+- "amount": Must be the actual total purchase amount due. Never confuse cash given ("Paid") or change returned ("Change") with the purchase total.
+- "items": List EVERY distinct product item line on the receipt with its original name (keep original receipt language/spelling), quantity, unit price, and line subtotal.
+- Return ONLY valid raw JSON without extra conversational text.`;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -76,7 +74,7 @@ RÈGLES IMPORTANTES :
         {
           role: 'user',
           content: [
-            { type: 'text', text: `Analyse ce reçu ou capture (${fileName}) et extrait toutes les informations financières et chaque ligne de produit.` },
+            { type: 'text', text: `Analyze this receipt image (${fileName}) and extract all transaction details and itemized products.` },
             {
               type: 'image_url',
               image_url: {
@@ -93,21 +91,21 @@ RÈGLES IMPORTANTES :
 
   const data: any = await response.json();
   if (!response.ok) {
-    const errorMsg = data?.error?.message || `Erreur OpenAI HTTP ${response.status}`;
+    const errorMsg = data?.error?.message || `OpenAI API HTTP error ${response.status}`;
     console.error('[GPT-4o Vision Error]', data);
     if (data?.error?.code === 'credit_balance_exhausted' || data?.error?.type === 'insufficient_quota') {
-      throw new Error(`Crédit OpenAI épuisé sur ce compte. Veuillez ajouter des crédits sur https://platform.openai.com/settings/organization/billing.`);
+      throw new Error(`OpenAI credit balance exhausted. Please add credits at https://platform.openai.com/settings/organization/billing.`);
     }
     throw new Error(errorMsg);
   }
 
   const content = data?.choices?.[0]?.message?.content;
   if (!content) {
-    throw new Error('Réponse vide reçue de GPT-4o.');
+    throw new Error('Empty response received from GPT-4o.');
   }
 
   const parsed = JSON.parse(content);
-  console.log(`[GPT-4o Vision] Extraction réussie: ${parsed.merchant} | Total: ${parsed.amount} ${parsed.currency} | ${parsed.items?.length || 0} article(s)`);
+  console.log(`[GPT-4o Vision] Extraction successful: ${parsed.merchant} | Total: ${parsed.amount} ${parsed.currency} | ${parsed.items?.length || 0} item(s)`);
   return parsed;
 }
 
@@ -122,7 +120,7 @@ capturesRouter.post('/captures', authMiddleware, upload.single('file'), async (r
     const mimeType = file?.mimetype || 'image/jpeg';
 
     if (!file || !file.buffer) {
-      return res.status(400).json({ success: false, error: 'Aucun fichier image fourni.' });
+      return res.status(400).json({ success: false, error: 'No image file provided.' });
     }
 
     const extracted = await extractWithGPT4o(file.buffer, mimeType, fileName);
@@ -136,7 +134,7 @@ capturesRouter.post('/captures', authMiddleware, upload.single('file'), async (r
     console.error('[Captures Route Error]', err);
     return res.status(400).json({
       success: false,
-      error: err.message || 'Erreur lors de l\'analyse par GPT-4o.'
+      error: err.message || 'Error occurred during GPT-4o receipt analysis.'
     });
   }
 });

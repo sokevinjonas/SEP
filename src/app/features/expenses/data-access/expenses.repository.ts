@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { IdbService } from '../../../core/db/idb.service';
 import { Expense } from '../domain/expense.model';
+import { generateUuidV7 } from '../../../core/utils/uuid';
 
 @Injectable({ providedIn: 'root' })
 export class ExpensesRepository {
@@ -24,7 +25,7 @@ export class ExpensesRepository {
     const tx = db.transaction(['expenses', 'sync_queue'], 'readwrite');
     await tx.objectStore('expenses').put(expense);
     await tx.objectStore('sync_queue').put({
-      id: `sync-${expense.id}`,
+      id: generateUuidV7(),
       entity: 'expense',
       action: 'create',
       payload: expense,
@@ -39,7 +40,7 @@ export class ExpensesRepository {
     const tx = db.transaction(['expenses', 'sync_queue'], 'readwrite');
     await tx.objectStore('expenses').delete(id);
     await tx.objectStore('sync_queue').put({
-      id: `sync-del-${id}`,
+      id: generateUuidV7(),
       entity: 'expense',
       action: 'delete',
       payload: { id },
@@ -54,7 +55,7 @@ export class ExpensesRepository {
     const tx = db.transaction(['expenses', 'sync_queue'], 'readwrite');
     await tx.objectStore('expenses').put(expense);
     await tx.objectStore('sync_queue').put({
-      id: `sync-upd-${expense.id}-${Date.now()}`,
+      id: generateUuidV7(),
       entity: 'expense',
       action: 'update',
       payload: expense,

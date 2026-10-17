@@ -596,7 +596,7 @@ export class ProfilePage implements OnInit, OnDestroy {
         this.startLinkCountdown(60);
         await this.showToast(
           res.devCode 
-            ? `Code test (Dev): ${res.devCode} — Clé Resend inactive en local.`
+            ? `Test Code (Dev): ${res.devCode} — Resend key inactive in local dev.`
             : (res.message || '6-digit code sent to your email.'),
           'success'
         );

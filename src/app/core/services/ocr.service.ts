@@ -116,13 +116,13 @@ export class OcrService {
         }
 
         const errData: any = await response.json().catch(() => ({}));
-        throw new Error(errData.error || `Erreur lors de l'analyse GPT-4o (HTTP ${response.status})`);
+        throw new Error(errData.error || `Error during GPT-4o analysis (HTTP ${response.status})`);
       } catch (err: any) {
         console.error('[OcrService] GPT-4o vision extraction failed:', err);
         throw err;
       }
     } else {
-      throw new Error('Vous êtes hors-ligne. Une connexion Internet est requise pour analyser le reçu avec GPT-4o.');
+      throw new Error('You are currently offline. An internet connection is required to analyze receipts with GPT-4o.');
     }
   }
 }
