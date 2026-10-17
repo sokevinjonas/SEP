@@ -110,7 +110,7 @@ export class SyncService {
   /**
    * Request a 6-digit OTP code sent by email.
    */
-  async sendOtp(email: string): Promise<{ success: boolean; isNew?: boolean; message?: string; error?: string }> {
+  async sendOtp(email: string): Promise<{ success: boolean; isNew?: boolean; message?: string; devCode?: string; error?: string }> {
     if (typeof navigator !== 'undefined' && !navigator.onLine) {
       return { success: false, error: 'Internet connection required to request verification code.' };
     }
@@ -133,7 +133,7 @@ export class SyncService {
       }
 
       this.setUserEmail(email);
-      return { success: true, isNew: data.isNew, message: data.message };
+      return { success: true, isNew: data.isNew, message: data.message, devCode: data.devCode };
     } catch (err: any) {
       return { success: false, error: err.message || 'Unable to reach authentication server.' };
     }

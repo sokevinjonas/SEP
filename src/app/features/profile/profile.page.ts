@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
@@ -165,6 +165,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   linkStep: 'email' | 'otp' = 'email';
   isLinking = false;
   linkCountdown = 0;
+  devOtpNotice = '';
   private linkTimer: any = null;
 
   constructor(
@@ -178,7 +179,8 @@ export class ProfilePage implements OnInit, OnDestroy {
     private exportService: ExportService,
     private syncService: SyncService,
     private alertCtrl: AlertController,
-    private toastCtrl: ToastController
+    private toastCtrl: ToastController,
+    private cdr: ChangeDetectorRef
   ) {
     addIcons({
       personOutline,
@@ -579,15 +581,33 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
 
     this.isLinking = true;
-    const res = await this.syncService.sendOtp(email);
-    this.isLinking = false;
+    this.cdr.detectChanges();
 
-    if (res.success) {
-      this.linkStep = 'otp';
-      this.startLinkCountdown(60);
-      await this.showToast(res.message || '6-digit code sent to your email.', 'success');
-    } else {
-      await this.showToast(res.error || 'Error sending code. Please check your connection.', 'danger');
+    try {
+      const res = await this.syncService.sendOtp(email);
+      if (res.success) {
+        this.linkStep = 'otp';
+        if (res.devCode) {
+          this.linkOtpInput = res.devCode;
+          this.devOtpNotice = res.devCode;
+        } else {
+          this.devOtpNotice = '';
+        }
+        this.startLinkCountdown(60);
+        await this.showToast(
+          res.devCode 
+            ? `Code test (Dev): ${res.devCode} — Clé Resend inactive en local.`
+            : (res.message || '6-digit code sent to your email.'),
+          'success'
+        );
+      } else {
+        await this.showToast(res.error || 'Error sending code. Please check your connection.', 'danger');
+      }
+    } catch (err: any) {
+      await this.showToast(err.message || 'Error sending code.', 'danger');
+    } finally {
+      this.isLinking = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -599,29 +619,36 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
 
     this.isLinking = true;
-    const res = await this.syncService.verifyOtp(this.linkEmailInput.trim(), code);
-    this.isLinking = false;
+    this.cdr.detectChanges();
 
-    if (res.success) {
-      this.closeModal();
-      this.clearLinkCountdown();
+    try {
+      const res = await this.syncService.verifyOtp(this.linkEmailInput.trim(), code);
+      if (res.success) {
+        this.closeModal();
+        this.clearLinkCountdown();
 
-      // Update local profile with email & isLinked
-      const updatedProfile: UserProfile = {
-        ...this.userProfile,
-        email: this.linkEmailInput.trim(),
-        isLinked: true,
-        updatedAt: new Date().toISOString()
-      };
-      await this.profileFacade.saveUserProfile(updatedProfile);
-      this.userProfile = { ...updatedProfile };
+        // Update local profile with email & isLinked
+        const updatedProfile: UserProfile = {
+          ...this.userProfile,
+          email: this.linkEmailInput.trim(),
+          isLinked: true,
+          updatedAt: new Date().toISOString()
+        };
+        await this.profileFacade.saveUserProfile(updatedProfile);
+        this.userProfile = { ...updatedProfile };
 
-      // Push current local data as initial cloud backup
-      await this.syncService.backupToCloud();
+        // Push current local data as initial cloud backup
+        await this.syncService.backupToCloud();
 
-      await this.showToast('Account linked successfully! Cloud sync is now active.', 'success');
-    } else {
-      await this.showToast(res.error || 'Invalid or expired verification code.', 'danger');
+        await this.showToast('Account linked successfully! Cloud sync is now active.', 'success');
+      } else {
+        await this.showToast(res.error || 'Invalid or expired verification code.', 'danger');
+      }
+    } catch (err: any) {
+      await this.showToast(err.message || 'Error verifying code.', 'danger');
+    } finally {
+      this.isLinking = false;
+      this.cdr.detectChanges();
     }
   }
 

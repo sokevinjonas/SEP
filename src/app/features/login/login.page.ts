@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -69,6 +69,7 @@ export class LoginPage implements OnInit, OnDestroy {
   isLoading: boolean = false;
   isRestoringFile: boolean = false;
   countdown: number = 0;
+  devOtpNotice: string = '';
   private countdownTimer: any = null;
 
   constructor(
@@ -81,7 +82,8 @@ export class LoginPage implements OnInit, OnDestroy {
     private expensesFacade: ExpensesFacade,
     private purchasesFacade: PurchasesFacade,
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController
+    private alertCtrl: AlertController,
+    private cdr: ChangeDetectorRef
   ) {
     addIcons({
       arrowBackOutline,
@@ -129,15 +131,33 @@ export class LoginPage implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    const res = await this.syncService.sendOtp(trimmedEmail);
-    this.isLoading = false;
+    this.cdr.detectChanges();
 
-    if (res.success) {
-      this.step = 'otp';
-      this.startCountdown(60);
-      await this.showToast(res.message || 'Verification code sent to your email address.', 'success');
-    } else {
-      await this.showToast(res.error || 'Failed to send code. Please check your network connection.', 'danger');
+    try {
+      const res = await this.syncService.sendOtp(trimmedEmail);
+      if (res.success) {
+        this.step = 'otp';
+        if (res.devCode) {
+          this.otpCode = res.devCode;
+          this.devOtpNotice = res.devCode;
+        } else {
+          this.devOtpNotice = '';
+        }
+        this.startCountdown(60);
+        await this.showToast(
+          res.devCode 
+            ? `Code test (Dev): ${res.devCode} — Clé Resend inactive en local.`
+            : (res.message || 'Verification code sent to your email address.'),
+          'success'
+        );
+      } else {
+        await this.showToast(res.error || 'Failed to send code. Please check your network connection.', 'danger');
+      }
+    } catch (err: any) {
+      await this.showToast(err.message || 'Error sending verification code.', 'danger');
+    } finally {
+      this.isLoading = false;
+      this.cdr.detectChanges();
     }
   }
 
@@ -149,18 +169,19 @@ export class LoginPage implements OnInit, OnDestroy {
     }
 
     this.isLoading = true;
-    const res = await this.syncService.verifyOtp(this.email.trim(), trimmedCode);
-    this.isLoading = false;
+    this.cdr.detectChanges();
 
-    if (!res.success) {
-      await this.showToast(res.error || 'Invalid or expired verification code.', 'danger');
-      return;
-    }
+    try {
+      const res = await this.syncService.verifyOtp(this.email.trim(), trimmedCode);
+      if (!res.success) {
+        await this.showToast(res.error || 'Invalid or expired verification code.', 'danger');
+        return;
+      }
 
-    // Handle backup restore if available
-    let restoredExpenses = 0;
-    if (res.hasBackup && res.backupData) {
-      try {
+      // Handle backup restore if available
+      let restoredExpenses = 0;
+      if (res.hasBackup && res.backupData) {
+        try {
         const stats = await this.idbService.restoreAllData(res.backupData);
         restoredExpenses = stats.expenses;
       } catch (e) {
@@ -191,7 +212,13 @@ export class LoginPage implements OnInit, OnDestroy {
     await this.showToast(welcomeMsg, 'success');
 
     await this.router.navigate(['/tabs/home'], { replaceUrl: true });
+  } catch (err: any) {
+    await this.showToast(err.message || 'Error verifying code.', 'danger');
+  } finally {
+    this.isLoading = false;
+    this.cdr.detectChanges();
   }
+}
 
   async resendOtp(): Promise<void> {
     if (this.countdown > 0 || this.isLoading) return;
