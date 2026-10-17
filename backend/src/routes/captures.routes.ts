@@ -16,7 +16,7 @@ const resend = config.resendApiKey ? new Resend(config.resendApiKey) : null;
 
 async function extractWithGPT4o(buffer: Buffer, mimeType: string, fileName: string): Promise<any> {
   if (!config.openaiApiKey) {
-    throw new Error('OpenAI API key not configured. Please define OPENAI_API_KEY in backend/.env.');
+    throw new Error('OpenAI API key not configured. Please define OPENAI_API_KEY');
   }
 
   console.log(`[GPT-4o Vision] Analyzing receipt image: ${fileName} (${Math.round(buffer.length / 1024)} KB) with OpenAI GPT-4o...`);
