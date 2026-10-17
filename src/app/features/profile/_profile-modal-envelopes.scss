@@ -1,0 +1,67 @@
+/* =============================================================================
+   Profile Modal Envelopes & Allowance Stats
+   ============================================================================= */
+.allowance-stat-card {
+  background: var(--sep-card, #ffffff);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  border: 1px solid var(--sep-line, #EADFE7);
+  box-shadow: 0 2px 10px rgba(113, 75, 103, 0.04);
+  margin: 12px 0;
+
+  .stat-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 2px;
+    .stat-title { font-size: 10.5px; font-weight: 800; text-transform: uppercase; color: var(--sep-mut, #6B5966); }
+    .stat-num { font-size: 15px; font-weight: 900; color: var(--sep-primary, #714B67); }
+    .stat-sub { font-size: 11px; font-weight: 600; color: var(--sep-action, #017e84); }
+  }
+  .stat-pipe { width: 1px; height: 36px; background: var(--sep-line, #EADFE7); }
+}
+
+.modal-sub-heading {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--sep-primary, #714B67);
+  margin: 16px 0 8px 4px;
+}
+
+.envelopes-modal-list {
+  background: var(--sep-card, #ffffff);
+  border-radius: 16px;
+  border: 1px solid var(--sep-line, #EADFE7);
+  overflow: hidden;
+  margin-bottom: 14px;
+
+  .modal-env-item {
+    --background: var(--sep-card, #ffffff);
+    --min-height: 50px;
+    .env-icon { color: var(--sep-primary, #714B67); font-size: 18px; margin-right: 10px; }
+    .env-name { font-size: 13px; font-weight: 700; color: var(--sep-ink, #2B1F28); }
+
+    .env-input-box {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+
+      .env-val-field {
+        width: 72px;
+        text-align: right;
+        font-weight: 800;
+        font-size: 14px;
+        color: var(--sep-primary, #714B67);
+        --background: var(--sep-base, #F7F3F6);
+        --border-radius: 8px;
+        --padding-start: 6px;
+        --padding-end: 6px;
+      }
+      .env-unit { font-size: 11px; font-weight: 800; color: var(--sep-mut, #6B5966); }
+    }
+  }
+}

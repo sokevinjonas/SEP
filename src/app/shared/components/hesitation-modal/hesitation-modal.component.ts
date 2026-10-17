@@ -158,12 +158,12 @@ export class HesitationModalComponent implements OnInit {
       return;
     }
 
-    const dailyBudget = this.monthlyBudget?.plannedDailyBudgetGhs || 20;
-    const totalBudget = this.monthlyBudget?.totalBudgetGhs || 600;
+    const dailyBudget = this.monthlyBudget?.plannedDailyBudgetGhs || (this.monthlyBudget?.totalBudgetGhs ? this.monthlyBudget.totalBudgetGhs / 30 : 0);
+    const totalBudget = this.monthlyBudget?.totalBudgetGhs || 0;
 
     // Days shock calculation
-    this.computedCostDays = Math.max(1, Math.round(this.amountNumber / dailyBudget));
-    this.budgetPercent = Math.min(100, Math.round((this.amountNumber / totalBudget) * 100));
+    this.computedCostDays = dailyBudget > 0 ? Math.max(1, Math.round(this.amountNumber / dailyBudget)) : 1;
+    this.budgetPercent = totalBudget > 0 ? Math.min(100, Math.round((this.amountNumber / totalBudget) * 100)) : 0;
 
     // Reframing calculation (in meals: avg 15 GHS per meal)
     const mealCount = Math.max(1, Math.round(this.amountNumber / 15));

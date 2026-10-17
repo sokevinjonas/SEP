@@ -180,9 +180,17 @@ export class LoginPage implements OnInit, OnDestroy {
       // Ensure profile has email and is onboarded
       const current = await this.profileFacade.load();
       await this.profileFacade.saveUserProfile({
+        id: 'current_user',
+        country: current?.country || '',
+        city: current?.city || '',
+        campus: current?.campus || '',
+        primaryCurrency: current?.primaryCurrency || 'GHS',
+        budgetMode: current?.budgetMode || 'discovery',
+        cycleStartDay: current?.cycleStartDay || 1,
         ...current,
-        name: current.name || this.email.split('@')[0],
+        name: current?.name || this.email.split('@')[0],
         hasCompletedOnboarding: true,
+        createdAt: current?.createdAt || new Date().toISOString(),
         updatedAt: new Date().toISOString()
       });
     }

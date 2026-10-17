@@ -118,11 +118,13 @@ export class ProfilePage implements OnInit, OnDestroy {
   userProfile: UserProfile = {
     id: 'current_user',
     name: '',
-    country: 'Ghana',
-    city: 'Accra',
+    country: '',
+    city: '',
     campus: '',
     primaryCurrency: 'GHS',
-    hasCompletedOnboarding: true,
+    budgetMode: 'discovery',
+    cycleStartDay: 1,
+    hasCompletedOnboarding: false,
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString()
   };
@@ -130,9 +132,11 @@ export class ProfilePage implements OnInit, OnDestroy {
   monthlyBudget: MonthlyBudget = {
     id: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
     monthYear: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
-    totalBudgetGhs: 600,
-    plannedDailyBudgetGhs: 20,
-    exchangeRateXof: 42.0
+    totalBudgetGhs: 0,
+    plannedDailyBudgetGhs: 0,
+    exchangeRateXof: 42.0,
+    isDiscoveryMode: true,
+    discoveryCompleted: false
   };
 
   categories: Category[] = [];
@@ -371,8 +375,6 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.monthlyBudget.isDiscoveryMode = isDiscovery;
     if (isDiscovery) {
       this.monthlyBudget.totalBudgetGhs = 0;
-    } else if (this.monthlyBudget.totalBudgetGhs <= 0) {
-      this.monthlyBudget.totalBudgetGhs = 600;
     }
   }
 

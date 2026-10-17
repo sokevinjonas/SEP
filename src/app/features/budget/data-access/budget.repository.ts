@@ -1,5 +1,5 @@
 import { Injectable, inject } from '@angular/core';
-import { IdbService, currentMonthKey, defaultMonthlyBudget } from '../../../core/db/idb.service';
+import { IdbService, currentMonthKey } from '../../../core/db/idb.service';
 import { Category, MonthlyBudget } from '../domain/budget.model';
 
 @Injectable({ providedIn: 'root' })
@@ -16,15 +16,11 @@ export class BudgetRepository {
     await db.put('categories', category);
   }
 
-  async getMonthlyBudget(monthKey?: string): Promise<MonthlyBudget> {
+  async getMonthlyBudget(monthKey?: string): Promise<MonthlyBudget | null> {
     const db = await this.idb.db;
     const key = monthKey || currentMonthKey();
     const budget = await db.get('monthly_budgets', key);
-    if (budget) return budget;
-
-    const fallback = defaultMonthlyBudget(key);
-    await db.put('monthly_budgets', fallback);
-    return fallback;
+    return budget || null;
   }
 
   async saveMonthlyBudget(budget: MonthlyBudget): Promise<void> {

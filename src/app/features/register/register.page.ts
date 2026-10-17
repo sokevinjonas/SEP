@@ -84,7 +84,7 @@ export class RegisterPage implements OnInit {
   userName = '';
   selectedCountry = 'Ghana';
   selectedCity = 'Accra';
-  campus = 'University of Ghana (Legon)';
+  campus = '';
 
   countries: CountryItem[] = [];
   cities: string[] = [];
@@ -102,7 +102,7 @@ export class RegisterPage implements OnInit {
   primaryCurrency: CurrencyCode = 'GHS';
   secondaryCurrency: CurrencyCode = 'XOF';
   exchangeRate = 42.0;
-  monthlyBudget = 600;
+  monthlyBudget = 0;
 
   isFetchingLiveRate = false;
   liveRateInfo: LiveRateInfo | null = null;

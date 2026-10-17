@@ -98,7 +98,7 @@ export class BudgetPage implements OnInit {
   // Budget Configuration Modal Form State
   readonly isConfigModalOpen = signal(false);
   editBudgetMode: 'fixed' | 'discovery' = 'fixed';
-  editTotalBudgetGhs: number = 600;
+  editTotalBudgetGhs: number = 0;
   editCycleStartDay: number = 1;
   editCategories: Category[] = [];
 
@@ -161,7 +161,7 @@ export class BudgetPage implements OnInit {
     const current = this.budgetFacade.monthlyBudget();
 
     this.editBudgetMode = isDisc ? 'discovery' : 'fixed';
-    this.editTotalBudgetGhs = current?.totalBudgetGhs || 600;
+    this.editTotalBudgetGhs = current?.totalBudgetGhs || 0;
     this.editCycleStartDay = current?.cycleStartDay || 1;
     this.editCategories = this.categories().map(c => ({ ...c }));
 

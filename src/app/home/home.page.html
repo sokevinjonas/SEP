@@ -5,8 +5,8 @@
     </ion-avatar>
 
     <ion-label (click)="openSettings()" class="user-meta-label">
-      <h1 class="user-name">{{ userProfile()?.name || 'Student' }} · {{ userProfile()?.city || 'Accra' }}</h1>
-      <p class="user-sub">{{ userProfile()?.campus || 'University Campus' }}</p>
+      <h1 class="user-name">{{ userProfile()?.name || 'Student' }}{{ userProfile()?.city ? ' · ' + userProfile()?.city : '' }}</h1>
+      <p class="user-sub">{{ userProfile()?.campus || 'Campus' }}</p>
     </ion-label>
 
     <ion-buttons slot="end" class="header-buttons">

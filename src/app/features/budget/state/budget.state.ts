@@ -18,17 +18,17 @@ export class BudgetState {
   );
 
   readonly totalBudgetCeilingGhs = computed(() =>
-    this._monthlyBudget()?.totalBudgetGhs ?? 600
+    this._monthlyBudget()?.totalBudgetGhs ?? 0
   );
 
   readonly plannedDailyBudgetGhs = computed(() =>
-    this._monthlyBudget()?.plannedDailyBudgetGhs ?? 20
+    this._monthlyBudget()?.plannedDailyBudgetGhs ?? 0
   );
 
   readonly isDiscoveryMode = computed(() => {
     const budget = this._monthlyBudget();
     if (budget?.discoveryCompleted) return false;
-    return !!budget?.isDiscoveryMode || budget?.totalBudgetGhs === 0;
+    return !!budget?.isDiscoveryMode || (budget?.totalBudgetGhs ?? 0) === 0;
   });
 
   readonly discoveryCompleted = computed(() =>
@@ -43,7 +43,7 @@ export class BudgetState {
     this._categories.set(data);
   }
 
-  setMonthlyBudget(data: MonthlyBudget): void {
+  setMonthlyBudget(data: MonthlyBudget | null): void {
     this._monthlyBudget.set(data);
   }
 

@@ -119,7 +119,7 @@ export class DatabaseService {
   }
 
   // User Profile Methods
-  async getUserProfile(): Promise<UserProfile> {
+  async getUserProfile(): Promise<UserProfile | null> {
     return this.profileFacade.load();
   }
 

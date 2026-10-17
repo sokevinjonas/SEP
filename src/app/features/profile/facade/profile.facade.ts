@@ -15,7 +15,7 @@ export class ProfileFacade {
   readonly loading = this.state.loading;
   readonly error = this.state.error;
 
-  async load(): Promise<UserProfile> {
+  async load(): Promise<UserProfile | null> {
     this.state.setLoading(true);
     this.state.setError(null);
     try {

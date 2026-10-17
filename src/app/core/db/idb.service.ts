@@ -40,42 +40,13 @@ export function currentMonthKey(date: Date = new Date()): string {
 }
 
 export const DEFAULT_CATEGORIES: Category[] = [
-  { id: 'cat-food', name: 'Food & Chop', icon: 'restaurant-outline', monthlyAllocationGhs: 300, color: '#714B67' },
-  { id: 'cat-transport', name: 'Transport & Trotro', icon: 'bus-outline', monthlyAllocationGhs: 100, color: '#017e84' },
-  { id: 'cat-books', name: 'Books & Copies', icon: 'book-outline', monthlyAllocationGhs: 80, color: '#58354f' },
-  { id: 'cat-social', name: 'Campus & Social', icon: 'people-outline', monthlyAllocationGhs: 70, color: '#ffac00' },
-  { id: 'cat-utilities', name: 'Data & Utilities', icon: 'flash-outline', monthlyAllocationGhs: 50, color: '#8d6482' },
-  { id: 'cat-other', name: 'Other', icon: 'ellipsis-horizontal-circle-outline', monthlyAllocationGhs: 50, color: '#6B5966' },
+  { id: 'cat-food', name: 'Food & Chop', icon: 'restaurant-outline', monthlyAllocationGhs: 0, color: '#714B67' },
+  { id: 'cat-transport', name: 'Transport & Trotro', icon: 'bus-outline', monthlyAllocationGhs: 0, color: '#017e84' },
+  { id: 'cat-books', name: 'Books & Copies', icon: 'book-outline', monthlyAllocationGhs: 0, color: '#58354f' },
+  { id: 'cat-social', name: 'Campus & Social', icon: 'people-outline', monthlyAllocationGhs: 0, color: '#ffac00' },
+  { id: 'cat-utilities', name: 'Data & Utilities', icon: 'flash-outline', monthlyAllocationGhs: 0, color: '#8d6482' },
+  { id: 'cat-other', name: 'Other', icon: 'ellipsis-horizontal-circle-outline', monthlyAllocationGhs: 0, color: '#6B5966' },
 ];
-
-export function defaultMonthlyBudget(key: string = currentMonthKey()): MonthlyBudget {
-  return {
-    id: key,
-    monthYear: key,
-    totalBudgetGhs: 600.0,
-    plannedDailyBudgetGhs: 20.0,
-    exchangeRateXof: 42.0,
-    isDiscoveryMode: false,
-    cycleStartDay: 1
-  };
-}
-
-export function defaultUserProfile(): UserProfile {
-  const now = new Date().toISOString();
-  return {
-    id: 'current_user',
-    name: '',
-    country: 'Ghana',
-    city: 'Accra',
-    campus: '',
-    primaryCurrency: 'GHS',
-    hasCompletedOnboarding: false,
-    budgetMode: 'fixed',
-    cycleStartDay: 1,
-    createdAt: now,
-    updatedAt: now
-  };
-}
 
 /**
  * Low-level IndexedDB connection (schema + structural defaults).
@@ -117,7 +88,7 @@ export class IdbService {
     });
   }
 
-  /** Structural defaults only (categories, current month budget, empty profile). Never seeds expenses. */
+  /** Structural category schemas only. Never seeds fake budgets or mock profiles. */
   private async ensureDefaults(db: SepDb): Promise<void> {
     if ((await db.count('categories')) === 0) {
       const tx = db.transaction('categories', 'readwrite');
@@ -127,15 +98,6 @@ export class IdbService {
       await tx.done;
     }
 
-    const key = currentMonthKey();
-    if (!(await db.get('monthly_budgets', key))) {
-      await db.put('monthly_budgets', defaultMonthlyBudget(key));
-    }
-
-    if (!(await db.get('user_profile', 'current_user'))) {
-      await db.put('user_profile', defaultUserProfile());
-    }
-
     // Purge legacy demo rows if present
     for (const exp of await db.getAll('expenses')) {
       if (exp.id.startsWith('exp-demo-')) await db.delete('expenses', exp.id);
@@ -143,15 +105,37 @@ export class IdbService {
     for (const pur of await db.getAll('purchases')) {
       if (pur.id.startsWith('pur-demo-')) await db.delete('purchases', pur.id);
     }
+
+    // Purge legacy fake default profile if present
+    const existingProfile = await db.get('user_profile', 'current_user');
+    if (existingProfile && (existingProfile.name === 'Campus Student' || (!existingProfile.name && !existingProfile.hasCompletedOnboarding))) {
+      await db.delete('user_profile', 'current_user');
+    }
+
+    // Purge legacy fake default 600 GHS budget if present
+    const key = currentMonthKey();
+    const existingBudget = await db.get('monthly_budgets', key);
+    if (existingBudget && existingBudget.totalBudgetGhs === 600 && existingBudget.plannedDailyBudgetGhs === 20 && !existingBudget.isDiscoveryMode && !existingBudget.discoveryCompleted) {
+      await db.delete('monthly_budgets', key);
+    }
   }
 
-  /** Wipes transactional data and restores structural defaults. */
+  /** Wipes transactional data and clears all stores to a pristine state. */
   async resetAll(): Promise<void> {
     const db = await this.db;
     await db.clear('expenses');
     await db.clear('purchases');
     await db.clear('sync_queue');
-    await this.ensureDefaults(db);
+    await db.clear('monthly_budgets');
+    await db.clear('user_profile');
+
+    const categories = await db.getAll('categories');
+    const tx = db.transaction('categories', 'readwrite');
+    for (const cat of categories) {
+      cat.monthlyAllocationGhs = 0;
+      await tx.store.put(cat);
+    }
+    await tx.done;
   }
 
   /** Dumps all stores into a single portable backup structure. */

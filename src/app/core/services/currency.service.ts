@@ -26,7 +26,7 @@ export class CurrencyService {
 
   // Computed rate description: "1 GHS = 42 XOF"
   readonly rateDescription = computed(
-    () => `1 ${this.activeCurrency() === 'GHS' ? 'GHS' : 'GHS'} = ${this.exchangeRate()} ${this.secondaryCurrency()}`
+    () => `1 ${this.activeCurrency()} = ${this.exchangeRate()} ${this.secondaryCurrency()}`
   );
 
   constructor() {
@@ -103,8 +103,10 @@ export class CurrencyService {
     if (newRate <= 0) return;
     this.exchangeRate.set(newRate);
     const budget = await this.budgetRepo.getMonthlyBudget();
-    budget.exchangeRateXof = newRate;
-    await this.budgetRepo.saveMonthlyBudget(budget);
+    if (budget) {
+      budget.exchangeRateXof = newRate;
+      await this.budgetRepo.saveMonthlyBudget(budget);
+    }
   }
 
   toXof(amountGhs: number): number {

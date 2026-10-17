@@ -188,7 +188,7 @@ export class PognonChatModalComponent implements OnInit {
 
   private initWelcomeMessage(): void {
     const studentName = this.userProfile?.name ? this.userProfile.name : 'friend';
-    const balance = this.consumption ? this.consumption.balanceGhs.toFixed(2) : '600.00';
+    const balance = this.consumption ? this.consumption.balanceGhs.toFixed(2) : '0.00';
     const curr = this.currencyService.activeCurrency();
 
     const welcomeMsg: ChatMessage = {
@@ -432,7 +432,7 @@ export class PognonChatModalComponent implements OnInit {
             message: text,
             context: {
               studentName: this.userProfile?.name || 'Student',
-              balance: this.consumption?.balanceGhs || 600,
+              balance: this.consumption?.balanceGhs || 0,
               currency: this.currencyService.activeCurrency()
             }
           }),
@@ -475,7 +475,7 @@ export class PognonChatModalComponent implements OnInit {
 
   private generatePognonResponse(query: string): void {
     const lower = query.toLowerCase();
-    const balance = this.consumption?.balanceGhs || 600;
+    const balance = this.consumption?.balanceGhs || 0;
     const curr = this.currencyService.activeCurrency();
     const name = this.userProfile?.name || 'friend';
 

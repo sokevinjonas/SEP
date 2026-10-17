@@ -1,0 +1,26 @@
+/* =============================================================================
+   App Version & Branding Footer Styles
+   ============================================================================= */
+.app-version-footer,
+.app-info-footer {
+  text-align: center;
+  padding: 16px 0 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+
+  .app-name,
+  .footer-brand {
+    font-size: 12px;
+    font-weight: 800;
+    color: var(--sep-mut, #6B5966);
+    margin: 0;
+  }
+
+  .app-sub,
+  .footer-sub {
+    font-size: 11px;
+    color: #8C7B89;
+    margin: 0;
+  }
+}

@@ -47,9 +47,9 @@ export class BudgetFacade {
     }
 
     return categories.map(cat => {
-      const allocated = cat.monthlyAllocationGhs || 50;
+      const allocated = cat.monthlyAllocationGhs || 0;
       const spent = spentByCategory.get(cat.id) || 0;
-      const percentage = Math.min(100, Math.round((spent / allocated) * 100));
+      const percentage = allocated > 0 ? Math.min(100, Math.round((spent / allocated) * 100)) : 0;
 
       let status: 'safe' | 'warning' | 'danger' = 'safe';
       if (percentage >= 90) {
@@ -274,7 +274,7 @@ export class BudgetFacade {
     const dailyBurnRate = Number((totalSpent / Math.max(1, daysElapsed)).toFixed(2));
 
     // 2. Projected ceiling (with 10% safety cushion)
-    let suggestedBudget = 600;
+    let suggestedBudget = 0;
     if (totalSpent > 0 && daysElapsed > 0) {
       const projected = (totalSpent / daysElapsed) * daysTotal;
       suggestedBudget = Math.max(150, Math.round((projected * 1.1) / 50) * 50);
@@ -298,8 +298,8 @@ export class BudgetFacade {
         weight = Math.max(0.08, actualShare);
       }
 
-      const allocation = Math.max(20, Math.round((suggestedBudget * weight) / 10) * 10);
-      const percentage = Math.round((allocation / suggestedBudget) * 100);
+      const allocation = suggestedBudget > 0 ? Math.max(20, Math.round((suggestedBudget * weight) / 10) * 10) : 0;
+      const percentage = suggestedBudget > 0 ? Math.round((allocation / suggestedBudget) * 100) : 0;
 
       return {
         categoryId: cat.id,
@@ -312,9 +312,7 @@ export class BudgetFacade {
     // 4. Strategic conclusions by M. Pognon
     const conclusions: string[] = [];
     if (totalSpent <= 0) {
-      conclusions.push('No expenses recorded during discovery: initialized safe campus baseline of 600 GHS.');
-      conclusions.push('Recommended 45% allocation to food to prevent dorm food insecurity.');
-      conclusions.push('Allocated 20% for daily campus transit and trotro shuttles.');
+      conclusions.push('No expenses recorded during discovery: start logging expenses to generate your tailored budget.');
     } else {
       conclusions.push(`Observed average spend rate: ${dailyBurnRate.toFixed(2)} GHS per day across ${daysElapsed} day(s).`);
       conclusions.push(`${topCatName} was your dominant outflow, consuming ${topCatPercent}% of your campus cash.`);
@@ -427,7 +425,7 @@ export class BudgetFacade {
     const consumption = this.consumption();
     const surplusGhs = Math.max(0, consumption.balanceGhs);
     const currentBudget = this.state.monthlyBudget();
-    const baseCeiling = currentBudget?.totalBudgetGhs || 600;
+    const baseCeiling = currentBudget?.totalBudgetGhs || 0;
 
     let newCeiling = baseCeiling;
     let newSavingsVault = 0;

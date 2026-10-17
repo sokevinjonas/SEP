@@ -3,7 +3,11 @@
 // =============================================================================
 @use './profile-hero' as *;
 @use './profile-sections' as *;
-@use './profile-modals' as *;
+@use './profile-footer' as *;
+@use './profile-modal-base' as *;
+@use './profile-modal-budget' as *;
+@use './profile-modal-envelopes' as *;
+@use './profile-modal-link' as *;
 
 .settings-toolbar {
   --background: var(--sep-base, #F7F3F6);

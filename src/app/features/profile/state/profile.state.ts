@@ -23,7 +23,7 @@ export class ProfileState {
     () => this._userProfile()?.name || 'Student'
   );
 
-  setUserProfile(data: UserProfile): void {
+  setUserProfile(data: UserProfile | null): void {
     this._userProfile.set(data);
   }
 

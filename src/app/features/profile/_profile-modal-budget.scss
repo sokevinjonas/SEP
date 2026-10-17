@@ -1,0 +1,55 @@
+/* =============================================================================
+   Profile Modal Live FX & Discovery Info Styles
+   ============================================================================= */
+.live-fx-card {
+  background: linear-gradient(135deg, var(--sep-action, #017e84) 0%, #015B5F 100%);
+  border-radius: 16px;
+  padding: 14px 16px;
+  color: #ffffff;
+  margin-bottom: 12px;
+  box-shadow: 0 4px 14px rgba(1, 126, 132, 0.22);
+
+  .live-fx-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+
+    .live-fx-badge {
+      font-size: 10.5px;
+      font-weight: 800;
+      text-transform: uppercase;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 3px 8px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+    }
+    .live-fx-text { font-size: 12.5px; font-weight: 700; margin: 0; }
+    .sync-live-btn {
+      --color: #ffffff;
+      --border-color: rgba(255, 255, 255, 0.4);
+      --border-radius: 10px;
+      font-size: 11.5px;
+      font-weight: 700;
+      margin: 0;
+      flex-shrink: 0;
+    }
+  }
+}
+
+.discovery-profile-info {
+  background: var(--sep-action-soft, #e5f6f7);
+  border: 1px solid rgba(1, 126, 132, 0.2);
+  border-radius: 14px;
+  padding: 14px;
+  margin: 12px 0;
+
+  ion-badge {
+    --background: var(--sep-action, #017e84);
+    --color: #ffffff;
+    margin-bottom: 6px;
+    font-size: 10.5px;
+    font-weight: 800;
+  }
+  p { font-size: 12px; line-height: 1.45; color: var(--sep-ink, #2B1F28); margin: 0; }
+}

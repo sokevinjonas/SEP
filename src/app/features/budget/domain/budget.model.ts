@@ -72,7 +72,7 @@ export function calculateAiSuggestedBudget(
   daysTotal: number = 30
 ): number {
   if (totalSpent <= 0 || daysElapsed <= 0) {
-    return 600;
+    return 0;
   }
   const projected = (totalSpent / daysElapsed) * daysTotal;
   return Math.max(100, Math.round(projected / 50) * 50);

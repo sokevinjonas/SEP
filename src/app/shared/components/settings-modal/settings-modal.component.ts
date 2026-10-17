@@ -72,7 +72,7 @@ import { Category, MonthlyBudget, UserProfile } from '../../../core/models/finan
 })
 export class SettingsModalComponent implements OnInit {
   exchangeRate = 42;
-  totalBudgetGhs = 600;
+  totalBudgetGhs = 0;
   categories: Category[] = [];
   monthlyBudget: MonthlyBudget | null = null;
   userProfile: UserProfile | null = null;
@@ -104,8 +104,8 @@ export class SettingsModalComponent implements OnInit {
   async ngOnInit() {
     this.userProfile = await this.db.getUserProfile();
     this.monthlyBudget = await this.db.getMonthlyBudget();
-    this.exchangeRate = this.currencyService.exchangeRate() || this.monthlyBudget.exchangeRateXof || 42;
-    this.totalBudgetGhs = this.monthlyBudget.totalBudgetGhs || 600;
+    this.exchangeRate = this.currencyService.exchangeRate() || this.monthlyBudget?.exchangeRateXof || 42;
+    this.totalBudgetGhs = this.monthlyBudget?.totalBudgetGhs || 0;
     this.categories = await this.db.getCategories();
   }
 

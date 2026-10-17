@@ -1,0 +1,57 @@
+/* =============================================================================
+   Profile Modal Link Account & OTP Styles
+   ============================================================================= */
+.modal-link-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+  padding: 10px 0;
+
+  .modal-hero-badge {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: var(--sep-primary-soft, #f4ecf2);
+    color: var(--sep-primary, #714B67);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    margin-bottom: 2px;
+
+    &.otp-badge {
+      background: var(--sep-action-soft, #e5f6f7);
+      color: var(--sep-action, #017e84);
+    }
+  }
+
+  .link-heading {
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--sep-primary, #714B67);
+    margin: 0;
+  }
+
+  .link-desc {
+    font-size: 12.5px;
+    color: var(--sep-mut, #6B5966);
+    line-height: 1.45;
+    margin: 0 0 10px;
+    max-width: 320px;
+  }
+
+  .modal-input-item {
+    width: 100%;
+    text-align: left;
+  }
+
+  .otp-field-input {
+    letter-spacing: 6px;
+    font-size: 20px;
+    font-weight: 900;
+    text-align: center;
+    color: var(--sep-primary, #714B67);
+  }
+}
