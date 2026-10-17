@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.dbService = void 0;
 const fs_1 = __importDefault(require("fs"));
 const path_1 = __importDefault(require("path"));
+const uuid_js_1 = require("../utils/uuid.js");
 class DbService {
     store = {
         users: {},
@@ -79,7 +80,7 @@ class DbService {
             return existing;
         }
         const newUser = {
-            id: `usr_${Date.now()}_${Math.random().toString(36).substring(2, 7)}`,
+            id: (0, uuid_js_1.generateUuidV7)(),
             email: normEmail,
             createdAt: now,
             lastLoginAt: now
