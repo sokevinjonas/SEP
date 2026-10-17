@@ -155,71 +155,18 @@
   }
 }
 
-/* Quick Restore Banner */
-.restore-banner-card {
-  background: var(--sep-card, #FFFFFF);
-  border: 1.5px dashed var(--sep-action, #017E84);
-  border-radius: 16px;
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  box-shadow: 0 2px 8px rgba(1, 126, 132, 0.06);
-
-  .restore-info {
-    .restore-chip {
-      display: inline-block;
-      font-size: 9.5px;
-      font-weight: 900;
-      color: var(--sep-action, #017E84);
-      background: rgba(1, 126, 132, 0.1);
-      padding: 3px 8px;
-      border-radius: 6px;
-      letter-spacing: 0.5px;
-      margin-bottom: 4px;
-    }
-
-    .restore-desc {
-      font-size: 12px;
-      color: var(--sep-ink, #2B1F28);
-      font-weight: 600;
-      margin: 0;
-    }
-  }
-
-  .restore-buttons-group {
-    display: flex;
-    gap: 8px;
-
-    .restore-action-btn {
-      flex: 1;
-      --border-radius: 10px;
-      --border-width: 1.5px;
-      font-weight: 800;
-      font-size: 12px;
-      height: 34px;
-      margin: 0;
-
-      &.login-btn {
-        --background: var(--sep-action, #017E84);
-        --color: #FFFFFF;
-        box-shadow: 0 2px 8px rgba(1, 126, 132, 0.25);
-      }
-    }
-  }
-}
-
-/* Campus Section */
-.campus-section {
+/* Campus Chips Suggestions (Inside form card) */
+.campus-chips-wrap {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  margin-top: 12px;
+  padding: 0 4px;
 
   .chips-hint {
     font-size: 11px;
     font-weight: 700;
     color: var(--sep-mut, #6B5966);
-    margin-left: 2px;
   }
 }
 
@@ -230,7 +177,40 @@
 }
 
 .register-action-wrap {
-  margin-top: 16px;
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.existing-account-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 4px 0;
+
+  .existing-account-label {
+    font-size: 13px;
+    color: var(--sep-mut, #6B5966);
+    font-weight: 600;
+  }
+
+  .existing-account-btn {
+    background: none;
+    border: none;
+    color: var(--sep-primary, #714B67);
+    font-size: 13px;
+    font-weight: 800;
+    text-decoration: underline;
+    cursor: pointer;
+    padding: 4px 6px;
+    font-family: inherit;
+
+    &:hover {
+      color: var(--sep-action, #017E84);
+    }
+  }
 }
 
 /* =============================================================================

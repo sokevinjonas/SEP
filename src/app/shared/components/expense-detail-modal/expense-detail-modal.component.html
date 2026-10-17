@@ -7,10 +7,6 @@
       {{ isEditing() ? 'Edit Expense' : 'Expense Details' }}
     </ion-title>
     <ion-buttons slot="end">
-      <ion-button *ngIf="!isEditing()" (click)="startEditing()" class="edit-toolbar-btn">
-        <ion-icon slot="start" name="create-outline"></ion-icon>
-        <span>Edit</span>
-      </ion-button>
       <ion-button *ngIf="isEditing()" (click)="cancelEditing()" class="cancel-toolbar-btn">
         <span>Cancel</span>
       </ion-button>
@@ -179,7 +175,8 @@
       <!-- Note / Memo -->
       <ion-item class="edit-input-item" lines="none">
         <ion-label position="stacked">Note / Memo</ion-label>
-        <ion-textarea [(ngModel)]="editNote" placeholder="Optional notes... (e.g. lunch with classmates)" rows="2"></ion-textarea>
+        <ion-textarea [(ngModel)]="editNote" placeholder="Optional notes... (e.g. lunch with classmates)"
+          rows="2"></ion-textarea>
       </ion-item>
     </div>
 

@@ -54,24 +54,10 @@
     <div *ngIf="currentStep === 1" class="step-wrapper step-fade-in">
       <!-- Header Description Card -->
       <div class="intro-banner">
-        <h2 class="banner-heading">Where are you studying?</h2>
+        <h2 class="banner-heading">Campus Profile</h2>
         <p class="banner-sub">
-          Choose your study country and city so we can adapt your local currency and campus budget.
+          Tell us where you are studying so Mr. Pognon can adapt your currency and campus budget.
         </p>
-      </div>
-
-      <!-- Quick Login Option for Existing Students -->
-      <div class="restore-banner-card">
-        <div class="restore-info">
-          <span class="restore-chip">EXISTING STUDENT SAVINGS USER?</span>
-          <p class="restore-desc">Sign in with your email to restore your campus profile and data:</p>
-        </div>
-        <div class="restore-buttons-group">
-          <ion-button fill="solid" size="small" class="restore-action-btn login-btn" (click)="goToLogin()" id="btn-go-to-login">
-            <ion-icon slot="start" name="log-in-outline"></ion-icon>
-            <span>Sign In</span>
-          </ion-button>
-        </div>
       </div>
 
       <!-- Student Identity & Campus Card -->
@@ -100,14 +86,14 @@
               </ion-input>
             </ion-item>
 
-            <!-- Country Selection (from External API) -->
+            <!-- Country Selection -->
             <ion-item class="sep-input-item select-item">
               <ion-icon name="globe-outline" slot="start" class="input-icon"></ion-icon>
               <ion-select
                 label="Country of Study *"
                 labelPlacement="stacked"
-                interface="action-sheet"
-                [value]="selectedCountry"
+                interface="alert"
+                [(ngModel)]="selectedCountry"
                 (ionChange)="onCountryChanged($event.detail.value)"
                 placeholder="Select Country">
                 <ion-select-option *ngFor="let c of countries" [value]="c.name">
@@ -117,14 +103,14 @@
               <ion-spinner *ngIf="isLoadingCountries" name="dots" slot="end" class="field-spinner"></ion-spinner>
             </ion-item>
 
-            <!-- City Selection (dynamically populated based on country) -->
+            <!-- City Selection -->
             <ion-item class="sep-input-item select-item">
               <ion-icon name="business-outline" slot="start" class="input-icon"></ion-icon>
               <ion-select
                 label="City of Study *"
                 labelPlacement="stacked"
-                interface="action-sheet"
-                [value]="selectedCity"
+                interface="alert"
+                [(ngModel)]="selectedCity"
                 (ionChange)="onCityChanged($event.detail.value)"
                 [disabled]="isLoadingCities || cities.length === 0"
                 placeholder="Select City">
@@ -135,38 +121,36 @@
               <ion-spinner *ngIf="isLoadingCities" name="dots" slot="end" class="field-spinner"></ion-spinner>
             </ion-item>
 
-            <!-- Campus (Editable Text Field + Suggested Quick Chips) -->
-            <div class="campus-section">
-              <ion-item class="sep-input-item">
-                <ion-icon name="school-outline" slot="start" class="input-icon"></ion-icon>
-                <ion-input
-                  label="University Campus (Editable) *"
-                  labelPlacement="stacked"
-                  placeholder="e.g. University of Ghana (Legon)"
-                  [(ngModel)]="campus">
-                </ion-input>
-              </ion-item>
-
-              <!-- Quick Suggestion Chips (User can tap to fill or edit freely) -->
-              <div class="campus-chips-wrap" *ngIf="suggestedCampuses.length > 0">
-                <span class="chips-hint">Suggested Campuses in {{ selectedCountry }} (tap to select or edit above) :</span>
-                <div class="sep-chip-row">
-                  <ion-chip
-                    *ngFor="let camp of suggestedCampuses"
-                    class="sep-chip"
-                    [class.active]="campus === camp"
-                    (click)="selectSuggestedCampus(camp)">
-                    <ion-label>{{ camp }}</ion-label>
-                  </ion-chip>
-                </div>
-              </div>
-            </div>
+            <!-- Campus Input -->
+            <ion-item class="sep-input-item">
+              <ion-icon name="school-outline" slot="start" class="input-icon"></ion-icon>
+              <ion-input
+                label="University Campus (Editable) *"
+                labelPlacement="stacked"
+                placeholder="e.g. University of Ghana (Legon)"
+                [(ngModel)]="campus">
+              </ion-input>
+            </ion-item>
 
           </ion-list>
+
+          <!-- Quick Suggestion Chips (Under input list, inside card) -->
+          <div class="campus-chips-wrap" *ngIf="suggestedCampuses.length > 0">
+            <span class="chips-hint">Suggested Campuses in {{ selectedCountry }} (tap to select):</span>
+            <div class="sep-chip-row">
+              <ion-chip
+                *ngFor="let camp of suggestedCampuses"
+                class="sep-chip"
+                [class.active]="campus === camp"
+                (click)="selectSuggestedCampus(camp)">
+                <ion-label>{{ camp }}</ion-label>
+              </ion-chip>
+            </div>
+          </div>
         </ion-card-content>
       </div>
 
-      <!-- Step 1 Next Button -->
+      <!-- Step 1 Next Button and Discreet Login Option -->
       <div class="register-action-wrap">
         <ion-button
           expand="block"
@@ -177,6 +161,13 @@
           <span>Continue to Budget &amp; Rates</span>
           <ion-icon slot="end" name="arrow-forward-outline"></ion-icon>
         </ion-button>
+
+        <div class="existing-account-footer">
+          <span class="existing-account-label">Already have a campus account?</span>
+          <button class="existing-account-btn" (click)="goToLogin()" id="btn-go-to-login">
+            Sign In
+          </button>
+        </div>
       </div>
     </div>
 

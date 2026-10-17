@@ -145,9 +145,14 @@ export class RegisterPage implements OnInit {
   }
 
   async ngOnInit(): Promise<void> {
-    await this.loadCountries();
-    await this.onCountryChanged(this.selectedCountry);
+    // 1. Instant offline-first initialization
+    this.countries = this.locationService.getInitialCountries();
+    this.cities = await this.locationService.getCitiesForCountry(this.selectedCountry);
+    this.suggestedCampuses = this.locationService.getCampusesForCountry(this.selectedCountry);
     this.fetchLiveRate();
+
+    // 2. Non-blocking background enrich
+    this.loadCountries();
   }
 
   nextStep(): void {
@@ -195,27 +200,32 @@ export class RegisterPage implements OnInit {
   }
 
   async loadCountries(): Promise<void> {
-    this.isLoadingCountries = true;
-    this.countries = await this.locationService.getCountries();
-    this.isLoadingCountries = false;
+    const list = await this.locationService.getCountries();
+    if (list && list.length > 0) {
+      this.countries = list;
+    }
   }
 
   async onCountryChanged(countryName: string): Promise<void> {
+    if (!countryName) return;
+
     this.selectedCountry = countryName;
     this.isLoadingCities = true;
 
     // 1. Fetch cities for selected country
-    this.cities = await this.locationService.getCitiesForCountry(countryName);
+    const newCities = await this.locationService.getCitiesForCountry(countryName);
+    this.cities = newCities;
     this.isLoadingCities = false;
 
-    // Pick first city if current city not in list
-    if (this.cities.length > 0 && !this.cities.includes(this.selectedCity)) {
+    // Pick first city if current city not in list or empty
+    if (this.cities.length > 0 && (!this.selectedCity || !this.cities.includes(this.selectedCity))) {
       this.selectedCity = this.cities[0];
     }
 
     // 2. Load campus suggestions for this country
     this.suggestedCampuses = this.locationService.getCampusesForCountry(countryName);
-    if (this.suggestedCampuses.length > 0) {
+    // Only pre-fill campus if currently empty or if it was a default placeholder
+    if (this.suggestedCampuses.length > 0 && !this.campus.trim()) {
       this.campus = this.suggestedCampuses[0];
     }
 
@@ -229,7 +239,9 @@ export class RegisterPage implements OnInit {
   }
 
   onCityChanged(city: string): void {
-    this.selectedCity = city;
+    if (city && city.trim()) {
+      this.selectedCity = city;
+    }
   }
 
   selectSuggestedCampus(camp: string): void {

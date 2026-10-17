@@ -13,21 +13,21 @@ export interface CountryItem {
 export class LocationService {
   // Curated offline-first fallback dataset for instant load and offline resilience
   private readonly fallbackCountries: CountryItem[] = [
-    { name: 'Ghana', code: 'GH', currency: 'GHS', flag: '🇬🇭' },
-    { name: 'Togo', code: 'TG', currency: 'XOF', flag: '🇹🇬' },
-    { name: 'Benin', code: 'BJ', currency: 'XOF', flag: '🇧🇯' },
-    { name: "Côte d'Ivoire", code: 'CI', currency: 'XOF', flag: '🇨🇮' },
-    { name: 'Nigeria', code: 'NG', currency: 'NGN', flag: '🇳🇬' },
-    { name: 'Senegal', code: 'SN', currency: 'XOF', flag: '🇸🇳' },
-    { name: 'Cameroon', code: 'CM', currency: 'XAF', flag: '🇨🇲' },
-    { name: 'Burkina Faso', code: 'BF', currency: 'XOF', flag: '🇧🇫' },
-    { name: 'Mali', code: 'ML', currency: 'XOF', flag: '🇲🇱' },
-    { name: 'Niger', code: 'NE', currency: 'XOF', flag: '🇳🇪' },
-    { name: 'Guinea', code: 'GN', currency: 'GNF', flag: '🇬🇳' },
-    { name: 'France', code: 'FR', currency: 'EUR', flag: '🇫🇷' },
-    { name: 'United Kingdom', code: 'GB', currency: 'GBP', flag: '🇬🇧' },
-    { name: 'United States', code: 'US', currency: 'USD', flag: '🇺🇸' },
-    { name: 'Canada', code: 'CA', currency: 'CAD', flag: '🇨🇦' },
+    { name: 'Ghana', code: 'GH', currency: 'GHS', flag: '' },
+    { name: 'Togo', code: 'TG', currency: 'XOF', flag: '' },
+    { name: 'Benin', code: 'BJ', currency: 'XOF', flag: '' },
+    { name: "Côte d'Ivoire", code: 'CI', currency: 'XOF', flag: '' },
+    { name: 'Nigeria', code: 'NG', currency: 'NGN', flag: '' },
+    { name: 'Senegal', code: 'SN', currency: 'XOF', flag: '' },
+    { name: 'Cameroon', code: 'CM', currency: 'XAF', flag: '' },
+    { name: 'Burkina Faso', code: 'BF', currency: 'XOF', flag: '' },
+    { name: 'Mali', code: 'ML', currency: 'XOF', flag: '' },
+    { name: 'Niger', code: 'NE', currency: 'XOF', flag: '' },
+    { name: 'Guinea', code: 'GN', currency: 'GNF', flag: '' },
+    { name: 'France', code: 'FR', currency: 'EUR', flag: '' },
+    { name: 'United Kingdom', code: 'GB', currency: 'GBP', flag: '' },
+    { name: 'United States', code: 'US', currency: 'USD', flag: '' },
+    { name: 'Canada', code: 'CA', currency: 'CAD', flag: '' },
   ];
 
   private readonly fallbackCities: Record<string, string[]> = {
@@ -91,13 +91,17 @@ export class LocationService {
     ]
   };
 
+  getInitialCountries(): CountryItem[] {
+    return [...this.fallbackCountries];
+  }
+
   /**
    * Fetches list of countries from public API or falls back to curated offline list.
    */
   async getCountries(): Promise<CountryItem[]> {
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
 
       const res = await fetch('https://countriesnow.space/api/v0.1/countries', {
         signal: controller.signal
@@ -107,7 +111,6 @@ export class LocationService {
       if (res.ok) {
         const body = await res.json();
         if (body && Array.isArray(body.data)) {
-          // Map countries
           const apiCountries: CountryItem[] = body.data.map((item: any) => ({
             name: item.country,
             code: item.iso2 || '',
@@ -115,7 +118,6 @@ export class LocationService {
             flag: ''
           }));
 
-          // Ensure our key student countries are prioritized at the top
           const priorityNames = ['Ghana', 'Togo', 'Benin', "Côte d'Ivoire", 'Nigeria', 'Senegal', 'Cameroon', 'Burkina Faso'];
           const topList = this.fallbackCountries.filter(c => priorityNames.includes(c.name));
           const otherList = apiCountries.filter(c => !priorityNames.includes(c.name));
@@ -130,14 +132,19 @@ export class LocationService {
   }
 
   /**
-   * Fetches cities for a selected country from external API with instant fallback.
+   * Fetches cities for a selected country with instant offline fallback.
    */
   async getCitiesForCountry(countryName: string): Promise<string[]> {
     if (!countryName) return [];
 
+    // Instant local return if country is in curated dataset
+    if (this.fallbackCities[countryName] && this.fallbackCities[countryName].length > 0) {
+      return [...this.fallbackCities[countryName]];
+    }
+
     try {
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 4000);
+      const timeoutId = setTimeout(() => controller.abort(), 2500);
 
       const url = `https://countriesnow.space/api/v0.1/countries/cities/q?country=${encodeURIComponent(countryName)}`;
       const res = await fetch(url, { signal: controller.signal });
@@ -146,7 +153,6 @@ export class LocationService {
       if (res.ok) {
         const body = await res.json();
         if (body && Array.isArray(body.data) && body.data.length > 0) {
-          // De-duplicate and sort alphabetically
           const uniqueCities = Array.from(new Set(body.data as string[])).sort();
           return uniqueCities;
         }
