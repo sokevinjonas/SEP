@@ -113,109 +113,17 @@ export class OcrService {
               items: result.extracted.items || []
             };
           }
-        } else {
-          const errData: any = await response.json().catch(() => ({}));
-          throw new Error(errData.error || `Erreur lors de l'analyse GPT-4o (HTTP ${response.status})`);
         }
+
+        const errData: any = await response.json().catch(() => ({}));
+        throw new Error(errData.error || `Erreur lors de l'analyse GPT-4o (HTTP ${response.status})`);
       } catch (err: any) {
         console.error('[OcrService] GPT-4o vision extraction failed:', err);
         throw err;
       }
-    }
-
-    // 2. Offline / local fallback with realistic scanning state
-    await new Promise(resolve => setTimeout(resolve, 800));
-
-    const lowerName = name.toLowerCase();
-
-    // Contextual intelligent heuristic rules based on filename or receipt hints
-    if (lowerName.includes('momo') || lowerName.includes('mtn') || lowerName.includes('transfer')) {
-      return {
-        amount: 45.0,
-        currency: 'GHS',
-        categoryId: 'cat-food',
-        categoryName: 'Food & Chop',
-        merchant: 'Mama Ama Campus Eatery',
-        date: new Date().toISOString(),
-        transactionReference: `MTN-${Math.floor(100000000 + Math.random() * 900000000)}`,
-        source: 'ocr_momo',
-        confidence: {
-          amount: true,
-          merchant: true,
-          category: true,
-          reference: true
-        },
-        fileName: name
-      };
-    } else if (lowerName.includes('book') || lowerName.includes('librairie') || lowerName.includes('repro')) {
-      return {
-        amount: 85.0,
-        currency: 'GHS',
-        categoryId: 'cat-books',
-        categoryName: 'Books & Copies',
-        merchant: 'Legon Repro & Handouts ?',
-        date: new Date().toISOString(),
-        transactionReference: `REC-BK-${Date.now().toString().slice(-6)}`,
-        source: 'ocr_receipt',
-        confidence: {
-          amount: true,
-          merchant: false, // Uncertain field to test Story 3.4
-          category: true,
-          reference: true
-        },
-        uncertainNote: 'Nom du commerce manuscrit incertain (Legon Repro & Handouts ?)',
-        fileName: name
-      };
     } else {
-      // Default realistic campus grocery / ticket scan
-      const randomAmounts = [15.5, 28.0, 62.0, 110.0, 35.0];
-      const pickedAmount = randomAmounts[Math.floor(Math.random() * randomAmounts.length)];
-      const isDoubtfulMerchant = Math.random() > 0.5;
-
-      return {
-        amount: pickedAmount,
-        currency: 'GHS',
-        categoryId: 'cat-food',
-        categoryName: 'Food & Chop',
-        merchant: isDoubtfulMerchant ? 'Supermarket Mart (illisible ?)' : 'Campus Mart Legon',
-        date: new Date().toISOString(),
-        transactionReference: `TXN-${Math.floor(1000000 + Math.random() * 9000000)}`,
-        source: 'ocr_receipt',
-        confidence: {
-          amount: true,
-          merchant: !isDoubtfulMerchant,
-          category: true,
-          reference: true
-        },
-        uncertainNote: isDoubtfulMerchant ? 'En-tête de ticket de caisse estompé' : undefined,
-        fileName: name
-      };
+      throw new Error('Vous êtes hors-ligne. Une connexion Internet est requise pour analyser le reçu avec GPT-4o.');
     }
-  }
-
-  /**
-   * Provides quick sample presets for easy instant browser testing of MoMo & Receipts
-   */
-  getSamplePresets(): { label: string; type: 'momo' | 'receipt' | 'doubtful'; filename: string; snippet: string }[] {
-    return [
-      {
-        label: 'Screenshot MTN MoMo (45.00 GHS)',
-        type: 'momo',
-        filename: 'mtn_momo_campus_chop.jpg',
-        snippet: 'Payment of GHS 45.00 to Mama Ama Campus Eatery approved. Current Balance: GHS 210.50'
-      },
-      {
-        label: 'Ticket Librairie avec doute OCR (85.00 GHS)',
-        type: 'doubtful',
-        filename: 'recu_manuscrit_handouts.jpg',
-        snippet: 'Legon Bookshop / Repro handouts - Montant: 85 GHS - Signature marchand incertaine'
-      },
-      {
-        label: 'Reçu Telecel Cash / Trotro (12.00 GHS)',
-        type: 'receipt',
-        filename: 'telecel_trotro_ride.png',
-        snippet: 'Telecel Cash: 12.00 GHS paid to Circle-Legon Shuttle driver. Ref: TC-849204'
-      }
-    ];
   }
 }
+
