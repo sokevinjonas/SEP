@@ -55,9 +55,9 @@ chatRouter.post('/chat', authMiddleware, async (req: Request, res: Response) => 
       }
     }
 
-    // 2. Local heuristic advice (Bilingual French / English)
+    // 2. Local heuristic advice (Default English, French if explicitly queried in French)
     const query = message.toLowerCase();
-    const isFrench = /[éèêàùç]|bonjour|salut|manger|achat|acheter|chaussure|argent|budget|finir|mois|combien|peux-je|puis-je|aide/i.test(message);
+    const isFrench = /[éèêàùçœîôû]|(^|\b)(bonjour|salut|manger|achat|acheter|chaussures?|combien|peux-je|puis-je|aidez-moi|aide-moi|pourquoi|merci)(\b|$)/i.test(message);
     let reply = '';
 
     if (query.includes('sneaker') || query.includes('shoes') || query.includes('buy') || query.includes('purchase') || query.includes('achat') || query.includes('acheter') || query.includes('basket')) {

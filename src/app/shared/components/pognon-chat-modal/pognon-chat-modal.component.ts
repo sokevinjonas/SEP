@@ -100,9 +100,9 @@ export class PognonChatModalComponent implements OnInit {
   allExpenses: Expense[] = [];
 
   quickSuggestions = [
-    'Puis-je me payer des baskets ce weekend ?',
-    'Donne-moi un plan pour finir le mois',
-    'Comment réduire mon budget nourriture ?'
+    'Can I afford sneakers this weekend?',
+    'Give me a plan to finish the month',
+    'How do I cut my cafeteria food budget?'
   ];
 
   constructor() {
@@ -185,14 +185,14 @@ export class PognonChatModalComponent implements OnInit {
   }
 
   private initWelcomeMessage(): void {
-    const studentName = this.userProfile?.name ? this.userProfile.name : 'ami';
+    const studentName = this.userProfile?.name ? this.userProfile.name : 'friend';
     const balance = this.consumption ? this.consumption.balanceGhs.toFixed(2) : '600.00';
     const curr = this.currencyService.activeCurrency();
 
     const welcomeMsg: ChatMessage = {
       id: `pog-init-${Date.now()}`,
       sender: 'pognon',
-      text: `Salut ${studentName} ! J'ai les yeux rivés sur ton grand livre. Il te reste ${balance} ${curr} de marge pour ce cycle. Quelle envie te tente ou quelle dépense veux-tu auditer ?`,
+      text: `Hey ${studentName}! My eyes are glued to your ledger. You have ${balance} ${curr} of breathing room left this cycle. What desire is tempting you or what do you want to audit?`,
       time: this.formatNow()
     };
 
@@ -309,19 +309,19 @@ export class PognonChatModalComponent implements OnInit {
     const lower = query.toLowerCase();
     const balance = this.consumption?.balanceGhs || 600;
     const curr = this.currencyService.activeCurrency();
-    const name = this.userProfile?.name || 'ami';
+    const name = this.userProfile?.name || 'friend';
 
     let reply = '';
 
-    if (lower.includes('sneaker') || lower.includes('shoe') || lower.includes('basket') || lower.includes('buy') || lower.includes('weekend') || lower.includes('achat') || lower.includes('acheter')) {
+    if (lower.includes('sneaker') || lower.includes('shoe') || lower.includes('buy') || lower.includes('weekend')) {
       const daily = (balance / 30).toFixed(0);
-      reply = `Regardons les faits froids, ${name} : avec environ ${balance.toFixed(0)} ${curr} restants, ton allocation quotidienne est d'environ ${daily} ${curr}/jour. Débourser pour cette dépense ampute 2 semaines de repas au campus ! Mon verdict : place cet article en temporisation 48h dans tes achats réfléchis. Si l'envie persiste après 2 jours, nous ferons le bilan.`;
-    } else if (lower.includes('plan') || lower.includes('finish') || lower.includes('month') || lower.includes('mois') || lower.includes('finir') || lower.includes('urgence')) {
-      reply = `Voici ton plan de combat pour le campus : 1) Zéro sortie restaurant hors-campus jusqu'à vendredi. 2) Privilégie les repas économiques du campus ou la cuisine partagée. 3) Prends le trotro ou les navettes partagées. Tu as ${balance.toFixed(0)} ${curr}, c'est largement suffisant si tu ne cèdes pas aux impulsions !`;
-    } else if (lower.includes('food') || lower.includes('meal') || lower.includes('cafeteria') || lower.includes('eat') || lower.includes('manger') || lower.includes('repas') || lower.includes('nourriture') || lower.includes('waakye') || lower.includes('faim')) {
-      reply = `L'alimentation est le piège numéro 1 des étudiants à Accra et sur le campus. Pour chaque repas, demande-toi si tu as déjà des provisions. Cuisiner ou mutualiser les courses avec des colocataires réduit la facture de 40% dès cette semaine.`;
+      reply = `Let's look at cold facts, ${name}: with ${balance.toFixed(0)} ${curr} left, your daily allowance is around ${daily} ${curr}/day. Dropping that much on this purchase amputates 2 full weeks of campus cafeteria meals! My verdict: place it on a 48h cool-off in your hesitation list. If you still crave it in 2 days, we'll talk.`;
+    } else if (lower.includes('plan') || lower.includes('finish') || lower.includes('month') || lower.includes('emergency')) {
+      reply = `Here is your campus battle plan, ${name}: 1) Zero restaurant outings off-campus until Friday. 2) Stick to the campus cafeteria meals or shared cooking. 3) Take Trotros or shared campus shuttles. You have ${balance.toFixed(0)} ${curr}, that's plenty if you don't surrender to impulse!`;
+    } else if (lower.includes('food') || lower.includes('meal') || lower.includes('cafeteria') || lower.includes('eat') || lower.includes('waakye')) {
+      reply = `Food is the number one spending trap for students in Accra and on campus. For every meal, ask yourself if you have groceries in your dorm. Batch cooking or pooling bulk groceries with roommates cuts food bills by 40% starting this week.`;
     } else {
-      reply = `Je t'entends bien, ${name}. N'oublie pas ma devise : chaque cedi ou franc CFA préservé aujourd'hui est une bouffée d'oxygène pendant les examens de fin de semestre. Que souhaites-tu auditer ensuite ?`;
+      reply = `I hear you, ${name}. Remember my motto: every cedi or CFA saved today is a day of freedom and peace of mind during your end-of-semester exams. What do you want to audit next?`;
     }
 
     this.messages.update(msgs => [

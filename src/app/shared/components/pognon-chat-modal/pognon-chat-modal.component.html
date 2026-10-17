@@ -8,16 +8,16 @@
         <h3 class="coach-name">M. Pognon</h3>
         <p class="coach-status">
           <span class="status-dot" [class.online]="isOnline()"></span>
-          <span>{{ isOnline() ? 'En ligne · Session du jour (24h)' : 'Hors-ligne' }}</span>
+          <span>{{ isOnline() ? 'Online · Daily Session (24h)' : 'Offline' }}</span>
         </p>
       </div>
     </div>
 
     <ion-buttons slot="end">
-      <ion-button (click)="clearChat()" fill="clear" color="medium" title="Réinitialiser la session du jour" *ngIf="messages().length > 1">
+      <ion-button (click)="clearChat()" fill="clear" color="medium" title="Reset daily session" *ngIf="messages().length > 1">
         <ion-icon slot="icon-only" name="trash-outline"></ion-icon>
       </ion-button>
-      <ion-button (click)="dismiss()" fill="clear" color="medium" id="btn-close-chat" aria-label="Fermer">
+      <ion-button (click)="dismiss()" fill="clear" color="medium" id="btn-close-chat" aria-label="Close">
         <ion-icon slot="icon-only" name="close-outline"></ion-icon>
       </ion-button>
     </ion-buttons>
@@ -29,7 +29,7 @@
   <!-- Offline Warning Banner -->
   <div class="offline-alert-banner" *ngIf="!isOnline()">
     <ion-icon name="cloud-offline-outline"></ion-icon>
-    <p>Aucune connexion. M. Pognon se repose jusqu'à votre reconnexion.</p>
+    <p>No connection. M. Pognon is resting until you reconnect.</p>
   </div>
 
   <!-- Messages List -->
@@ -81,7 +81,7 @@
     <ion-input
       [(ngModel)]="userInput"
       (keyup.enter)="sendMessage()"
-      placeholder="Demande conseil à M. Pognon..."
+      placeholder="Ask M. Pognon for financial advice..."
       [disabled]="!isOnline()"
       class="chat-input-field"
       id="input-chat-pognon">
