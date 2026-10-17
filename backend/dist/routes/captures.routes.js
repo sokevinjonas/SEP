@@ -157,10 +157,11 @@ Only output valid JSON without markdown wrapping.`;
  */
 exports.capturesRouter.post('/alerts/pending-purchase-reminder', sync_routes_js_1.authMiddleware, async (req, res) => {
     try {
-        const { email, purchaseTitle, amountGhs, costDays } = req.body;
+        const { email, purchaseTitle, amountGhs, costDays, name, studentName } = req.body;
         if (!email || !purchaseTitle) {
             return res.status(400).json({ error: 'Missing required reminder parameters.' });
         }
+        const recipientName = studentName || name || 'Student';
         if (resend) {
             await resend.emails.send({
                 from: 'M. Pognon <coach@kgslab.com>',
@@ -169,7 +170,7 @@ exports.capturesRouter.post('/alerts/pending-purchase-reminder', sync_routes_js_
                 html: `
           <div style="font-family: sans-serif; color: #2B1F28; padding: 20px;">
             <h2 style="color: #714B67;">M. Pognon Financial Coach</h2>
-            <p>Hello Jonas,</p>
+            <p>Hello ${recipientName},</p>
             <p>Yesterday, you paused an impulse purchase: <strong>${purchaseTitle}</strong> (${amountGhs} GHS, worth ${costDays} days of food).</p>
             <p>24 hours have passed. If you still genuinely need it, log in to buy it. If you can live without it, abandon it and celebrate your savings!</p>
             <p style="margin-top: 24px; color: #8C7B89; font-size: 12px;">Sent from Student Savings Assistant · kgslab.com</p>
