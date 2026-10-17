@@ -14,4 +14,5 @@ exports.config = {
     resendApiKey: process.env.RESEND_API_KEY || '',
     resendFromEmail: process.env.RESEND_FROM_EMAIL || 'M. Pognon <coach@mail-omnelyo.kgslab.com>',
     openaiApiKey: process.env.OPENAI_API_KEY || '',
+    geminiApiKey: process.env.GEMINI_API_KEY || '',
 };

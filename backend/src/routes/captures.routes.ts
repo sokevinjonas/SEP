@@ -3,8 +3,6 @@ import multer from 'multer';
 import { config } from '../config.js';
 import { authMiddleware } from './sync.routes.js';
 import { Resend } from 'resend';
-import { createWorker } from 'tesseract.js';
-import { parseReceiptText } from '../services/receipt-parser.service.js';
 
 export const capturesRouter = Router();
 
@@ -16,87 +14,106 @@ const upload = multer({
 
 const resend = config.resendApiKey ? new Resend(config.resendApiKey) : null;
 
-let cachedWorker: any = null;
-async function getTesseractWorker() {
-  if (!cachedWorker) {
-    cachedWorker = await createWorker('eng');
+async function extractWithGPT4o(buffer: Buffer, mimeType: string, fileName: string): Promise<any> {
+  if (!config.openaiApiKey) {
+    throw new Error('Clé API OpenAI non configurée. Veuillez définir OPENAI_API_KEY dans backend/.env.');
   }
-  return cachedWorker;
+
+  console.log(`[GPT-4o Vision] Analyzing receipt image: ${fileName} (${Math.round(buffer.length / 1024)} KB) with OpenAI GPT-4o...`);
+  const base64Data = buffer.toString('base64');
+  const imageUrl = `data:${mimeType || 'image/jpeg'};base64,${base64Data}`;
+
+  const systemPrompt = `Tu es un expert en analyse financière et extraction de reçus de caisse / captures de transfert Mobile Money (MTN MoMo, Telecel, Wave, etc.) pour étudiants.
+Tu dois analyser l'image fournie et extraire fidèlement TOUTES les informations financières au format JSON avec la structure exacte suivante :
+{
+  "merchant": "Nom du commerce ou de l'expéditeur/destinataire",
+  "amount": 64.10,
+  "currency": "GHS",
+  "date": "2026-10-15T19:04:39.000Z",
+  "transactionReference": "TILL120261015-455504",
+  "amountPaid": 200.00,
+  "change": 135.90,
+  "itemQty": 3,
+  "items": [
+    {
+      "id": "item-1",
+      "name": "LIFEBOUY SOAP ASST. 175G",
+      "quantity": 2,
+      "unitPrice": 22.80,
+      "totalPrice": 45.60,
+      "categoryId": "cat-other",
+      "categoryName": "Hygiène & Soins",
+      "selected": true
+    }
+  ],
+  "confidence": {
+    "amount": true,
+    "merchant": true,
+    "category": true,
+    "reference": true
+  },
+  "uncertainNote": null
 }
 
-async function extractWithGemini(buffer: Buffer, mimeType: string, fileName: string): Promise<any | null> {
-  if (!config.geminiApiKey) return null;
-  try {
-    console.log('[AI Vision] Calling Gemini Vision API for receipt analysis...');
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${config.geminiApiKey}`;
-    const prompt = `Analyze this receipt or Mobile Money screenshot image. Extract structured data in JSON with fields:
-- merchant (string): Merchant or store name
-- amount (number): Total amount to pay
-- currency (string): "GHS" or "XOF"
-- date (ISO string): Date on receipt or current ISO string
-- transactionReference (string): Receipt or MoMo transaction ID
-- amountPaid (number or null): Cash or amount given
-- change (number or null): Change returned to customer
-- itemQty (number): Total quantity of items bought
-- items (array of objects): Each product/item with:
-  - id (string, e.g. "item-1")
-  - name (string)
-  - quantity (number)
-  - unitPrice (number)
-  - totalPrice (number)
-  - categoryId (one of: "cat-food", "cat-transport", "cat-academic", "cat-personal", "cat-housing", "cat-other")
-  - categoryName (string)
-  - selected (boolean, default true)
-- confidence: { amount: boolean, merchant: boolean, category: boolean, reference: boolean }
+RÈGLES IMPORTANTES :
+- "amount" : correspond au montant TOTAL réel payé pour les achats (ex: 64.10).
+- "amountPaid" : correspond au montant remis en liquide par le client s'il figure sur le reçu (ex: 200.00).
+- "change" : correspond à la monnaie rendue au client (ex: 135.90). NE CONFONDS JAMAIS la monnaie rendue ("Change") avec le total des achats ("TOTAL").
+- "items" : liste CHAQUE ligne d'article achetée sur le reçu avec son libellé exact, sa quantité, son prix unitaire et son sous-total. Catégorise chaque article dans l'une des catégories : 'cat-food', 'cat-transport', 'cat-academic', 'cat-personal', 'cat-housing', 'cat-other'.
+- Réponds UNIQUEMENT avec l'objet JSON valide.`;
 
-Return ONLY valid raw JSON without markdown markers.`;
-
-    const payload = {
-      contents: [{
-        parts: [
-          { text: prompt },
-          {
-            inline_data: {
-              mime_type: mimeType || 'image/jpeg',
-              data: buffer.toString('base64')
+  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${config.openaiApiKey}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'gpt-4o',
+      response_format: { type: 'json_object' },
+      messages: [
+        { role: 'system', content: systemPrompt },
+        {
+          role: 'user',
+          content: [
+            { type: 'text', text: `Analyse ce reçu ou capture (${fileName}) et extrait toutes les informations financières et chaque ligne de produit.` },
+            {
+              type: 'image_url',
+              image_url: {
+                url: imageUrl,
+                detail: 'high'
+              }
             }
-          }
-        ]
-      }],
-      generationConfig: {
-        responseMimeType: 'application/json'
-      }
-    };
-
-    const res = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-
-    if (res.ok) {
-      const data: any = await res.json();
-      const rawText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-      if (rawText) {
-        const parsed = JSON.parse(rawText);
-        if (parsed.amount) {
-          console.log(`[AI Vision] Gemini successfully analyzed receipt: ${parsed.merchant} - ${parsed.amount} ${parsed.currency}`);
-          return parsed;
+          ]
         }
-      }
-    } else {
-      const errTxt = await res.text();
-      console.warn('[AI Vision] Gemini API error:', res.status, errTxt);
+      ],
+      temperature: 0.1
+    })
+  });
+
+  const data: any = await response.json();
+  if (!response.ok) {
+    const errorMsg = data?.error?.message || `Erreur OpenAI HTTP ${response.status}`;
+    console.error('[GPT-4o Vision Error]', data);
+    if (data?.error?.code === 'credit_balance_exhausted' || data?.error?.type === 'insufficient_quota') {
+      throw new Error(`Crédit OpenAI épuisé sur ce compte. Veuillez ajouter des crédits sur https://platform.openai.com/settings/organization/billing.`);
     }
-  } catch (err) {
-    console.warn('[AI Vision] Gemini extraction failed:', err);
+    throw new Error(errorMsg);
   }
-  return null;
+
+  const content = data?.choices?.[0]?.message?.content;
+  if (!content) {
+    throw new Error('Réponse vide reçue de GPT-4o.');
+  }
+
+  const parsed = JSON.parse(content);
+  console.log(`[GPT-4o Vision] Extraction réussie: ${parsed.merchant} | Total: ${parsed.amount} ${parsed.currency} | ${parsed.items?.length || 0} article(s)`);
+  return parsed;
 }
 
 /**
  * POST /api/captures
- * Intelligent Receipt and MoMo screenshot vision extraction
+ * Intelligent Receipt and MoMo screenshot vision extraction via OpenAI GPT-4o
  */
 capturesRouter.post('/captures', authMiddleware, upload.single('file'), async (req: Request, res: Response) => {
   try {
@@ -104,105 +121,23 @@ capturesRouter.post('/captures', authMiddleware, upload.single('file'), async (r
     const fileName = (req.body?.fileName || file?.originalname || 'capture.jpg').toLowerCase();
     const mimeType = file?.mimetype || 'image/jpeg';
 
-    if (file && file.buffer) {
-      // 1. Try Gemini Vision AI if API key is provided
-      const geminiResult = await extractWithGemini(file.buffer, mimeType, fileName);
-      if (geminiResult) {
-        return res.json({
-          success: true,
-          extracted: geminiResult,
-          engine: 'gemini-ai'
-        });
-      }
-
-      // 2. High performance local OCR via Tesseract (with reusable worker)
-      try {
-        console.log(`[OCR] Analyzing receipt image with local engine: ${file.originalname || fileName} (${Math.round(file.size / 1024)} KB)`);
-        const worker = await getTesseractWorker();
-        const ret = await worker.recognize(file.buffer);
-
-        const ocrText = ret.data.text;
-        if (ocrText && ocrText.trim().length > 10) {
-          const parsed = parseReceiptText(ocrText, fileName);
-          console.log(`[OCR] Successfully parsed receipt: ${parsed.merchant} | Total: ${parsed.amount} GHS | Items: ${parsed.items.length}`);
-          return res.json({
-            success: true,
-            extracted: parsed,
-            engine: 'tesseract-ocr'
-          });
-        }
-      } catch (ocrErr) {
-        console.warn('[OCR Worker Error, resetting worker]', ocrErr);
-        try {
-          if (cachedWorker) {
-            await cachedWorker.terminate();
-            cachedWorker = null;
-          }
-        } catch {}
-      }
+    if (!file || !file.buffer) {
+      return res.status(400).json({ success: false, error: 'Aucun fichier image fourni.' });
     }
 
-    // 2. Intelligent local fallback heuristic
-    let fallbackExtracted: any;
-
-    if (fileName.includes('momo') || fileName.includes('mtn') || fileName.includes('telecel')) {
-      fallbackExtracted = {
-        amount: 35.0,
-        currency: 'GHS',
-        categoryId: 'cat-food',
-        categoryName: 'Food & Chop',
-        merchant: 'Campus MoMo Food Vendor',
-        date: new Date().toISOString(),
-        transactionReference: `MTN-${Math.floor(100000000 + Math.random() * 900000000)}`,
-        confidence: {
-          amount: true,
-          merchant: true,
-          category: true,
-          reference: true
-        }
-      };
-    } else if (fileName.includes('book') || fileName.includes('librairie') || fileName.includes('copy')) {
-      fallbackExtracted = {
-        amount: 60.0,
-        currency: 'GHS',
-        categoryId: 'cat-books',
-        categoryName: 'Books & Copies',
-        merchant: 'University Reprographic Center',
-        date: new Date().toISOString(),
-        transactionReference: `REC-BK-${Date.now().toString().slice(-6)}`,
-        confidence: {
-          amount: true,
-          merchant: false,
-          category: true,
-          reference: true
-        },
-        uncertainNote: 'Merchant name was estimated from document header.'
-      };
-    } else {
-      fallbackExtracted = {
-        amount: 25.0,
-        currency: 'GHS',
-        categoryId: 'cat-food',
-        categoryName: 'Food & Chop',
-        merchant: 'Campus Dining Hall',
-        date: new Date().toISOString(),
-        transactionReference: `CHOP-${Math.floor(10000 + Math.random() * 90000)}`,
-        confidence: {
-          amount: true,
-          merchant: true,
-          category: true,
-          reference: true
-        }
-      };
-    }
+    const extracted = await extractWithGPT4o(file.buffer, mimeType, fileName);
 
     return res.json({
       success: true,
-      extracted: fallbackExtracted
+      extracted,
+      engine: 'openai-gpt-4o'
     });
   } catch (err: any) {
     console.error('[Captures Route Error]', err);
-    return res.status(500).json({ success: false, error: err.message || 'Error processing capture.' });
+    return res.status(400).json({
+      success: false,
+      error: err.message || 'Erreur lors de l\'analyse par GPT-4o.'
+    });
   }
 });
 

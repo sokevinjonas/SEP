@@ -314,10 +314,11 @@ export class CapturePage implements OnInit, OnDestroy {
       this.activeCapture = capture;
       this.activeExtraction = extracted;
       this.isPreviewOpen = true;
-    } catch (err) {
+    } catch (err: any) {
       console.error('[CapturePage processCapture Error]', err);
       capture.status = 'failed';
-      await this.showToast('Échec de l\'extraction vision. Vous pouvez saisir les détails manuellement.', 'danger');
+      const msg = err?.message || 'Échec de l\'extraction vision. Vous pouvez saisir les détails manuellement.';
+      await this.showToast(msg, 'danger');
     } finally {
       this.isScanning = false;
       this.cdr.detectChanges();

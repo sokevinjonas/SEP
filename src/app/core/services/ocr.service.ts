@@ -100,7 +100,7 @@ export class OcrService {
               currency: result.extracted.currency || 'GHS',
               categoryId: result.extracted.categoryId || 'cat-food',
               categoryName: result.extracted.categoryName || 'Food & Chop',
-              merchant: result.extracted.merchant || 'Campus Vendor',
+              merchant: result.extracted.merchant || 'Commerce',
               date: result.extracted.date || new Date().toISOString(),
               transactionReference: result.extracted.transactionReference || '',
               source: result.extracted.transactionReference?.includes('MTN') ? 'ocr_momo' : 'ocr_receipt',
@@ -113,9 +113,13 @@ export class OcrService {
               items: result.extracted.items || []
             };
           }
+        } else {
+          const errData: any = await response.json().catch(() => ({}));
+          throw new Error(errData.error || `Erreur lors de l'analyse GPT-4o (HTTP ${response.status})`);
         }
-      } catch (err) {
-        console.warn('[OcrService] Online vision extraction unavailable, using local heuristic engine.', err);
+      } catch (err: any) {
+        console.error('[OcrService] GPT-4o vision extraction failed:', err);
+        throw err;
       }
     }
 
