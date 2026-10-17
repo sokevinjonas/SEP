@@ -79,24 +79,6 @@
         <button class="text-link-btn" (click)="goToRegister()">
           Don't have an account yet? <strong>Create Campus Profile</strong>
         </button>
-
-        <div class="divider-row">
-          <span class="divider-line"></span>
-          <span class="divider-text">OR OFFLINE RESTORE</span>
-          <span class="divider-line"></span>
-        </div>
-
-        <ion-button
-          fill="outline"
-          size="default"
-          class="sep-btn-outline"
-          (click)="loginFileInput.click()"
-          [disabled]="isRestoringFile">
-          <ion-icon slot="start" name="document-text-outline"></ion-icon>
-          <span *ngIf="!isRestoringFile">Restore .json backup file</span>
-          <ion-spinner *ngIf="isRestoringFile" name="dots"></ion-spinner>
-        </ion-button>
-        <input #loginFileInput type="file" accept=".json" (change)="triggerFileRestore($event)" style="display: none;">
       </div>
     </div>
 

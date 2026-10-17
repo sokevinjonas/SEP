@@ -121,31 +121,6 @@
       text-decoration: underline;
     }
   }
-
-  .divider-row {
-    display: flex;
-    align-items: center;
-    width: 100%;
-    gap: 10px;
-    margin: 4px 0;
-
-    .divider-line {
-      flex: 1;
-      height: 1px;
-      background: var(--sep-line, #EADFE7);
-    }
-
-    .divider-text {
-      font-size: 10px;
-      font-weight: 800;
-      letter-spacing: 0.6px;
-      color: var(--sep-mut, #6B5966);
-    }
-  }
-
-  .offline-restore-btn {
-    width: 100%;
-  }
 }
 
 /* OTP Footer */

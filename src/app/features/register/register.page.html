@@ -64,18 +64,13 @@
       <div class="restore-banner-card">
         <div class="restore-info">
           <span class="restore-chip">EXISTING STUDENT SAVINGS USER?</span>
-          <p class="restore-desc">Restore your account, budgets, and all logged expenses:</p>
+          <p class="restore-desc">Sign in with your email to restore your campus profile and data:</p>
         </div>
         <div class="restore-buttons-group">
           <ion-button fill="solid" size="small" class="restore-action-btn login-btn" (click)="goToLogin()" id="btn-go-to-login">
             <ion-icon slot="start" name="log-in-outline"></ion-icon>
             <span>Sign In</span>
           </ion-button>
-          <ion-button fill="outline" size="small" class="restore-action-btn file-btn" (click)="regFileInput.click()" [disabled]="isRestoring">
-            <ion-icon slot="start" name="document-text-outline"></ion-icon>
-            <span>JSON File</span>
-          </ion-button>
-          <input #regFileInput type="file" accept=".json" (change)="triggerFileRestore($event)" style="display: none;">
         </div>
       </div>
 

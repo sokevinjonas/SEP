@@ -15,8 +15,7 @@ import {
   IonButton,
   IonIcon,
   IonSpinner,
-  ToastController,
-  AlertController
+  ToastController
 } from '@ionic/angular';
 import { addIcons } from 'ionicons';
 import {
@@ -26,14 +25,10 @@ import {
   keyOutline,
   checkmarkCircleOutline,
   refreshOutline,
-  cloudDownloadOutline,
-  documentTextOutline,
-  shieldCheckmarkOutline,
-  lockClosedOutline
+  shieldCheckmarkOutline
 } from 'ionicons/icons';
 import { SyncService } from '../../core/services/sync.service';
 import { IdbService } from '../../core/db/idb.service';
-import { ExportService } from '../../core/services/export.service';
 import { ProfileFacade } from '../profile/facade/profile.facade';
 import { BudgetFacade } from '../budget/facade/budget.facade';
 import { ExpensesFacade } from '../expenses/facade/expenses.facade';
@@ -67,7 +62,6 @@ export class LoginPage implements OnInit, OnDestroy {
   otpCode: string = '';
 
   isLoading: boolean = false;
-  isRestoringFile: boolean = false;
   countdown: number = 0;
   devOtpNotice: string = '';
   private countdownTimer: any = null;
@@ -76,13 +70,11 @@ export class LoginPage implements OnInit, OnDestroy {
     private router: Router,
     private syncService: SyncService,
     private idbService: IdbService,
-    private exportService: ExportService,
     private profileFacade: ProfileFacade,
     private budgetFacade: BudgetFacade,
     private expensesFacade: ExpensesFacade,
     private purchasesFacade: PurchasesFacade,
     private toastCtrl: ToastController,
-    private alertCtrl: AlertController,
     private cdr: ChangeDetectorRef
   ) {
     addIcons({
@@ -92,10 +84,7 @@ export class LoginPage implements OnInit, OnDestroy {
       keyOutline,
       checkmarkCircleOutline,
       refreshOutline,
-      cloudDownloadOutline,
-      documentTextOutline,
-      shieldCheckmarkOutline,
-      lockClosedOutline
+      shieldCheckmarkOutline
     });
   }
 
@@ -241,44 +230,6 @@ export class LoginPage implements OnInit, OnDestroy {
     if (this.countdownTimer) {
       clearInterval(this.countdownTimer);
       this.countdownTimer = null;
-    }
-  }
-
-  async triggerFileRestore(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    if (!input.files || input.files.length === 0) return;
-
-    const file = input.files[0];
-    try {
-      const backupData = await this.exportService.readBackupFile(file);
-      const alert = await this.alertCtrl.create({
-        header: 'Restore Backup File?',
-        message: `File: ${file.name}\n${backupData.expenses?.length || 0} expenses detected.\nDo you want to restore this data?`,
-        buttons: [
-          { text: 'Cancel', role: 'cancel' },
-          {
-            text: 'Restore',
-            handler: async () => {
-              this.isRestoringFile = true;
-              const stats = await this.idbService.restoreAllData(backupData);
-              await Promise.all([
-                this.profileFacade.load(),
-                this.budgetFacade.load(),
-                this.expensesFacade.load(),
-                this.purchasesFacade.load()
-              ]);
-              this.isRestoringFile = false;
-              await this.showToast(`Data restored successfully! (${stats.expenses} expenses)`, 'success');
-              this.router.navigate(['/tabs/home'], { replaceUrl: true });
-            }
-          }
-        ]
-      });
-      await alert.present();
-    } catch (err: any) {
-      await this.showToast(err.message || 'Invalid backup file.', 'danger');
-    } finally {
-      input.value = '';
     }
   }
 
