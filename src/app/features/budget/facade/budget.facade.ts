@@ -4,6 +4,7 @@ import { BudgetRepository } from '../data-access/budget.repository';
 import { ExpensesFacade } from '../../expenses/facade/expenses.facade';
 import { ProfileFacade } from '../../profile/facade/profile.facade';
 import { BudgetCalculatorService, BudgetConsumption, BudgetDaysCalculation } from '../../../core/services/budget-calculator.service';
+import { CurrencyService } from '../../../core/services/currency.service';
 import {
   Category,
   MonthlyBudget,
@@ -20,6 +21,7 @@ export class BudgetFacade {
   private readonly expensesFacade = inject(ExpensesFacade);
   private readonly profileFacade = inject(ProfileFacade);
   private readonly calculator = inject(BudgetCalculatorService);
+  private readonly currencyService = inject(CurrencyService);
 
   readonly categories = this.state.categories;
   readonly monthlyBudget = this.state.monthlyBudget;
@@ -210,7 +212,7 @@ export class BudgetFacade {
       monthYear: current?.monthYear || new Date().toISOString().substring(0, 7),
       totalBudgetGhs: ceiling,
       plannedDailyBudgetGhs: isDisc ? 0 : Math.round(ceiling / 30),
-      exchangeRateXof: current?.exchangeRateXof || 42.0,
+      exchangeRateXof: current?.exchangeRateXof || this.currencyService.exchangeRate() || 0,
       isDiscoveryMode: isDisc,
       cycleStartDay: cycleDay
     };
@@ -280,7 +282,7 @@ export class BudgetFacade {
       suggestedBudget = Math.max(150, Math.round((projected * 1.1) / 50) * 50);
     }
 
-    // 3. Proportional envelope breakdown
+    // 3. Proportional envelope breakdown (normalized to exactly match suggested budget)
     const defaultWeights: Record<string, number> = {
       'cat-food': 0.45,
       'cat-transport': 0.20,
@@ -290,15 +292,27 @@ export class BudgetFacade {
       'cat-other': 0.05
     };
 
-    const suggestedBreakdown = categories.map(cat => {
-      let weight = defaultWeights[cat.id] || 0.10;
+    const rawWeights = categories.map(cat => {
       if (totalSpent > 0 && catMap.has(cat.id)) {
         const actualShare = (catMap.get(cat.id) || 0) / totalSpent;
-        // Blend actual share with a floor to guarantee essential runway
-        weight = Math.max(0.08, actualShare);
+        return Math.max(0.05, actualShare);
       }
+      return defaultWeights[cat.id] || 0.05;
+    });
 
-      const allocation = suggestedBudget > 0 ? Math.max(20, Math.round((suggestedBudget * weight) / 10) * 10) : 0;
+    const sumWeights = rawWeights.reduce((sum, w) => sum + w, 0) || 1;
+
+    let remainingBudget = suggestedBudget;
+    const suggestedBreakdown = categories.map((cat, idx) => {
+      const normalizedWeight = rawWeights[idx] / sumWeights;
+      const isLast = idx === categories.length - 1;
+      let allocation = 0;
+      if (suggestedBudget > 0) {
+        allocation = isLast
+          ? Math.max(0, remainingBudget)
+          : Math.max(10, Math.round((suggestedBudget * normalizedWeight) / 10) * 10);
+        remainingBudget -= allocation;
+      }
       const percentage = suggestedBudget > 0 ? Math.round((allocation / suggestedBudget) * 100) : 0;
 
       return {
@@ -350,7 +364,7 @@ export class BudgetFacade {
       id: currentBudget?.id || 'current',
       monthYear: currentBudget?.monthYear || nowIso.substring(0, 7),
       totalBudgetGhs: suggestedBudget,
-      exchangeRateXof: currentBudget?.exchangeRateXof || 42.0,
+      exchangeRateXof: currentBudget?.exchangeRateXof || this.currencyService.exchangeRate() || 0,
       plannedDailyBudgetGhs: Math.round(suggestedBudget / 30),
       isDiscoveryMode: false,
       discoveryCompleted: true,
@@ -395,7 +409,7 @@ export class BudgetFacade {
       monthYear: current?.monthYear || new Date().toISOString().substring(0, 7),
       totalBudgetGhs: newCeiling,
       plannedDailyBudgetGhs: isDisc ? 0 : Math.round(newCeiling / 30),
-      exchangeRateXof: current?.exchangeRateXof || 42.0,
+      exchangeRateXof: current?.exchangeRateXof || this.currencyService.exchangeRate() || 0,
       isDiscoveryMode: isDisc,
       cycleStartDay: current?.cycleStartDay || 1
     };
@@ -455,7 +469,7 @@ export class BudgetFacade {
       monthYear: new Date().toISOString().substring(0, 7),
       totalBudgetGhs: newCeiling,
       plannedDailyBudgetGhs: Math.round(newCeiling / 30),
-      exchangeRateXof: currentBudget?.exchangeRateXof || 42.0,
+      exchangeRateXof: currentBudget?.exchangeRateXof || this.currencyService.exchangeRate() || 0,
       isDiscoveryMode: false,
       cycleStartDay: currentBudget?.cycleStartDay || 1
     };

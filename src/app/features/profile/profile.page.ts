@@ -134,7 +134,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     monthYear: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
     totalBudgetGhs: 0,
     plannedDailyBudgetGhs: 0,
-    exchangeRateXof: 42.0,
+    exchangeRateXof: 0,
     isDiscoveryMode: true,
     discoveryCompleted: false
   };
@@ -249,11 +249,27 @@ export class ProfilePage implements OnInit, OnDestroy {
     const profile = this.profileFacade.userProfile();
     if (profile) {
       this.userProfile = { ...profile };
+      if (profile.primaryCurrency) {
+        await this.currencyService.setCurrency(profile.primaryCurrency);
+        await this.currencyService.setSecondaryCurrency(profile.primaryCurrency === 'GHS' ? 'XOF' : 'GHS');
+      }
     }
 
     const budget = this.budgetFacade.monthlyBudget();
     if (budget) {
       this.monthlyBudget = { ...budget };
+      if (budget.exchangeRateXof && budget.exchangeRateXof > 0) {
+        await this.currencyService.setExchangeRate(budget.exchangeRateXof);
+      }
+    }
+
+    // Automatically sync live rate if no exchange rate defined yet
+    if (!this.monthlyBudget.exchangeRateXof || this.monthlyBudget.exchangeRateXof === 0) {
+      const live = await this.currencyService.fetchAndApplyLiveRate();
+      if (live) {
+        this.monthlyBudget.exchangeRateXof = live.rate;
+        this.liveRateInfo = live;
+      }
     }
 
     this.categories = [...this.budgetFacade.categories()];
@@ -299,6 +315,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     this.userProfile.primaryCurrency = guessedCurr;
     await this.currencyService.setCurrency(guessedCurr);
     await this.currencyService.setSecondaryCurrency(guessedCurr === 'GHS' ? 'XOF' : 'GHS');
+    await this.fetchLiveRate();
   }
 
   selectSuggestedCampus(camp: string): void {
@@ -322,8 +339,11 @@ export class ProfilePage implements OnInit, OnDestroy {
       this.rateStatusText = `Live API Rate: 1 ${result.base} = ${result.rate} ${result.target}`;
       this.showToast('Live exchange rate updated from market API!', 'success');
     } else {
-      this.rateStatusText = `Benchmark: 1 ${this.currencyService.activeCurrency()} = ${this.monthlyBudget.exchangeRateXof} ${this.currencyService.secondaryCurrency()}`;
-      this.showToast('Could not reach rate server; current benchmark kept.', 'warning');
+      const currentRate = this.monthlyBudget.exchangeRateXof || this.currencyService.exchangeRate();
+      this.rateStatusText = currentRate > 0
+        ? `Rate: 1 ${this.currencyService.activeCurrency()} = ${currentRate} ${this.currencyService.secondaryCurrency()}`
+        : 'Offline: Enter negotiated rate';
+      this.showToast('Could not reach rate server; current rate kept.', 'warning');
     }
   }
 
@@ -334,7 +354,7 @@ export class ProfilePage implements OnInit, OnDestroy {
   }
 
   get dailyAllowanceSecondary(): number {
-    const rate = this.monthlyBudget.exchangeRateXof || 42;
+    const rate = this.monthlyBudget.exchangeRateXof || this.currencyService.exchangeRate() || 0;
     return Math.round(this.dailyAllowance * rate);
   }
 
@@ -342,6 +362,11 @@ export class ProfilePage implements OnInit, OnDestroy {
     if (!this.userProfile.name.trim()) {
       this.showToast('Please enter your student name or nickname.', 'warning');
       return;
+    }
+
+    if (this.userProfile.primaryCurrency) {
+      await this.currencyService.setCurrency(this.userProfile.primaryCurrency);
+      await this.currencyService.setSecondaryCurrency(this.userProfile.primaryCurrency === 'GHS' ? 'XOF' : 'GHS');
     }
 
     this.userProfile.updatedAt = new Date().toISOString();
@@ -357,6 +382,7 @@ export class ProfilePage implements OnInit, OnDestroy {
     }
 
     await this.currencyService.setCurrency(this.userProfile.primaryCurrency);
+    await this.currencyService.setSecondaryCurrency(this.userProfile.primaryCurrency === 'GHS' ? 'XOF' : 'GHS');
     await this.currencyService.setExchangeRate(this.monthlyBudget.exchangeRateXof);
 
     this.monthlyBudget.plannedDailyBudgetGhs = Math.round(this.monthlyBudget.totalBudgetGhs / 30);

@@ -101,7 +101,8 @@ export class RegisterPage implements OnInit {
 
   primaryCurrency: CurrencyCode = 'GHS';
   secondaryCurrency: CurrencyCode = 'XOF';
-  exchangeRate = 42.0;
+  exchangeRate: number | null = null;
+  userCustomizedRate = false;
   monthlyBudget = 0;
 
   isFetchingLiveRate = false;
@@ -233,6 +234,7 @@ export class RegisterPage implements OnInit {
     const guessedCurr = this.locationService.guessCurrencyForCountry(countryName);
     this.primaryCurrency = guessedCurr;
     this.secondaryCurrency = guessedCurr === 'GHS' ? 'XOF' : 'GHS';
+    this.userCustomizedRate = false;
 
     // 4. Fetch updated live rates
     this.fetchLiveRate();
@@ -248,6 +250,10 @@ export class RegisterPage implements OnInit {
     this.campus = camp;
   }
 
+  onRateInput(): void {
+    this.userCustomizedRate = true;
+  }
+
   async fetchLiveRate(): Promise<void> {
     this.isFetchingLiveRate = true;
     this.rateStatusText = 'Fetching live market rate...';
@@ -257,10 +263,16 @@ export class RegisterPage implements OnInit {
 
     if (result) {
       this.liveRateInfo = result;
-      this.exchangeRate = result.rate;
+      if (!this.userCustomizedRate || this.exchangeRate === null) {
+        this.exchangeRate = result.rate;
+      }
       this.rateStatusText = `Live API Rate: 1 ${result.base} = ${result.rate} ${result.target}`;
     } else {
-      this.rateStatusText = `Benchmark Rate: 1 ${this.primaryCurrency} = ${this.exchangeRate} ${this.secondaryCurrency}`;
+      if (this.exchangeRate && this.exchangeRate > 0) {
+        this.rateStatusText = `Applied Rate: 1 ${this.primaryCurrency} = ${this.exchangeRate} ${this.secondaryCurrency}`;
+      } else {
+        this.rateStatusText = 'Offline: Enter street rate';
+      }
     }
   }
 
@@ -294,7 +306,8 @@ export class RegisterPage implements OnInit {
   }
 
   get dailyAllowanceSecondary(): number {
-    return Math.round(this.dailyAllowance * this.exchangeRate);
+    const rate = this.exchangeRate || this.liveRateInfo?.rate || this.currencyService.exchangeRate() || 0;
+    return Math.round(this.dailyAllowance * rate);
   }
 
   async completeRegistration(): Promise<void> {
@@ -318,8 +331,12 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    if (this.exchangeRate <= 0) {
-      this.showToast('Exchange rate must be greater than zero.', 'warning');
+    const effectiveRate = this.exchangeRate && this.exchangeRate > 0
+      ? this.exchangeRate
+      : (this.liveRateInfo?.rate || this.currencyService.exchangeRate());
+
+    if (!effectiveRate || effectiveRate <= 0) {
+      this.showToast('Please enter a valid exchange rate.', 'warning');
       return;
     }
 
@@ -351,7 +368,7 @@ export class RegisterPage implements OnInit {
       id: existingBudget?.id || currentMonthKey,
       monthYear: existingBudget?.monthYear || currentMonthKey,
       totalBudgetGhs: 0,
-      exchangeRateXof: this.exchangeRate,
+      exchangeRateXof: effectiveRate,
       plannedDailyBudgetGhs: 0,
       isDiscoveryMode: true,
       discoveryCompleted: false,
@@ -362,7 +379,7 @@ export class RegisterPage implements OnInit {
     // 3. Update Currency Service
     await this.currencyService.setCurrency(this.primaryCurrency);
     await this.currencyService.setSecondaryCurrency(this.secondaryCurrency);
-    await this.currencyService.setExchangeRate(this.exchangeRate);
+    await this.currencyService.setExchangeRate(effectiveRate);
 
     const welcomeMsg = `Welcome, ${profile.name}! Discovery Mode activated. Mr. Pognon will observe your campus expenses until day ${safeCycleDay}.`;
     await this.showToast(welcomeMsg, 'success');

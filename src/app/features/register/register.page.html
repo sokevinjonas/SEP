@@ -318,14 +318,15 @@
                 type="number"
                 [label]="'Applied Rate (1 ' + primaryCurrency + ' in ' + secondaryCurrency + ')'"
                 labelPlacement="stacked"
-                placeholder="e.g. 42.0"
+                [placeholder]="isFetchingLiveRate ? 'Fetching live rate...' : (liveRateInfo?.rate ? '' + liveRateInfo.rate : 'Live rate')"
                 [(ngModel)]="exchangeRate"
+                (ionInput)="onRateInput()"
                 min="0.01"
-                step="0.1">
+                step="0.01">
               </ion-input>
             </ion-item>
             <p class="rate-hint">
-              Market API rate applied automatically. You can fine-tune to match your local street rate.
+              Live market API rate applied automatically. You can fine-tune to match your local street rate.
             </p>
           </div>
         </ion-card-content>

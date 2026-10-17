@@ -59,7 +59,7 @@
             <p class="item-desc">Primary &amp; Secondary</p>
           </ion-label>
           <ion-badge color="light" slot="end" class="currency-tag">
-            {{ userProfile.primaryCurrency }} ⇄ {{ currencyService.secondaryCurrency() }}
+            {{ userProfile.primaryCurrency || currencyService.activeCurrency() }} ⇄ {{ currencyService.secondaryCurrency() }}
           </ion-badge>
         </ion-item>
 
@@ -73,7 +73,7 @@
             <p class="item-desc">FX engine &amp; negotiated rate</p>
           </ion-label>
           <ion-note slot="end" class="item-value-note rate-val">
-            1 = {{ monthlyBudget.exchangeRateXof }}
+            1 = {{ monthlyBudget.exchangeRateXof || currencyService.exchangeRate() || '-' }}
           </ion-note>
         </ion-item>
 
@@ -306,8 +306,10 @@
             <ion-icon name="cash-outline" slot="start" class="modal-field-icon"></ion-icon>
             <ion-input type="number"
               [label]="'Street Negotiated Rate (1 ' + userProfile.primaryCurrency + ' to ' + currencyService.secondaryCurrency() + ')'"
-              labelPlacement="stacked" placeholder="e.g. 42.0" [(ngModel)]="monthlyBudget.exchangeRateXof" min="0.01"
-              step="0.1">
+              labelPlacement="stacked"
+              [placeholder]="isFetchingLiveRate ? 'Fetching live rate...' : (liveRateInfo?.rate ? '' + liveRateInfo.rate : (currencyService.exchangeRate() > 0 ? '' + currencyService.exchangeRate() : 'Live rate'))"
+              [(ngModel)]="monthlyBudget.exchangeRateXof" min="0.01"
+              step="0.01">
             </ion-input>
           </ion-item>
 

@@ -22,12 +22,17 @@ export class CurrencyService {
   // Reactive Signals for active currency and exchange rate (1 GHS = X XOF)
   readonly activeCurrency = signal<CurrencyCode>('GHS');
   readonly secondaryCurrency = signal<CurrencyCode>('XOF');
-  readonly exchangeRate = signal<number>(42);
+  readonly exchangeRate = signal<number>(0);
+  readonly liveRateInfo = signal<LiveRateInfo | null>(null);
+  readonly isFetchingLive = signal<boolean>(false);
 
-  // Computed rate description: "1 GHS = 42 XOF"
-  readonly rateDescription = computed(
-    () => `1 ${this.activeCurrency()} = ${this.exchangeRate()} ${this.secondaryCurrency()}`
-  );
+  // Computed rate description: "1 GHS = 50.06 XOF"
+  readonly rateDescription = computed(() => {
+    const rate = this.exchangeRate() || this.liveRateInfo()?.rate || 0;
+    return rate > 0
+      ? `1 ${this.activeCurrency()} = ${rate} ${this.secondaryCurrency()}`
+      : `1 ${this.activeCurrency()} = - ${this.secondaryCurrency()}`;
+  });
 
   constructor() {
     this.initFromDb();
@@ -40,9 +45,25 @@ export class CurrencyService {
     }
 
     const budget = await this.budgetRepo.getMonthlyBudget();
-    if (budget && budget.exchangeRateXof) {
+    if (budget && budget.exchangeRateXof && budget.exchangeRateXof > 0) {
       this.exchangeRate.set(budget.exchangeRateXof);
+    } else {
+      // If no stored exchange rate yet, automatically fetch live rate in background
+      this.fetchAndApplyLiveRate();
     }
+  }
+
+  async fetchAndApplyLiveRate(): Promise<LiveRateInfo | null> {
+    this.isFetchingLive.set(true);
+    const info = await this.fetchLiveRate(this.activeCurrency(), this.secondaryCurrency());
+    this.isFetchingLive.set(false);
+    if (info) {
+      this.liveRateInfo.set(info);
+      if (this.exchangeRate() === 0) {
+        this.exchangeRate.set(info.rate);
+      }
+    }
+    return info;
   }
 
   /**
@@ -110,11 +131,12 @@ export class CurrencyService {
   }
 
   toXof(amountGhs: number): number {
-    return Math.round(amountGhs * this.exchangeRate());
+    const rate = this.exchangeRate() || this.liveRateInfo()?.rate || 0;
+    return Math.round(amountGhs * rate);
   }
 
   toGhs(amountXof: number): number {
-    const rate = this.exchangeRate();
+    const rate = this.exchangeRate() || this.liveRateInfo()?.rate || 0;
     return rate > 0 ? parseFloat((amountXof / rate).toFixed(2)) : 0;
   }
 
