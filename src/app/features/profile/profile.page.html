@@ -344,7 +344,7 @@
 
       <ion-content class="ion-padding modal-content">
         <!-- Budget Mode Selection -->
-        <ion-item class="sep-input-item modal-input-item select-field" lines="none">
+        <ion-item class="sep-input-item modal-input-item select-field" lines="none" *ngIf="!monthlyBudget.discoveryCompleted && !userProfile.discoveryCompleted">
           <ion-icon name="sparkles-outline" slot="start" class="modal-field-icon"></ion-icon>
           <ion-select label="Budget Strategy" labelPlacement="stacked"
             [value]="monthlyBudget.isDiscoveryMode ? 'discovery' : 'fixed'"

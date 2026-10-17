@@ -1,13 +1,11 @@
 import { Component, Output, EventEmitter } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { IonButton, IonIcon } from '@ionic/angular';
-import { addIcons } from 'ionicons';
-import { addOutline, flameOutline, flashOutline } from 'ionicons/icons';
+import { IonButton } from '@ionic/angular';
 
 @Component({
   selector: 'app-action-bar',
   standalone: true,
-  imports: [CommonModule, IonButton, IonIcon],
+  imports: [CommonModule, IonButton],
   templateUrl: './action-bar.component.html',
   styleUrls: ['./action-bar.component.scss']
 })
@@ -16,7 +14,6 @@ export class ActionBarComponent {
   @Output() quickLog = new EventEmitter<void>();
 
   constructor() {
-    addIcons({ addOutline, flameOutline, flashOutline });
   }
 
   onWantToBuy() {

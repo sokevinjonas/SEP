@@ -229,54 +229,31 @@ export class HomePage implements OnInit {
   }
 
   async openAiBudgetProposal(): Promise<void> {
-    const totalSpent = this.consumption().totalSpentGhs;
-    const daysElapsed = this.consumption().cycleDaysElapsed || 1;
-    const daysTotal = this.consumption().cycleDaysTotal || 30;
-    const cycleDay = this.consumption().cycleStartDay || 1;
+    const suggestion = this.budgetFacade.getAiBudgetSuggestion();
 
-    // Estimate realistic monthly target:
-    // If user has tracked for at least a few days, project to 30 days and round to clean ceiling
-    let suggestedBudget = 500;
-    if (totalSpent > 0 && daysElapsed > 0) {
-      const projected = (totalSpent / daysElapsed) * daysTotal;
-      suggestedBudget = Math.max(100, Math.round(projected / 50) * 50);
-    }
+    const conclusionsList = suggestion.conclusions && suggestion.conclusions.length > 0
+      ? suggestion.conclusions.map(c => `• ${c}`).join('\n')
+      : '• Normal spending pattern observed across campus.';
+
+    const breakdownList = suggestion.suggestedBreakdown && suggestion.suggestedBreakdown.length > 0
+      ? `\n\nAutomated Envelope Blueprint:\n` + suggestion.suggestedBreakdown.map(b => `• ${b.categoryName}: ${b.suggestedAllocationGhs} GHS (${b.percentage}%)`).join('\n')
+      : '';
 
     const alert = await this.alertCtrl.create({
-      header: 'M. Pognon AI Proposal',
-      subHeader: `Observation: ${totalSpent.toFixed(2)} GHS tracked over ${daysElapsed} day(s)`,
-      message: `Based on your real campus spending velocity, M. Pognon projects an optimal monthly allowance target of ${suggestedBudget} GHS (~${this.currencyService.toXof(suggestedBudget).toLocaleString()} XOF).\n\nWould you like to adopt this as your target monthly budget ceiling now?`,
+      header: 'M. Pognon Financial Audit',
+      subHeader: `Audit: ${suggestion.totalSpent.toFixed(2)} GHS in ${suggestion.daysElapsed} day(s) · Burn Rate: ${suggestion.dailyBurnRate.toFixed(2)} GHS/day`,
+      message: `${conclusionsList}${breakdownList}\n\nRecommended Monthly Ceiling: ${suggestion.suggestedBudget} GHS (~${this.currencyService.toXof(suggestion.suggestedBudget).toLocaleString()} XOF).\n\nM. Pognon will auto-configure all category envelopes and transition your vault. Proceed?`,
       buttons: [
         {
           text: 'Continue in Discovery Mode',
           role: 'cancel'
         },
         {
-          text: `Adopt ${suggestedBudget} GHS Budget`,
+          text: 'Adopt & Auto-Configure',
           handler: async () => {
-            const currentBudget = this.budgetFacade.monthlyBudget();
-            const updatedBudget = {
-              id: currentBudget?.id || '2026-10',
-              monthYear: currentBudget?.monthYear || '2026-10',
-              totalBudgetGhs: suggestedBudget,
-              exchangeRateXof: currentBudget?.exchangeRateXof || 42.0,
-              plannedDailyBudgetGhs: Math.round(suggestedBudget / 30),
-              isDiscoveryMode: false,
-              cycleStartDay: cycleDay
-            };
-            await this.budgetFacade.saveMonthlyBudget(updatedBudget);
-
-            const profile = this.userProfile();
-            if (profile) {
-              await this.profileFacade.saveUserProfile({
-                ...profile,
-                budgetMode: 'fixed',
-                updatedAt: new Date().toISOString()
-              });
-            }
-
+            await this.budgetFacade.adoptAiSuggestedBudget(suggestion.suggestedBudget, suggestion.suggestedBreakdown);
             const toast = await this.toastCtrl.create({
-              message: `Personalized budget of ${suggestedBudget} GHS adopted! Breathing balance is now active.`,
+              message: `Personalized budget of ${suggestion.suggestedBudget} GHS adopted! Envelopes auto-allocated.`,
               duration: 3000,
               color: 'success',
               position: 'top'
@@ -328,7 +305,7 @@ export class HomePage implements OnInit {
             await this.budgetFacade.addAllowanceTopUp(amount);
 
             const toast = await this.toastCtrl.create({
-              message: `💰 Top-up of +${amount.toFixed(2)} GHS added! Your breathing balance has increased.`,
+              message: `Top-up of +${amount.toFixed(2)} GHS added! Your breathing balance has increased.`,
               duration: 3500,
               color: 'success',
               position: 'top'
@@ -358,7 +335,7 @@ export class HomePage implements OnInit {
 
     const alert = await this.alertCtrl.create({
       header: `Cycle Day ${cycleDay} · Month Rollover`,
-      subHeader: isSurplus ? `🎉 Congratulations ${studentName}! You finished with a surplus!` : `Month Review`,
+      subHeader: isSurplus ? `Congratulations ${studentName}! You finished with a surplus!` : `Month Review`,
       message: isSurplus
         ? `You have a remaining surplus of ${balance.toFixed(2)} GHS!\n\nCurrent Savings Vault: ${vault.toFixed(2)} GHS.\n\nWhat would you like to do with this surplus for the next cycle?`
         : `You used your allowance this cycle. Reset your monthly allowance for the new cycle?`,
@@ -381,11 +358,11 @@ export class HomePage implements OnInit {
           }
         },
         {
-          text: `Lock into Student Vault 🏦`,
+          text: 'Lock into Student Vault',
           handler: async () => {
             const res = await this.budgetFacade.executeCycleRollover('save_to_vault');
             const toast = await this.toastCtrl.create({
-              message: `🏆 ${res.surplusGhs.toFixed(0)} GHS locked into your Student Savings Vault (Total: ${res.newSavingsVaultGhs.toFixed(0)} GHS)!`,
+              message: `${res.surplusGhs.toFixed(0)} GHS locked into your Student Savings Vault (Total: ${res.newSavingsVaultGhs.toFixed(0)} GHS)!`,
               duration: 4000,
               color: 'success',
               position: 'top'

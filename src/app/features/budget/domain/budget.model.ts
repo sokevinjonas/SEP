@@ -22,6 +22,17 @@ export interface AiBudgetRecommendation {
   daysElapsed: number;
   daysTotal: number;
   cycleStartDay: number;
+  dailyBurnRate: number;
+  topCategoryName: string;
+  topCategorySpent: number;
+  topCategoryPercent: number;
+  conclusions: string[];
+  suggestedBreakdown: {
+    categoryId: string;
+    categoryName: string;
+    suggestedAllocationGhs: number;
+    percentage: number;
+  }[];
 }
 
 /**

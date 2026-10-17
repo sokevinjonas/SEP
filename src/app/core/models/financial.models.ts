@@ -37,6 +37,8 @@ export interface MonthlyBudget {
     suggestedAllocationGhs: number;
     percentage: number;
   }[];
+  discoveryCompleted?: boolean;
+  discoveryCompletedAt?: string;
 }
 
 export interface Purchase {
@@ -74,6 +76,8 @@ export interface UserProfile {
   budgetMode?: 'fixed' | 'discovery';
   cycleStartDay?: number; // 1 to 28, default 1
   savingsVaultGhs?: number; // Accumulated student savings from completed cycles
+  discoveryCompleted?: boolean;
+  discoveryCompletedAt?: string;
   createdAt: string;
   updatedAt: string;
 }

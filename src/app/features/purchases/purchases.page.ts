@@ -129,9 +129,9 @@ export class PurchasesPage implements OnInit {
    */
   async confirmAbandon(purchase: Purchase): Promise<void> {
     const alert = await this.alertCtrl.create({
-      header: 'Victory over Impulse! 🏆',
+      header: 'Victory over Impulse!',
       subHeader: `Abandon ${purchase.title}?`,
-      message: `By letting this go, you save ${purchase.amountGhs} GHS (${purchase.costInBudgetDays.toFixed(1)} days of budget). This amount will be added to your Total Saved trophy card!`,
+      message: `By letting this go, you save ${purchase.amountGhs} GHS (${purchase.costInBudgetDays.toFixed(1)} days of budget). This amount will be added to your Total Saved card!`,
       buttons: [
         {
           text: 'Still thinking',
@@ -145,7 +145,7 @@ export class PurchasesPage implements OnInit {
             this.triggerCelebration();
 
             const toast = await this.toastCtrl.create({
-              message: `🎉 Excellent choice ${this.studentName}! +${purchase.amountGhs} GHS added to your Anti-Impulse Trophy!`,
+              message: `Excellent choice ${this.studentName}! +${purchase.amountGhs} GHS added to your Anti-Impulse Total!`,
               duration: 3500,
               color: 'success',
               position: 'top'

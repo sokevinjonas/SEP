@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">sep-app-init</string>
-    <string name="title_activity_main">sep-app-init</string>
+    <string name="app_name">Student Savings</string>
+    <string name="title_activity_main">Student Savings</string>
     <string name="package_name">com.kgslab.sep</string>
     <string name="custom_url_scheme">com.kgslab.sep</string>
 </resources>

@@ -25,8 +25,14 @@ export class BudgetState {
     this._monthlyBudget()?.plannedDailyBudgetGhs ?? 20
   );
 
-  readonly isDiscoveryMode = computed(() =>
-    !!this._monthlyBudget()?.isDiscoveryMode || this._monthlyBudget()?.totalBudgetGhs === 0
+  readonly isDiscoveryMode = computed(() => {
+    const budget = this._monthlyBudget();
+    if (budget?.discoveryCompleted) return false;
+    return !!budget?.isDiscoveryMode || budget?.totalBudgetGhs === 0;
+  });
+
+  readonly discoveryCompleted = computed(() =>
+    !!this._monthlyBudget()?.discoveryCompleted
   );
 
   readonly cycleStartDay = computed(() =>

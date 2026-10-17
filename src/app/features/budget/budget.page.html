@@ -5,7 +5,7 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="budget-content">
-  <div class="sep-page-container has-bottom-bars">
+  <div class="sep-page-container budget-page-container has-bottom-bars">
 
     <!-- =========================================================================
          1. M. POGNON AI COACH BANNER
@@ -37,9 +37,43 @@
     </div>
 
     <!-- =========================================================================
-         2. ENVELOPE CARDS GRID
+         2. DISCOVERY MODE AUDIT BANNER (Compact & Sleek)
+         ========================================================================= -->
+    <div *ngIf="isDiscoveryMode()" class="sep-card interactive discovery-audit-strip" (click)="openAiBudgetProposal()">
+      <div class="strip-left">
+        <div class="strip-icon-box">
+          <ion-icon name="sparkles-outline"></ion-icon>
+        </div>
+        <div class="strip-info">
+          <div class="strip-title-row">
+            <span class="strip-title">M. Pognon Financial Audit</span>
+            <span class="strip-badge">Discovery</span>
+          </div>
+          <span class="strip-desc">Tap to view AI analysis &amp; auto-allocate envelopes</span>
+        </div>
+      </div>
+
+      <div class="strip-right">
+        <span class="strip-action-text">Audit Plan</span>
+        <ion-icon name="chevron-forward-outline"></ion-icon>
+      </div>
+    </div>
+
+    <!-- =========================================================================
+         3. ENVELOPE CARDS GRID
          ========================================================================= -->
     <div class="section-wrapper">
+      <!-- Section Header -->
+      <div class="section-header-row" *ngIf="envelopes().length > 0">
+        <div class="section-title-wrap">
+          <h3 class="section-title">Category Envelope Allocations</h3>
+          <span class="section-subtitle">({{ envelopes().length }})</span>
+        </div>
+        <span class="section-budget-pill" *ngIf="budgetFacade.monthlyBudget()?.totalBudgetGhs">
+          Limit: {{ budgetFacade.monthlyBudget()?.totalBudgetGhs }} GHS
+        </span>
+      </div>
+
       <!-- Empty state when no envelopes -->
       <div *ngIf="envelopes().length === 0" class="sep-empty-state">
         <div class="empty-icon-circle">
@@ -135,7 +169,7 @@
             </div>
           </div>
 
-          <div class="strategy-card" [class.selected]="editBudgetMode === 'discovery'"
+          <div *ngIf="!discoveryCompleted()" class="strategy-card" [class.selected]="editBudgetMode === 'discovery'"
             (click)="editBudgetMode = 'discovery'">
             <div class="strategy-icon-box discovery-box">
               <ion-icon name="sparkles-outline"></ion-icon>

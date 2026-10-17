@@ -101,9 +101,10 @@ export class PognonChatModalComponent implements OnInit {
   allExpenses: Expense[] = [];
 
   quickSuggestions = [
+    'Audit & Auto-Setup Envelopes',
+    'Log 15 GHS for Food',
     'Can I afford sneakers this weekend?',
-    'Give me a plan to finish the month',
-    'How do I cut my cafeteria food budget?'
+    'Undo last expense'
   ];
 
   constructor() {
@@ -193,7 +194,7 @@ export class PognonChatModalComponent implements OnInit {
     const welcomeMsg: ChatMessage = {
       id: generateUuidV7(),
       sender: 'pognon',
-      text: `Hey ${studentName}! My eyes are glued to your ledger. You have ${balance} ${curr} of breathing room left this cycle. What desire is tempting you or what do you want to audit?`,
+      text: `Hey ${studentName}! My eyes are glued to your ledger. You have ${balance} ${curr} of breathing room left this cycle. What desire is tempting you, or what action would you like me to execute?`,
       time: this.formatNow()
     };
 
@@ -230,6 +231,146 @@ export class PognonChatModalComponent implements OnInit {
     this.sendMessage();
   }
 
+  /**
+   * M. Pognon Agentic Execution Engine:
+   * Parses text commands and directly executes CRUD or state modifications on behalf of the student.
+   */
+  private async tryExecuteAgenticAction(text: string): Promise<string | null> {
+    const lower = text.toLowerCase();
+
+    // 1. Audit & Auto-Setup Budget / Discovery Graduation
+    if (
+      lower.includes('audit') ||
+      lower.includes('adopt budget') ||
+      lower.includes('auto-setup') ||
+      lower.includes('setup envelopes') ||
+      lower.includes('auto-configure') ||
+      lower.includes('analyze my spending') ||
+      lower.includes('analyze spending') ||
+      lower.includes('discovery report')
+    ) {
+      const suggestion = this.budgetFacade.getAiBudgetSuggestion();
+      await this.budgetFacade.adoptAiSuggestedBudget(suggestion.suggestedBudget, suggestion.suggestedBreakdown);
+      await this.loadFinancialContext();
+
+      const conclusionsFormatted = suggestion.conclusions.map(c => `• ${c}`).join('\n');
+      const breakdownFormatted = suggestion.suggestedBreakdown.map(b => `• ${b.categoryName}: ${b.suggestedAllocationGhs} GHS (${b.percentage}%)`).join('\n');
+
+      return `I have conducted a complete audit of your campus ledger:\n` +
+        `• Total Spent: ${suggestion.totalSpent.toFixed(2)} GHS across ${suggestion.daysElapsed} day(s)\n` +
+        `• Daily Burn Velocity: ${suggestion.dailyBurnRate.toFixed(2)} GHS/day\n` +
+        `• Top Category: ${suggestion.topCategoryName} (${suggestion.topCategoryPercent}% of budget)\n\n` +
+        `Key Findings:\n${conclusionsFormatted}\n\n` +
+        `Automated Envelope Blueprint:\n${breakdownFormatted}\n\n` +
+        `Done! I have automatically configured your monthly budget ceiling to ${suggestion.suggestedBudget} GHS and allocated all your category envelopes. Discovery Mode has graduated into Active Budgeting!`;
+    }
+
+    // 2. Undo / Delete Last Expense CRUD
+    if (
+      lower.includes('undo') ||
+      lower.includes('delete last expense') ||
+      lower.includes('cancel last expense') ||
+      lower.includes('remove last expense')
+    ) {
+      const expenses = [...this.expensesFacade.expenses()];
+      if (expenses.length > 0) {
+        expenses.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+        const lastExp = expenses[0];
+        await this.expensesFacade.deleteExpense(lastExp.id);
+        await this.loadFinancialContext();
+        const balance = this.consumption?.balanceGhs.toFixed(2) || '0.00';
+        return `Done! I have deleted your last expense of ${lastExp.amount.toFixed(2)} ${lastExp.currency} for "${lastExp.merchant || lastExp.categoryName}". Your ledger balance is restored to ${balance} GHS.`;
+      } else {
+        return `You have no recent expenses recorded in your ledger to undo.`;
+      }
+    }
+
+    // 3. Log Expense CRUD
+    const expenseMatch = lower.match(/(?:log|spent|pay|paid|bought|add\s+expense)\s+(?:an?\s+expense\s+of\s+)?(\d+(?:\.\d+)?)\s*(?:ghs|cedis|xof)?(?:\s+(?:for|on)?\s*([a-z\s]+))?/i);
+    if (expenseMatch) {
+      const amount = parseFloat(expenseMatch[1]);
+      if (amount > 0) {
+        const rawTarget = (expenseMatch[2] || '').trim();
+        const cats = this.budgetFacade.categories();
+        let matchedCat = cats.find(c => rawTarget && c.name.toLowerCase().includes(rawTarget.toLowerCase()))
+          || cats.find(c => c.name.toLowerCase().includes('food') || c.id === 'cat_food')
+          || cats[0];
+
+        if (rawTarget.includes('transport') || rawTarget.includes('trotro') || rawTarget.includes('uber') || rawTarget.includes('bus')) {
+          matchedCat = cats.find(c => c.name.toLowerCase().includes('transport')) || matchedCat;
+        } else if (rawTarget.includes('book') || rawTarget.includes('course') || rawTarget.includes('school') || rawTarget.includes('legon')) {
+          matchedCat = cats.find(c => c.name.toLowerCase().includes('academics') || c.name.toLowerCase().includes('school')) || matchedCat;
+        }
+
+        const activeCurr = this.currencyService.activeCurrency();
+        const amountGhs = activeCurr === 'GHS' ? amount : this.currencyService.toGhs(amount);
+        const now = new Date();
+        const yyyy = now.getFullYear();
+        const mm = String(now.getMonth() + 1).padStart(2, '0');
+        const merchant = rawTarget ? rawTarget.charAt(0).toUpperCase() + rawTarget.slice(1) : matchedCat.name;
+
+        const expense: Expense = {
+          id: generateUuidV7(),
+          amount,
+          currency: (activeCurr === 'XOF' ? 'XOF' : 'GHS') as 'GHS' | 'XOF',
+          categoryId: matchedCat.id,
+          categoryName: matchedCat.name,
+          merchant,
+          note: 'Logged via M. Pognon AI Agent',
+          date: now.toISOString(),
+          source: 'manual',
+          createdAt: now.toISOString()
+        };
+
+        await this.expensesFacade.addExpense(expense);
+        await this.loadFinancialContext();
+
+        const balance = this.consumption?.balanceGhs.toFixed(2) || '0.00';
+        return `Done! I have automatically logged an expense of ${amount.toFixed(2)} ${activeCurr} for ${matchedCat.name} (${merchant}). Your remaining breathing room is now ${balance} GHS.`;
+      }
+    }
+
+    // 4. Update Category Envelope Allocation CRUD
+    const allocMatch = lower.match(/(?:set|allocate|change|update)\s+([a-z\s]+?)\s+(?:envelope\s+|allocation\s+)?to\s+(\d+(?:\.\d+)?)/i)
+      || lower.match(/(?:allocate|set)\s+(\d+(?:\.\d+)?)\s*(?:ghs)?\s+to\s+([a-z\s]+)/i);
+
+    if (allocMatch) {
+      let catNameStr = '';
+      let amountVal = 0;
+      if (isNaN(Number(allocMatch[1]))) {
+        catNameStr = allocMatch[1].trim();
+        amountVal = parseFloat(allocMatch[2]);
+      } else {
+        amountVal = parseFloat(allocMatch[1]);
+        catNameStr = allocMatch[2].trim();
+      }
+
+      if (amountVal > 0) {
+        const cats = this.budgetFacade.categories();
+        const matched = cats.find(c => c.name.toLowerCase().includes(catNameStr.toLowerCase()));
+        if (matched) {
+          await this.budgetFacade.updateCategoryAllocation(matched.id, amountVal);
+          await this.loadFinancialContext();
+          return `Done! I updated the allocation for your "${matched.name}" envelope to ${amountVal} GHS.`;
+        }
+      }
+    }
+
+    // 5. Top-up allowance
+    const topUpMatch = lower.match(/(?:top\s*up|add\s+allowance)\s+(\d+(?:\.\d+)?)/i);
+    if (topUpMatch) {
+      const topUpAmount = parseFloat(topUpMatch[1]);
+      if (topUpAmount > 0) {
+        await this.budgetFacade.addAllowanceTopUp(topUpAmount);
+        await this.loadFinancialContext();
+        const balance = this.consumption?.balanceGhs.toFixed(2) || '0.00';
+        return `Done! I added a top-up of +${topUpAmount.toFixed(2)} GHS to your allowance. Your updated breathing balance is now ${balance} GHS.`;
+      }
+    }
+
+    return null;
+  }
+
   async sendMessage(): Promise<void> {
     const text = this.userInput.trim();
     if (!text || this.isTyping()) return;
@@ -249,7 +390,28 @@ export class PognonChatModalComponent implements OnInit {
     this.cdr.detectChanges();
     this.scrollToBottom();
 
-    // 2. Attempt online backend call to /api/chat (AI LLM)
+    // 2. Check if M. Pognon can directly execute an action on behalf of user
+    const agenticReply = await this.tryExecuteAgenticAction(text);
+    if (agenticReply) {
+      setTimeout(() => {
+        this.messages.update(msgs => [
+          ...msgs,
+          {
+            id: generateUuidV7(),
+            sender: 'pognon',
+            text: agenticReply,
+            time: this.formatNow()
+          }
+        ]);
+        this.saveChatHistory();
+        this.isTyping.set(false);
+        this.cdr.detectChanges();
+        this.scrollToBottom();
+      }, 350);
+      return;
+    }
+
+    // 3. Attempt online backend call to /api/chat (AI LLM)
     if (typeof navigator !== 'undefined' && navigator.onLine) {
       try {
         const controller = new AbortController();
@@ -297,7 +459,7 @@ export class PognonChatModalComponent implements OnInit {
       }
     }
 
-    // 3. Graceful offline fallback with local heuristics
+    // 4. Graceful offline fallback with local heuristics
     setTimeout(() => {
       this.generatePognonResponse(text);
       this.isTyping.set(false);

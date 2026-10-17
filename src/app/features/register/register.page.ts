@@ -100,7 +100,7 @@ export class RegisterPage implements OnInit {
   isLoadingCities = false;
 
   // Financial engine & Budget strategy
-  budgetMode: 'fixed' | 'discovery' = 'fixed';
+  budgetMode: 'fixed' | 'discovery' = 'discovery';
   cycleStartDay = 1;
   customCycleInput = 1;
   showCustomCyclePicker = false;
@@ -390,18 +390,11 @@ export class RegisterPage implements OnInit {
       return;
     }
 
-    if (this.budgetMode === 'fixed' && (this.monthlyBudget <= 0 || this.exchangeRate <= 0)) {
-      this.showToast('Budget ceiling and exchange rate must be greater than zero.', 'warning');
-      return;
-    }
-
     if (this.exchangeRate <= 0) {
       this.showToast('Exchange rate must be greater than zero.', 'warning');
       return;
     }
 
-    const isDiscovery = this.budgetMode === 'discovery';
-    const effectiveBudget = isDiscovery ? 0 : this.monthlyBudget;
     const safeCycleDay = Math.min(28, Math.max(1, this.cycleStartDay || 1));
 
     // 1. Save User Profile via ProfileFacade
@@ -413,7 +406,8 @@ export class RegisterPage implements OnInit {
       campus: this.campus.trim(),
       primaryCurrency: this.primaryCurrency,
       hasCompletedOnboarding: true,
-      budgetMode: this.budgetMode,
+      budgetMode: 'discovery',
+      discoveryCompleted: false,
       cycleStartDay: safeCycleDay,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString()
@@ -426,10 +420,11 @@ export class RegisterPage implements OnInit {
     const budget: MonthlyBudget = {
       id: existingBudget?.id || '2026-10',
       monthYear: existingBudget?.monthYear || '2026-10',
-      totalBudgetGhs: effectiveBudget,
+      totalBudgetGhs: 0,
       exchangeRateXof: this.exchangeRate,
-      plannedDailyBudgetGhs: isDiscovery ? 0 : Math.round(this.monthlyBudget / 30),
-      isDiscoveryMode: isDiscovery,
+      plannedDailyBudgetGhs: 0,
+      isDiscoveryMode: true,
+      discoveryCompleted: false,
       cycleStartDay: safeCycleDay
     };
     await this.budgetFacade.saveMonthlyBudget(budget);
@@ -439,10 +434,7 @@ export class RegisterPage implements OnInit {
     await this.currencyService.setSecondaryCurrency(this.secondaryCurrency);
     await this.currencyService.setExchangeRate(this.exchangeRate);
 
-    const welcomeMsg = isDiscovery
-      ? `Welcome, ${profile.name}! Discovery Mode activated. M. Pognon will observe your expenses until day ${safeCycleDay}.`
-      : `Welcome, ${profile.name}! Your campus vault with ${effectiveBudget} ${this.primaryCurrency} budget is ready.`;
-
+    const welcomeMsg = `Welcome, ${profile.name}! Discovery Mode activated. Mr. Pognon will observe your campus expenses until day ${safeCycleDay}.`;
     await this.showToast(welcomeMsg, 'success');
 
     // 4. Navigate to main dashboard

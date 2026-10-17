@@ -93,6 +93,7 @@ export class BudgetPage implements OnInit {
   readonly coachAdvice = this.budgetFacade.coachAdvice;
   readonly consumption = this.budgetFacade.consumption;
   readonly isDiscoveryMode = this.budgetFacade.isDiscoveryMode;
+  readonly discoveryCompleted = this.budgetFacade.discoveryCompleted;
 
   // Budget Configuration Modal Form State
   readonly isConfigModalOpen = signal(false);
@@ -195,17 +196,25 @@ export class BudgetPage implements OnInit {
   async openAiBudgetProposal(): Promise<void> {
     const suggestion = this.budgetFacade.getAiBudgetSuggestion();
 
+    const conclusionsList = suggestion.conclusions && suggestion.conclusions.length > 0
+      ? suggestion.conclusions.map(c => `• ${c}`).join('\n')
+      : '• Normal spending pattern observed across campus.';
+
+    const breakdownList = suggestion.suggestedBreakdown && suggestion.suggestedBreakdown.length > 0
+      ? `\n\nAutomated Envelope Blueprint:\n` + suggestion.suggestedBreakdown.map(b => `• ${b.categoryName}: ${b.suggestedAllocationGhs} GHS (${b.percentage}%)`).join('\n')
+      : '';
+
     const alert = await this.alertCtrl.create({
-      header: 'M. Pognon AI Proposal',
-      subHeader: `Observation: ${suggestion.totalSpent.toFixed(2)} GHS over ${suggestion.daysElapsed} day(s)`,
-      message: `Based on your real campus spending velocity, M. Pognon recommends a monthly allowance target of ${suggestion.suggestedBudget} GHS (~${this.currencyService.toXof(suggestion.suggestedBudget).toLocaleString()} XOF).\n\nWould you like to adopt this as your target monthly budget ceiling now?`,
+      header: 'M. Pognon Financial Audit',
+      subHeader: `Audit: ${suggestion.totalSpent.toFixed(2)} GHS in ${suggestion.daysElapsed} day(s) · Burn Rate: ${suggestion.dailyBurnRate.toFixed(2)} GHS/day`,
+      message: `${conclusionsList}${breakdownList}\n\nRecommended Monthly Ceiling: ${suggestion.suggestedBudget} GHS (~${this.currencyService.toXof(suggestion.suggestedBudget).toLocaleString()} XOF).\n\nM. Pognon can automatically configure all envelopes and transition your vault. Proceed?`,
       buttons: [
         { text: 'Keep Observing', role: 'cancel' },
         {
-          text: `Adopt ${suggestion.suggestedBudget} GHS Ceiling`,
+          text: 'Adopt & Auto-Configure',
           handler: async () => {
-            await this.budgetFacade.adoptAiSuggestedBudget(suggestion.suggestedBudget);
-            await this.showToast(`Target budget of ${suggestion.suggestedBudget} GHS adopted!`, 'success');
+            await this.budgetFacade.adoptAiSuggestedBudget(suggestion.suggestedBudget, suggestion.suggestedBreakdown);
+            await this.showToast(`Target budget of ${suggestion.suggestedBudget} GHS and envelopes configured!`, 'success');
           }
         }
       ]

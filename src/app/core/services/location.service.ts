@@ -112,7 +112,7 @@ export class LocationService {
             name: item.country,
             code: item.iso2 || '',
             currency: this.guessCurrencyForCountry(item.country),
-            flag: '🌍'
+            flag: ''
           }));
 
           // Ensure our key student countries are prioritized at the top

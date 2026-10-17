@@ -207,7 +207,7 @@ export class ExpenseDetailModalComponent implements OnInit {
       this.isEditing.set(false);
 
       const toast = await this.toastCtrl.create({
-        message: 'Expense updated successfully! ✓',
+        message: 'Expense updated successfully!',
         duration: 2500,
         color: 'success',
         position: 'top'

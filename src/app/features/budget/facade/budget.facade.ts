@@ -27,6 +27,7 @@ export class BudgetFacade {
   readonly totalBudgetCeilingGhs = this.state.totalBudgetCeilingGhs;
   readonly plannedDailyBudgetGhs = this.state.plannedDailyBudgetGhs;
   readonly isDiscoveryMode = this.state.isDiscoveryMode;
+  readonly discoveryCompleted = this.state.discoveryCompleted;
   readonly cycleStartDay = this.state.cycleStartDay;
   readonly loading = this.state.loading;
   readonly error = this.state.error;
@@ -244,33 +245,130 @@ export class BudgetFacade {
     const daysElapsed = this.consumption().cycleDaysElapsed || 1;
     const daysTotal = this.consumption().cycleDaysTotal || 30;
     const cycleDay = this.consumption().cycleStartDay || 1;
-    const suggested = calculateAiSuggestedBudget(totalSpent, daysElapsed, daysTotal);
+    const monthExpenses = this.expensesFacade.currentMonthExpenses();
+    const categories = this.state.categories();
+
+    // 1. Spending breakdown by category
+    const catMap = new Map<string, number>();
+    for (const exp of monthExpenses) {
+      const cur = catMap.get(exp.categoryId) || 0;
+      catMap.set(exp.categoryId, cur + exp.amount);
+    }
+
+    let topCatName = 'Food & Chop';
+    let topCatSpent = 0;
+    let topCatPercent = 0;
+
+    for (const cat of categories) {
+      const spent = catMap.get(cat.id) || 0;
+      if (spent > topCatSpent) {
+        topCatSpent = spent;
+        topCatName = cat.name;
+      }
+    }
+
+    if (totalSpent > 0) {
+      topCatPercent = Math.round((topCatSpent / totalSpent) * 100);
+    }
+
+    const dailyBurnRate = Number((totalSpent / Math.max(1, daysElapsed)).toFixed(2));
+
+    // 2. Projected ceiling (with 10% safety cushion)
+    let suggestedBudget = 600;
+    if (totalSpent > 0 && daysElapsed > 0) {
+      const projected = (totalSpent / daysElapsed) * daysTotal;
+      suggestedBudget = Math.max(150, Math.round((projected * 1.1) / 50) * 50);
+    }
+
+    // 3. Proportional envelope breakdown
+    const defaultWeights: Record<string, number> = {
+      'cat-food': 0.45,
+      'cat-transport': 0.20,
+      'cat-books': 0.15,
+      'cat-social': 0.10,
+      'cat-utilities': 0.05,
+      'cat-other': 0.05
+    };
+
+    const suggestedBreakdown = categories.map(cat => {
+      let weight = defaultWeights[cat.id] || 0.10;
+      if (totalSpent > 0 && catMap.has(cat.id)) {
+        const actualShare = (catMap.get(cat.id) || 0) / totalSpent;
+        // Blend actual share with a floor to guarantee essential runway
+        weight = Math.max(0.08, actualShare);
+      }
+
+      const allocation = Math.max(20, Math.round((suggestedBudget * weight) / 10) * 10);
+      const percentage = Math.round((allocation / suggestedBudget) * 100);
+
+      return {
+        categoryId: cat.id,
+        categoryName: cat.name,
+        suggestedAllocationGhs: allocation,
+        percentage
+      };
+    });
+
+    // 4. Strategic conclusions by M. Pognon
+    const conclusions: string[] = [];
+    if (totalSpent <= 0) {
+      conclusions.push('No expenses recorded during discovery: initialized safe campus baseline of 600 GHS.');
+      conclusions.push('Recommended 45% allocation to food to prevent dorm food insecurity.');
+      conclusions.push('Allocated 20% for daily campus transit and trotro shuttles.');
+    } else {
+      conclusions.push(`Observed average spend rate: ${dailyBurnRate.toFixed(2)} GHS per day across ${daysElapsed} day(s).`);
+      conclusions.push(`${topCatName} was your dominant outflow, consuming ${topCatPercent}% of your campus cash.`);
+      conclusions.push(`A target ceiling of ${suggestedBudget} GHS includes a 10% safety reserve against semester exam emergencies.`);
+    }
 
     return {
-      suggestedBudget: suggested,
+      suggestedBudget,
       totalSpent,
       daysElapsed,
       daysTotal,
-      cycleStartDay: cycleDay
+      cycleStartDay: cycleDay,
+      dailyBurnRate,
+      topCategoryName: topCatName,
+      topCategorySpent: topCatSpent,
+      topCategoryPercent: topCatPercent,
+      conclusions,
+      suggestedBreakdown
     };
   }
 
   /**
-   * Adopts AI proposed ceiling and switches mode to fixed
+   * Adopts AI proposed ceiling, automatically configures all category envelopes (CRUD),
+   * sets discoveryCompleted: true, and switches mode to fixed.
    */
-  async adoptAiSuggestedBudget(suggestedBudget: number): Promise<void> {
+  async adoptAiSuggestedBudget(
+    suggestedBudget: number,
+    breakdown?: { categoryId: string; categoryName: string; suggestedAllocationGhs: number; percentage: number }[]
+  ): Promise<void> {
     const cycleDay = this.consumption().cycleStartDay || 1;
     const currentBudget = this.state.monthlyBudget();
+    const nowIso = new Date().toISOString();
+
     const updatedBudget: MonthlyBudget = {
       id: currentBudget?.id || 'current',
-      monthYear: currentBudget?.monthYear || new Date().toISOString().substring(0, 7),
+      monthYear: currentBudget?.monthYear || nowIso.substring(0, 7),
       totalBudgetGhs: suggestedBudget,
       exchangeRateXof: currentBudget?.exchangeRateXof || 42.0,
       plannedDailyBudgetGhs: Math.round(suggestedBudget / 30),
       isDiscoveryMode: false,
-      cycleStartDay: cycleDay
+      discoveryCompleted: true,
+      discoveryCompletedAt: nowIso,
+      cycleStartDay: cycleDay,
+      aiSuggestedBudgetGhs: suggestedBudget,
+      aiSuggestedBreakdown: breakdown
     };
     await this.saveMonthlyBudget(updatedBudget);
+
+    // M. Pognon performs automated CRUD updates across all category envelopes
+    if (breakdown && breakdown.length > 0) {
+      for (const item of breakdown) {
+        await this.updateCategoryAllocation(item.categoryId, item.suggestedAllocationGhs);
+      }
+    }
 
     const profile = this.profileFacade.userProfile();
     if (profile) {
@@ -278,7 +376,9 @@ export class BudgetFacade {
         ...profile,
         budgetMode: 'fixed',
         cycleStartDay: cycleDay,
-        updatedAt: new Date().toISOString()
+        discoveryCompleted: true,
+        discoveryCompletedAt: nowIso,
+        updatedAt: nowIso
       });
     }
   }

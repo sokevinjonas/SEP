@@ -230,13 +230,13 @@ export class QuickLogModalComponent implements OnInit {
 
     if (!cons.isDiscoveryMode) {
       if (cons.consumedPercent >= 100) {
-        toastMessage = `⚠️ M. Pognon: Budget ceiling exceeded (${cons.consumedPercent}%)! Freeze non-essential buys.`;
+        toastMessage = `M. Pognon Alert: Budget ceiling exceeded (${cons.consumedPercent}%)! Freeze non-essential buys.`;
         toastColor = 'danger';
       } else if (cons.consumedPercent >= 90) {
-        toastMessage = `🚨 M. Pognon: 90% threshold reached! Only ${cons.balanceGhs.toFixed(0)} GHS remaining.`;
+        toastMessage = `M. Pognon Alert: 90% threshold reached! Only ${cons.balanceGhs.toFixed(0)} GHS remaining.`;
         toastColor = 'warning';
       } else if (cons.consumedPercent >= 70) {
-        toastMessage = `🧐 M. Pognon: 70% threshold crossed. Keep meals to campus cafeteria!`;
+        toastMessage = `M. Pognon Alert: 70% threshold crossed. Keep meals to campus cafeteria!`;
         toastColor = 'warning';
       }
     }

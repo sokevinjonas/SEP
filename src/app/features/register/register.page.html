@@ -116,7 +116,7 @@
                 (ionChange)="onCountryChanged($event.detail.value)"
                 placeholder="Select Country">
                 <ion-select-option *ngFor="let c of countries" [value]="c.name">
-                  {{ c.flag }} {{ c.name }} ({{ c.currency }})
+                  {{ c.name }} ({{ c.currency }})
                 </ion-select-option>
               </ion-select>
               <ion-spinner *ngIf="isLoadingCountries" name="dots" slot="end" class="field-spinner"></ion-spinner>
@@ -188,60 +188,45 @@
     <!-- ============================================== -->
     <!-- STEP 2: BUDGET STRATEGY & CYCLE RESET          -->
     <!-- ============================================== -->
+    <!-- ============================================== -->
+    <!-- STEP 2: CYCLE & DISCOVERY SETUP                -->
+    <!-- ============================================== -->
     <div *ngIf="currentStep === 2" class="step-wrapper step-fade-in">
       <!-- Header Description Card -->
       <div class="intro-banner">
-        <h2 class="banner-heading">Choose Your Budget Strategy</h2>
+        <h2 class="banner-heading">Cycle &amp; Campus Setup</h2>
         <p class="banner-sub">
-          Decide how you want to manage your campus funds: set a structured monthly allowance or start in Discovery Mode to let AI analyze your real expenses.
+          Your first month automatically starts in Discovery Mode. Mr. Pognon will quietly observe your campus spending to build your personalized budget blueprint.
         </p>
       </div>
 
-      <!-- Strategy Selector Cards -->
-      <div class="strategy-cards-grid">
-        <!-- Strategy A: Fixed Monthly Budget -->
-        <div
-          class="strategy-card"
-          [class.selected]="budgetMode === 'fixed'"
-          (click)="selectBudgetMode('fixed')"
-          id="btn-strategy-fixed">
-          <div class="strategy-header">
-            <div class="strategy-icon-wrap fixed-icon">
-              <ion-icon name="wallet-outline"></ion-icon>
-            </div>
-            <div class="strategy-check" *ngIf="budgetMode === 'fixed'">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-            </div>
-          </div>
-          <h3 class="strategy-title">Set Target Budget</h3>
-          <p class="strategy-desc">
-            You know your monthly allowance. Define a spending ceiling and get real-time envelope tracking &amp; burn rate alerts immediately.
-          </p>
-          <span class="strategy-badge" *ngIf="budgetMode === 'fixed'">ACTIVE SELECTION</span>
-        </div>
-
-        <!-- Strategy B: Discovery Mode -->
-        <div
-          class="strategy-card discovery-card"
-          [class.selected]="budgetMode === 'discovery'"
-          (click)="selectBudgetMode('discovery')"
-          id="btn-strategy-discovery">
-          <div class="strategy-header">
-            <div class="strategy-icon-wrap discovery-icon">
+      <!-- Discovery Mode Highlight Card -->
+      <div class="sep-form-card discovery-highlight-card">
+        <div class="discovery-info-banner">
+          <div class="discovery-info-header">
+            <span class="sep-badge safe discovery-active-badge">
               <ion-icon name="sparkles-outline"></ion-icon>
-            </div>
-            <div class="strategy-check" *ngIf="budgetMode === 'discovery'">
-              <ion-icon name="checkmark-circle-outline"></ion-icon>
-            </div>
+              <span>30-Day Discovery Active</span>
+            </span>
+            <span class="reset-date-tag">Cycle resets every {{ cycleStartDay }}th</span>
           </div>
-          <div class="discovery-title-row">
-            <h3 class="strategy-title">Discovery Mode</h3>
-            <span class="ai-pill">AI LEARNING</span>
-          </div>
-          <p class="strategy-desc">
-            New to campus or unsure of costs? Track freely without ceiling limits. At cycle end, M. Pognon AI analyzes your habits &amp; proposes a tailored budget!
+          <p class="discovery-lead">
+            Zero stress on budget ceilings. Log your campus meals, transport, and supplies freely throughout your first cycle.
           </p>
-          <span class="strategy-badge discovery-badge" *ngIf="budgetMode === 'discovery'">ACTIVE SELECTION</span>
+          <div class="discovery-feature-list">
+            <div class="feature-row">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <span>Track expenses naturally without restrictive caps or false alarm warnings.</span>
+            </div>
+            <div class="feature-row">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <span>Mr. Pognon analyzes your category outflows and daily spending velocity.</span>
+            </div>
+            <div class="feature-row">
+              <ion-icon name="checkmark-circle-outline"></ion-icon>
+              <span>At cycle conclusion, receive an in-depth audit report and automated envelope setup.</span>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -253,7 +238,7 @@
             <h2 class="header-title">Allowance Arrival &amp; Cycle Reset</h2>
           </div>
           <p class="sep-card-subheading">
-            When does your allowance arrive? Your monthly budget cycle will automatically renew on this day.
+            When does your allowance or stipend arrive? Your monthly cycle automatically renews on this day.
           </p>
         </ion-card-header>
 
@@ -315,90 +300,9 @@
         </ion-card-content>
       </div>
 
-      <!-- Conditional Budget Details Card -->
+      <!-- Live Rate Engine Box -->
       <div class="sep-form-card">
-        <ion-card-header>
-          <div class="sep-card-header-row">
-            <ion-icon [name]="budgetMode === 'fixed' ? 'wallet-outline' : 'sparkles-outline'" class="header-icon"></ion-icon>
-            <h2 class="header-title">
-              {{ budgetMode === 'fixed' ? 'Monthly Budget Ceiling' : 'Discovery Observation Setup' }}
-            </h2>
-          </div>
-          <p class="sep-card-subheading">
-            {{ budgetMode === 'fixed' ? 'Set your spending limit and conversion rate.' : 'Free tracking with street rate engine.' }}
-          </p>
-        </ion-card-header>
-
         <ion-card-content class="ion-no-padding">
-
-          <!-- Fixed Budget Input Section -->
-          <div *ngIf="budgetMode === 'fixed'" class="budget-ceiling-section">
-            <ion-item class="sep-input-item" lines="none">
-              <ion-icon name="wallet-outline" slot="start" class="input-icon"></ion-icon>
-              <ion-input
-                type="number"
-                [label]="'Monthly Budget Ceiling (' + primaryCurrency + ') *'"
-                labelPlacement="stacked"
-                placeholder="e.g. 600"
-                [(ngModel)]="monthlyBudget"
-                min="10"
-                step="10">
-              </ion-input>
-            </ion-item>
-
-            <!-- Live Dynamic Allowance Preview -->
-            <div class="sep-stat-grid allowance-preview-card">
-              <div class="stat-cell">
-                <span class="stat-label">Daily Allowance</span>
-                <div class="stat-val-row">
-                  <span class="stat-val">{{ dailyAllowance.toFixed(2) }}</span>
-                  <span class="stat-unit">{{ primaryCurrency }}/d</span>
-                </div>
-                <span class="stat-equiv">≈ {{ dailyAllowanceSecondary.toLocaleString() }} {{ secondaryCurrency }}</span>
-              </div>
-
-              <div class="stat-divider"></div>
-
-              <div class="stat-cell">
-                <span class="stat-label">Campus Meals</span>
-                <div class="stat-val-row">
-                  <span class="stat-val">≈ {{ Math.round(monthlyBudget / 15) }}</span>
-                  <span class="stat-unit">meals</span>
-                </div>
-                <span class="stat-equiv">~15 {{ primaryCurrency }} each</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Discovery Mode Highlight Card -->
-          <div *ngIf="budgetMode === 'discovery'" class="discovery-info-banner">
-            <div class="discovery-info-header">
-              <span class="sep-badge safe discovery-active-badge">
-                <ion-icon name="sparkles-outline"></ion-icon>
-                <span>AI Observation Active</span>
-              </span>
-              <span class="reset-date-tag">Cycle resets every {{ cycleStartDay }}th</span>
-            </div>
-            <p class="discovery-lead">
-              Zero stress on numbers! Log your meals, transport, and campus costs freely for your first cycle.
-            </p>
-            <div class="discovery-feature-list">
-              <div class="feature-row">
-                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                <span>No arbitrary budget ceiling or false alarms during your first month.</span>
-              </div>
-              <div class="feature-row">
-                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                <span>On day {{ cycleStartDay }}, M. Pognon AI will analyze your actual spending breakdown.</span>
-              </div>
-              <div class="feature-row">
-                <ion-icon name="checkmark-circle-outline"></ion-icon>
-                <span>You will receive a tailored budget recommendation based on real campus data.</span>
-              </div>
-            </div>
-          </div>
-
-          <!-- Live Rate Engine Box -->
           <div class="live-rate-box">
             <div class="rate-status-row">
               <div class="rate-meta">
@@ -435,10 +339,9 @@
               </ion-input>
             </ion-item>
             <p class="rate-hint">
-              You can use the live market API rate or customize to your negotiated street rate.
+              Market API rate applied automatically. You can fine-tune to match your local street rate.
             </p>
           </div>
-
         </ion-card-content>
       </div>
 
@@ -457,8 +360,8 @@
           class="sep-btn-primary flex-grow"
           (click)="completeRegistration()"
           id="btn-complete-register">
-          <ion-icon slot="start" [name]="budgetMode === 'discovery' ? 'sparkles-outline' : 'shield-checkmark-outline'"></ion-icon>
-          <span>{{ budgetMode === 'discovery' ? 'Launch in Discovery Mode' : 'Complete Setup' }}</span>
+          <ion-icon slot="start" name="shield-checkmark-outline"></ion-icon>
+          <span>Start Campus Journey</span>
         </ion-button>
       </div>
     </div>
